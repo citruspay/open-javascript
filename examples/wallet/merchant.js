@@ -1,9 +1,11 @@
 var http = require('http');
 var https = require('https');
 var fs = require('fs');
+var path = require('path');
 var querystring = require('querystring');
 var crypto = require('crypto');
 var async = require('async');
+var dots = require('dot').process({ path: '.' });
 
 var envs = {
 	production: {
@@ -36,7 +38,10 @@ http.createServer(function(req, res) {
 						res.status = 500;
 						res.end(err);
 					} else {
-						res.end(checkout(token));
+						var model = bill();
+						model.walletToken = token;
+						res.setHeader('Content-Type', 'text/html');
+						res.end(dots.checkout(model));
 					}
 				}
 			);
@@ -60,16 +65,30 @@ http.createServer(function(req, res) {
 
 }).listen(8420);
 
-function resource(path, response) {
+function resource(file, response) {
 	try {
 		fs.readFile(
-			fs.realpathSync(path), 
+			fs.realpathSync(file), 
 			function(err, data) {
 				if (err) {
 					console.log(err);
 					response.statusCode = 404;
 					response.end();
 				} else {
+					switch (path.extname(file)) {
+						case '.html':
+							response.setHeader('Content-Type', 'text/html');
+							break;
+						case '.css':
+							response.setHeader('Content-Type', 'text/css');
+							break;
+						case '.js':
+							response.setHeader('Content-Type', 'application/javascript');
+							break;
+						default:
+							response.setHeader('Content-Type', 'text/plain');
+							break;
+					}
 					response.end(data);
 				}
 			}
@@ -80,70 +99,35 @@ function resource(path, response) {
 	}
 }
 
-function checkout(token) {
-	// read template
-	var template = fs.readFileSync(fs.realpathSync('template.html'));
-	template = String.fromCharCode.apply(String, template);
-
-	// generate bill
-	var bill = {
-		merchantAccessKey: 'LY80PJEZK5TDFWKATHTL',
-		merchantTxnId: generateMtx(),
-		amount: {
-			currency: 'INR',
-			value: Math.floor(1 + 1000 * Math.random())
+function bill() {
+	return sign(
+		{
+			accessKey: 'LY80PJEZK5TDFWKATHTL',
+			returnUrl: 'http://localhost:8420/pg/response',
+			params: {
+				paramOne: 'one value',
+				secundo: 'online'
+			},
+			orderId: 'mtx' + Math.floor(1 + 100000000 * Math.random()),
+			amount: Math.floor(1 + 1000 * Math.random()),
+			user: { email: 'foo@bar.com' }
 		},
-		returnUrl: 'http://localhost:8420/pg/response',
-		
-		userDetails: {
-			firstName: 'urie',
-			lastName: 'reui',
-			email: 'urie@notthere.dk',
-			mobileNo: '9988776655',
-			address: {
-				street1: 'nice house',
-				street2: 'church street',
-				city: 'ramlupi',
-				zip: '1254',
-				state: 'rolloland',
-				country: 'reuna'
-			}
-		},
-		
-		customParameters: {
-			paramOne: 'one value',
-			extension: 'online'
-		}
-	};
-
-	// generate page
-	var page = template.replace(
-		/#{bill}/g, 
-		JSON.stringify(sign(bill, '647c4c37ce8d84d09c83f836faf97aae722e716a')));
-	page = page.replace(
-		/#{token}/g,
-		token);
-
-	// return page
-	return page;
-}
-
-function generateMtx() {
-	return Math.floor(1 + 100000000 * Math.random()).toString();
+		'647c4c37ce8d84d09c83f836faf97aae722e716a'
+	);
 }
 
 function sign(bill, key) {
 	// create data load
-	var data = 'merchantAccessKey=' + bill.merchantAccessKey
-		+ '&transactionId=' + bill.merchantTxnId
-		+ '&amount=' + bill.amount.value;
+	var data = 'merchantAccessKey=' + bill.accessKey
+		+ '&transactionId=' + bill.orderId
+		+ '&amount=' + bill.amount;
 
 	// generate hmac
 	var hmac = crypto.createHmac('sha1', key);
 	hmac.update(data);
 
 	// sign bill
-	bill.requestSignature = hmac.digest('hex');
+	bill.signature = hmac.digest('hex');
 	return bill;
 }
 

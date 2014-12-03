@@ -2,6 +2,47 @@ body {
 	font-family: sans-serif;
 }
 
+div#orderBlock, div#userBlock, div#paymentBlock {
+	display: inline-block;
+	width: 350px;
+	vertical-align: top;
+}
+
+div#orderBlock, div#paymentBlock {
+	float: left;
+	clear: left;
+}
+
+div#userBlock {
+	position: absolute;
+	left: 400px;
+}
+
+div#order, div#userDetails {
+	padding-left: 10px;
+	font-size: 14px;
+}
+
+div#order > div, div#userDetails > div {
+	margin-top: 4px;
+}
+
+div#order label, div#userDetails label {
+	display: inline-block;
+	width: 100px;
+	font-style: italic;
+}
+
+div#order input[type="text"] {
+	border-style: none;
+	font-size: 14px;
+	width: 100px
+}
+
+div#userDetails input[type="text"] {
+	font-size: 14px;
+}
+
 ul#checkout {
 	list-style-type: none;
 	padding: 0;

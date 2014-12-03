@@ -1,5 +1,5 @@
 var citruspg = $.citrus.gateway($.citrus.env.local);
-var citruswallet = $.citrus.wallet($.citrus.env.local, token);
+var citruswallet = $.citrus.wallet($.citrus.env.local, $('#walletToken').val());
 
 function paynow() {
 	// reset errors
@@ -79,9 +79,9 @@ function savedCard(card) { return '\
 <li>\
 	<input type="radio" name="walletToken" id="' + card.token + '"/>\
 	<label for="' + card.token + '">\
-		<span>card ' + card.number + '</span>\
-		<span>expires on ' + card.expiry + '</span>\
-		<span class="cvv">CVV: <input type="text" class="cvv"/></span>\
+		<span>' + card.number + '</span>\
+		<span>' + card.expiry + '</span>\
+		<span class="cvv">cvv: <input type="text" class="cvv"/></span>\
 	</label>\
 </li>\
 ';

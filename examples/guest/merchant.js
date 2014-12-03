@@ -2,9 +2,7 @@ var http = require('http');
 var https = require('https');
 var fs = require('fs');
 var path = require('path');
-var querystring = require('querystring');
 var crypto = require('crypto');
-var async = require('async');
 var dots = require('dot').process({ path: '.' });
 
 var envs = {
