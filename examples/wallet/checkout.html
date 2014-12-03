@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>sample checkout page</title>
+
+	<link rel="stylesheet" type="text/css" href="checkout.css"/>
+
+	<script type="text/javascript">
+		var bill = {
+			merchantAccessKey: '3SVC4479O00000002S3',
+			merchantTxnId: 'xv342',
+			amount: {
+				currency: 'INR',
+				value:1
+			},
+			returnUrl: 'https://yourdomain.com/listen/to/pay/response',
+			
+			userDetails: {
+				firstName: 'urie',
+				lastName: 'reui',
+				email: 'urie@notthere.dk',
+				mobileNo: '9988776655',
+				address: {
+					street1: 'nice house',
+					street2: 'church street',
+					city: 'ramlupi',
+					zip: '1254',
+					state: 'rolloland',
+					country: 'reuna'
+				}
+			},
+			
+			customParameters: {
+				paramOne: 'one value',
+				secundo: 'online'
+			}
+		};
+	</script>
+</head>
+
+<body>
+	<ul id="checkout">
+		<li>
+			<input type="radio" name="paymentMode" id="netbanking" />
+			<label for="netbanking">netbanking</label>
+			<div>
+				<div>
+					<label for="bank">select bank: </label>
+					<select id="bank">
+						<option value="CID001">ICICI Bank</option>
+						<option value="CID002">AXIS Bank</option>
+					</select>
+				</div>
+				<div><button class="pay">make payment</button></div>
+			</div>
+		</li>
+		<li>
+			<input type="radio" name="paymentMode" id="card" />
+			<label for="card">credit / debit card</label>
+			<div>
+				<div>
+					<label for="cardNumber"><span>card number</span></label>
+					<input type="text" id="cardNumber"/>
+				</div>
+				<div>
+					<label for="cardHolder">holder name</label>
+					<input type="text" id="cardHolder"/>
+				</div>
+				<div>
+					<span>
+						<label for="cardExpiry">expiry date</label>
+						<input type="text" id="cardExpiry"/>
+					</span>
+					<span>
+						<label for="cardCvv">cvv</label>
+						<input type="text" id="cardCvv"/>
+					</span>
+				</div>
+				<div><button class="pay">make payment</button></div>
+			</div>
+		</li>
+	</ul>
+	<div id="payerror"></div>
+
+	<script type="text/javascript" src="../jquery.min.js"></script>
+	<script type="text/javascript" src="../jquery.payment.js"></script>
+	<script type="text/javascript" src="../../lib/citrus.js"></script>
+	<script type="text/javascript" src="checkout.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,12 @@
+{
+	"name": "citrus-js",
+	"version": "0.1.0",
+	"description": "Javascript library for Citrus Payment browser-side integration",
+	"dependencies": {
+		"jquery": "~1.11.0"
+	},
+	"devDependencies": {
+		"coffee-script": "~1.8.0",
+		"mocha": "~2.0.0"
+	}
+}

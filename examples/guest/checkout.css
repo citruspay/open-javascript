@@ -1,0 +1,130 @@
+body {
+	font-family: sans-serif;
+}
+
+div#orderBlock, div#userBlock, div#paymentBlock {
+	display: inline-block;
+	width: 350px;
+	vertical-align: top;
+}
+
+div#orderBlock, div#paymentBlock {
+	float: left;
+	clear: left;
+}
+
+div#userBlock {
+	position: absolute;
+	left: 400px;
+}
+
+div#order, div#userDetails {
+	padding-left: 10px;
+	font-size: 14px;
+}
+
+div#order > div, div#userDetails > div {
+	margin-top: 4px;
+}
+
+div#order label, div#userDetails label {
+	display: inline-block;
+	width: 100px;
+	font-style: italic;
+}
+
+div#order input[type="text"] {
+	border-style: none;
+	font-size: 14px;
+	width: 100px
+}
+
+div#userDetails input[type="text"] {
+	font-size: 14px;
+}
+
+ul#checkout {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+
+ul#checkout li {
+	margin-bottom: 10px;
+}
+
+ul#checkout li input[type="radio"] {
+	display: none;
+}
+
+ul#checkout li input[type="radio"] + label {
+	display: inline-block;
+	width: 100%;
+	font-weight: bold;
+	background-color: lightgrey;
+	cursor: pointer;
+	padding: 10px;
+}
+
+ul#checkout li input[type="radio"] + label + div {
+	display: none;
+	font-size: 12px;
+	padding: 10px;
+}
+
+ul#checkout li input[type="radio"] + label + div div {
+	margin-top: 4px;
+}
+
+ul#checkout li input[type="radio"]:checked + label + div {
+	display: block;
+}
+
+label[for="cardNumber"], label[for="cardHolder"], label[for="cardExpiry"] {
+	display: inline-block;
+	width: 70px;
+}
+
+label[for="cardCvv"] {
+	display: inline-block;
+	margin-left: 4px;
+	margin-right: 4px;
+}
+
+input#cardExpiry {
+	width: 6em;
+}
+
+input#cardCvv, input.cvv {
+	width: 3.8em;
+}
+
+input#token + label + div ul {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+
+input#token + label + div ul span {
+	margin-right: 12px;
+}
+
+input#token + label + div ul > li input[type="radio"] + label {
+	display: inline-block;
+	background-color: lightblue;
+	cursor: pointer;
+}
+
+input#token + label + div ul > li input[type="radio"] + label > span.cvv {
+	display: none;
+}
+
+input#token + label + div ul > li input[type="radio"]:checked + label {
+	display: inline-block;
+	background-color: lightgreen;
+	cursor: pointer;
+}
+
+input#token + label + div ul > li input[type="radio"]:checked + label > span.cvv {
+	display: inline;
+}

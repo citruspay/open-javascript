@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>sample checkout page</title>
+
+	<link rel="stylesheet" type="text/css" href="checkout.css"/>
+</head>
+
+<body>
+	<div id="orderBlock">
+		<h2>your order</h2>
+		<div id="order">
+			<input type="hidden" id="merchantAccessKey" value="{{=it.accessKey}}"/>
+			<input type="hidden" id="returnUrl" value="{{=it.returnUrl}}"/>
+			<input type="hidden" id="requestSignature" value="{{=it.signature}}"/>
+			<input type="hidden" id="paramOne" value="{{=it.params.paramOne}}"/>
+			<input type="hidden" id="secundo" value="{{=it.params.secundo}}"/>
+			<div>
+				<label for="merchantTxnId">order id:</label>
+				<input type="text" id="merchantTxnId" value="{{=it.orderId}}" readonly="true" />
+			</div>
+			<div>
+				<label for="amount">amount:</label>
+				INR&nbsp;
+				<input type="text" id="amount" value="{{=it.amount}}" readonly="true" />
+			</div>
+		</div>
+	</div>
+
+	<div id="userBlock">
+		<h2>your personal details</h2>
+		<div id="userDetails">
+			<div>
+				<label for="firstName">first name:</label>
+				<input type="text" id="firstName" value=""/>
+			</div>
+			<div>
+				<label for="lastName">last name:</label>
+				<input type="text" id="lastName" value=""/>
+			</div>
+			<div>
+				<label for="email">email:</label>
+				<input type="text" id="email" value="{{=it.user.email}}"/>
+			</div>
+			<div>
+				<label for="mobileNo">mobile number:</label>
+				<input type="text" id="mobileNo" value=""/>
+			</div>
+			<div>
+				<label for="addressStreet1">address:</label>
+				<input type="text" id="addressStreet1" value=""/>
+			</div>
+			<div>
+				<label for="addressStreet2"></label>
+				<input type="text" id="addressStreet2" value=""/>
+			</div>
+			<div>
+				<label for="addressCity">city:</label>
+				<input type="text" id="addressCity" value=""/>
+			</div>
+			<div>
+				<label for="addressZip">zip code:</label>
+				<input type="text" id="addressZip" value=""/>
+			</div>
+			<div>
+				<label for="addressState">state:</label>
+				<select id="addressState">
+					<option>Karnataka</option>
+					<option>Kerala</option>
+					<option>Maharashtra</option>
+				</select>
+			</div>
+		</div>
+	</div>
+
+	<div id="paymentBlock">
+		<h2>your mode of payment</h2>
+		<ul id="checkout">
+			<li>
+				<input type="radio" name="paymentMode" id="netbanking" />
+				<label for="netbanking">netbanking</label>
+				<div>
+					<div>
+						<label for="bank">select bank: </label>
+						<select id="bank">
+							<option value="CID001">ICICI Bank</option>
+							<option value="CID002">AXIS Bank</option>
+						</select>
+					</div>
+					<div><button class="pay">make payment</button></div>
+				</div>
+			</li>
+			<li>
+				<input type="radio" name="paymentMode" id="card" />
+				<label for="card">credit / debit card</label>
+				<div>
+					<div>
+						<label for="cardNumber"><span>card number</span></label>
+						<input type="text" id="cardNumber"/>
+					</div>
+					<div>
+						<label for="cardHolder">holder name</label>
+						<input type="text" id="cardHolder"/>
+					</div>
+					<div>
+						<span>
+							<label for="cardExpiry">expiry date</label>
+							<input type="text" id="cardExpiry"/>
+						</span>
+						<span>
+							<label for="cardCvv">cvv</label>
+							<input type="text" id="cardCvv"/>
+						</span>
+					</div>
+					<div><button class="pay">make payment</button></div>
+				</div>
+			</li>
+		</ul>
+		<div id="payerror"></div>
+	</div>
+
+	<script type="text/javascript" src="jquery.min.js"></script>
+	<script type="text/javascript" src="jquery.payment.js"></script>
+	<script type="text/javascript" src="citrus.js"></script>
+	<script type="text/javascript" src="checkout.js"></script>
+</body>
+
+</html>
