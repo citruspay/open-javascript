@@ -16,7 +16,7 @@ When you generate your checkout page, you need to embed at least the following d
 * the signature generated for the 3 above fields
 
 In your page, you let the user choose her/his method of payment (credit / debit card, netbanking), then you call `citrus.js` `makePayment` API with 3 parameters:
-* the bill to be paid (containing your order (or transaction) details, your "merchant access key", the signature, your "return URL", user contact details and optional additional parameters of your choice (a.k.a. "custom parameters"))
+* the [bill](../../wiki/bill) to be paid (containing your order (or transaction) details, your "merchant access key", the signature, your "return URL", user contact details and optional additional parameters of your choice (a.k.a. "custom parameters"))
 * the payment options selected by the user
 * a callback function that will receive the URL to redirect the user to to complete payment (3D-secure, netbanking site, etc.) or an error if payment cannot proceed
 
