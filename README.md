@@ -7,7 +7,7 @@ citrus.js is a javascript library for the browser that lets you integrate your c
 
 To use `citrus.js`, you first have to get your gateway credentials (a.k.a. "merchant access key" and "merchant secret key") from CitrusPay, whether for our test environment ("staging") or our live environment ("production"). Please visit [CitrusPay website](http://www.citruspay.com) for onboarding...
 
-Then using these credentials, you generate a "[signature](wiki/signature)" for each payment on your server. This signature ensures the end-to-end integrity of your payment, and that nobody will be able to tamper with it (i.e. pay 1 rupee and make you believe that 1,000 rupees were paid !).
+Then using these credentials, you generate a "[signature](../../wiki/signature)" for each payment on your server. This signature ensures the end-to-end integrity of your payment, and that nobody will be able to tamper with it (i.e. pay 1 rupee and make you believe that 1,000 rupees were paid !).
 
 When you generate your checkout page, you need to embed at least the following data:
 * your merchant access key
