@@ -1,7 +1,7 @@
 citrus.js
 =========
 
-citrus.js is a javascript library for the browser that lets you integrate your checkout page with CitrusPay payment gateway.
+`citrus.js` is a javascript library for the browser that lets you integrate your checkout page with CitrusPay payment gateway.
 
 # Overview
 
@@ -11,12 +11,12 @@ Then using these credentials, you generate a "[signature](../../wiki/signature)"
 
 When you generate your checkout page, you need to embed at least the following data:
 * your merchant access key
-* your transaction (or order) identifier
-* the amount of your transactuion (or order)
+* your order (or transaction) identifier
+* the amount of your order (or transactuion)
 * the signature generated for the 3 above fields
 
-You let the user choose her/his method of payment (credit / debit card, netbanking) in your page, then you call `citrus.js` `makePayment` API with 3 parameters:
-* the bill to be paid (containing your transaction (or order) details, your "merchant access key", the signature, the "return URL", user contact details and optional additional parameters of your choice (a.k.a. "custom parameters"))
+In your page, you let the user choose her/his method of payment (credit / debit card, netbanking), then you call `citrus.js` `makePayment` API with 3 parameters:
+* the bill to be paid (containing your order (or transaction) details, your "merchant access key", the signature, your "return URL", user contact details and optional additional parameters of your choice (a.k.a. "custom parameters"))
 * the payment options selected by the user
 * a callback function that will receive the URL to redirect the user to to complete payment (3D-secure, netbanking site, etc.) or an error if payment cannot proceed
 
