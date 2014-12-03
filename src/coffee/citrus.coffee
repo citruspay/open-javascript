@@ -124,14 +124,14 @@ clone = (obj) ->
 class Gateway
 	constructor: (@env) ->
 
-	makePayment: (invoice, paymentOptions, callback) ->
+	makePayment: (bill, paymentOptions, callback) ->
 		try 
 			# validate payment mode
 			paymentMode = $.citrus.paymentMode paymentOptions
 			paymentMode.validate()
 
 			# create payment
-			payment = clone invoice
+			payment = clone bill
 			payment.paymentToken = paymentMode.asChargePaymentOption()
 
 			# charge
