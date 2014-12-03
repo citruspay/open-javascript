@@ -1,12 +1,28 @@
 {
-	"name": "citrus-js",
+	"name": "citrus.js",
 	"version": "0.1.0",
-	"description": "Javascript library for Citrus Payment browser-side integration",
+	"description": "Javascript library for CitrusPay payment gateway browser-side integration",
+	"keywords": [
+		"payment",
+		"citrus",
+		"citruspay",
+		"card",
+		"netbanking"
+	],
+	"license": "Apache 2.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/citruspay/open-javascript.git"
+	},
+	"main": "lib/citrus.js",
 	"dependencies": {
-		"jquery": "~1.11.0"
+		"jQuery": "~1.11.0",
+		"jquery.payment": "~1.1.0"
 	},
 	"devDependencies": {
 		"coffee-script": "~1.8.0",
-		"mocha": "~2.0.0"
+		"mocha": "~2.0.0",
+		"sinon": "~1.12.0",
+		"dot": "~1.0.0"
 	}
 }
