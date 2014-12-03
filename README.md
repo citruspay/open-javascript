@@ -7,7 +7,7 @@ citrus.js
 
 To use `citrus.js`, you first have to get your gateway credentials (a.k.a. "merchant access key" and "merchant secret key") from CitrusPay, whether for our test environment ("staging") or our live environment ("production"). Please visit [CitrusPay website](http://www.citruspay.com) for onboarding...
 
-Then using these credentials, you generate a "[signature](../../wiki/signature)" for each payment on your server. This signature ensures the end-to-end integrity of your payment, and that nobody will be able to tamper with it (i.e. pay 1 rupee and make you believe that 1,000 rupees were paid !).
+Then using these credentials, you generate a "[signature](../../wiki/signature#request-signature)" for each payment on your server. This signature ensures the end-to-end integrity of your payment, and that nobody will be able to tamper with it (i.e. pay 1 rupee and make you believe that 1,000 rupees were paid !).
 
 When you generate your checkout page, you need to embed at least the following data:
 * your merchant access key
@@ -20,4 +20,4 @@ In your page, you let the user choose her/his method of payment (credit / debit 
 * the payment options selected by the user
 * a callback function that will receive the URL to redirect the user to to complete payment (3D-secure, netbanking site, etc.) or an error if payment cannot proceed
 
-After the user has completed payment, she/he is redirected to your "return URL" (specified as part of your bill) with the result of the payment. You should verify the signature of this response, and you can, optionally, verify the status of the payment with a server-to-server webservice call. Depending on the status of the payment (success or failure), you can proceed with your online order flow and direct the user to the next step.
+After the user has completed payment, she/he is redirected to your "return URL" (specified as part of your bill) with the result of the payment. You should verify the [signature](../../wiki/signature#response-signature) of this response, and you can, optionally, verify the status of the payment with a server-to-server webservice call. Depending on the status of the payment (success or failure), you can proceed with your online order flow and direct the user to the next step.
