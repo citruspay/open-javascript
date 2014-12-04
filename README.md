@@ -83,11 +83,15 @@ Thus, including `citrus.js` in your HTML page should look like this
 	<script type="text/javascript" src="jquery.min.js"></script>
 	<script type="text/javascript" src="jquery.payment.js"></script>
 	<script type="text/javascript" src="citrus.js"></script>
-``` 
+```
 
-## $.citrus.gateway
+We recommand you also use _jQuery_ and _jquery.payment_ to easily build great payment user exeprience...
+
+## $.citrus.gateway([env])
 
 Creates a proxy to CitrusPay payment gateway. You can specify to which CitrusPay environment you want the proxy to point to (default is 'production' environment).
+
+Example
 ```javascript
 // create a gateway proxy for the integration environement
 var testpg = $.citrus.gateway($.citrus.env.sandbox);
@@ -97,3 +101,24 @@ var citruspg = $.citrus.gateway($.citrus.env.production);
 // or
 var gateway = $.citrus.gateway();
 ```
+
+## makePayment(bill, paymentOptions, callback)
+
+Submits a payment request to CitrusPay payment gateway and starts the payment interactive authorization flow (3D-secure for credit / debit cards, and bank NetBanking site for netbanking).
+
+`bill` lets you specify your CitrusPay merchant credentials, your transaction parameters and customer details. Full specification can be found [here](../../wiki/bill).
+
+`paymentOptions` lets you specify the mode of payment chosen by the customer. Full specification can be found [here](../../wiki/payment-options).
+
+`callback` is a function that accepts 2 parameters:
+* `error` if an error occured while processing payment, `null` otherwise; an error is an object with an error code named `error` and an optional error explanation named `message`; valid error codes are
+  ** invalid_bank_code
+  ** invalid_card_cvv
+  ** invalid_card_expiry
+  ** invalid_card_number
+  ** invalid_payment_mode
+  ** network_error
+  ** payment_processing_error
+  ** payment_server_error
+  ** unsupported_card_scheme
+* `url` if the payment flow can proceed, `undefined` if error; `url` is URL the user's browser has to be redirected to to let the user complete the payment authorization
