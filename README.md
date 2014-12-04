@@ -29,6 +29,7 @@ Once you have integrated with CitrusPay payment gateway as described above, you 
 For integrating your site with Citrus Wallet, you first need to get your Citrus Wallet credentials (a.k.a. "oauth client ids" and "oauth client secrets") from CitrusPay. Please contact our [technical support](mailto:tech.support@citruspay.com) for creating theses credentials...
 
 Then using these credentials, from your server, you 'bind' your identified user to a CitrusPay user:
+
 1. request a 'subscription' OAuth token using your subscription "oauth client id" and "oauth client secret"
 2. call the CitrusPay user binding webservice with the 'subscription' oauth token, the user's email and mobile number (optional)
 3. request a 'wallet' one-time OAuth token using your wallet "oauth client id" and "oauth client secret" and the username returned by the binding webservice
