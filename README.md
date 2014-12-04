@@ -78,9 +78,22 @@ citruspg.makePayment(
 * [jQuery](https://jquery.com): tested with version 1.11.1
 * [jquery.payment](https://github.com/stripe/jquery.payment): tested with version 1.1.4
 
-Thus, including `citrus.js` in your page should look like this
+Thus, including `citrus.js` in your HTML page should look like this
 ```html
 	<script type="text/javascript" src="jquery.min.js"></script>
 	<script type="text/javascript" src="jquery.payment.js"></script>
 	<script type="text/javascript" src="citrus.js"></script>
 ``` 
+
+## $.citrus.gateway
+
+Creates a proxy to CitrusPay payment gateway. You can specify to which CitrusPay environment you want the proxy to point to (default is 'production' environment).
+```javascript
+// create a gateway proxy for the integration environement
+var testpg = $.citrus.gateway($.citrus.env.sandbox);
+
+// create a gateway proxy for the live environment
+var citruspg = $.citrus.gateway($.citrus.env.production);
+// or
+var gateway = $.citrus.gateway();
+```
