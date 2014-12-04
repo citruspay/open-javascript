@@ -116,7 +116,7 @@ describe 'Wallet', ->
 								scheme: ''
 								number: ''
 								expiryDate: ''
-								bank: 'knab'
+								bank: 'ICICI Bank'
 								token: ''
 								owner: ''
 								mmid: ''
@@ -126,7 +126,28 @@ describe 'Wallet', ->
 				w.load null, callback
 				assert.ok callback.calledOnce
 				bank = callback.getCall(0).args[0]
-				assert.equal 'knab', bank.name
+				assert.equal 'ICICI Bank', bank.name
+				assert.equal 'CID001', bank.code
+			it 'ignores buggy netbankings', ->
+				ajax.returns
+					done: (onDone) -> onDone
+						type: 'payment'
+						defaultOption: ''
+						paymentOptions: [
+								name: 'my bank'
+								type: 'netbanking'
+								scheme: ''
+								number: ''
+								expiryDate: ''
+								bank: 'fubar'
+								token: ''
+								owner: ''
+								mmid: ''
+								impsRegisteredMobile: ''
+						]
+				callback = sinon.stub()
+				w.load null, callback
+				assert.ok !callback.called
 	describe 'cards', ->
 		it 'populates cards from load', ->
 			load = sinon.stub w, 'load', (onCards) -> onCards
@@ -144,12 +165,14 @@ describe 'Wallet', ->
 	describe 'netbankings', ->
 		it 'populates netbanking from load', ->
 			load = sinon.stub w, 'load', (onCards, onNetbanking) ->
-				onNetbanking name: 'foo'
-				onNetbanking name: 'bar'
+				onNetbanking name: 'foo', code: '01'
+				onNetbanking name: 'bar', code: '011'
 			netbankings = w.netbankings()
 			assert.equal 2, netbankings.length
 			assert.equal 'foo', netbankings[0].name
+			assert.equal '01', netbankings[0].code
 			assert.equal 'bar', netbankings[1].name
+			assert.equal '011', netbankings[1].code
 			load.restore()
 		it 'cashes cards', ->
 			w._netbankings = true

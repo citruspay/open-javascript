@@ -193,6 +193,52 @@ _2scheme = (cs) ->
 		when 'DINERS' then 'dinersclub'
 		else throw { error : 'unsupported_card_scheme' }
 
+_2bankCode = (bn) ->
+	switch bn
+		when 'ICICI Bank' then 'CID001'
+		when 'AXIS Bank' then 'CID002'
+		when 'Citibank' then 'CID003'
+		when 'YES Bank' then 'CID004'
+		when 'SBI Bank' then 'CID005'
+		when 'Deutsche Bank' then 'CID006'
+		when 'Union Bank' then 'CID007'
+		when 'Indian Bank' then 'CID008'
+		when 'Federal Bank' then 'CID009'
+		when 'HDFC Bank' then 'CID010'
+		when 'IDBI Bank' then 'CID011'
+		when 'State Bank of Hyderabad' then 'CID012'
+		when 'State Bank of Bikaner and Jaipur' then 'CID013'
+		when 'State Bank of Mysore' then 'CID014'
+		when 'State Bank of Travancore' then 'CID015'
+		when 'Andhra Bank' then 'CID016'
+		when 'Bank of Bahrain & Kuwait' then 'CID017'
+		when 'Bank of Baroda Corporate Accounts' then 'CID018'
+		when 'Bank of India' then 'CID019'
+		when 'Bank of Baroda Retail Accounts' then 'CID020'
+		when 'Bank of Maharashtra' then 'CID021'
+		when 'Catholic Syrian Bank' then 'CID022'
+		when 'Central Bank of India' then 'CID023'
+		when 'City Union Bank' then 'CID024'
+		when 'Corporation Bank' then 'CID025'
+		when 'DCB Bank ( Development Credit Bank )' then 'CID026'
+		when 'Indian Overseas Bank' then 'CID027'
+		when 'IndusInd Bank' then 'CID028'
+		when 'ING Vysya Bank' then 'CID029'
+		when 'Jammu & Kashmir Bank' then 'CID030'
+		when 'Karnataka Bank' then 'CID031'
+		when 'Karur Vysya Bank' then 'CID032'
+		when 'Kotak Mahindra Bank' then 'CID033'
+		when 'Lakshmi Vilas Bank NetBanking' then 'CID034'
+		when 'Oriental Bank of Commerce' then 'CID035'
+		when 'Punjab National Bank Corporate Accounts' then 'CID036'
+		when 'South Indian Bank' then 'CID037'
+		when 'Standard Chartered Bank' then 'CID038'
+		when 'Syndicate Bank' then 'CID039'
+		when 'Tamilnad Mercantile Bank' then 'CID040'
+		when 'United Bank of India' then 'CID041'
+		when 'Vijaya Bank' then 'CID042'
+		else throw { error : 'invalid_bank_code' }
+
 formatExipry = (expiry) ->
 	xd =
 		month: expiry.slice 0, 2
@@ -222,7 +268,8 @@ class Wallet
 								token: option.token
 							) if onCard
 							when 'netbanking' then onNetbanking(
-								name: option.bank
+								name: option.bank,
+								code: _2bankCode option.bank
 							) if onNetbanking
 					catch x
 						# ignore

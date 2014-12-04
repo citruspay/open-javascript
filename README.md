@@ -191,4 +191,6 @@ var wallet = $.citrus.wallet('2c245c89-fed6-493c-87df-fb109974c517');
 
 ## wallet.load(onCard, [onNetbanking])
 
+Loads payment options from user's Citrus Wallet and invoke callbacks with saved credit / debit cards and netbankings.
+
 ## wallet.save(paymentOptions)
