@@ -6,12 +6,16 @@ global.jQuery = $
 require('../../lib/citrus')
 
 describe 'Wallet', ->
-	w = $.citrus.wallet 'no:where', 'n3k07'
+	w = $.citrus.wallet 'n3k07', 'no:where'
 	describe 'constructor', ->
-		it 'has assigned env', ->
-			assert.equal 'no:where', w.env
 		it 'has assigned token', ->
 			assert.equal 'n3k07', w.token
+		it 'has assigned env', ->
+			assert.equal 'no:where', w.env
+		it 'sets production as default env', ->
+			wd = $.citrus.wallet 'koten'
+			assert.equal 'koten', wd.token
+			assert.equal $.citrus.env.production, wd.env
 	describe 'load', ->
 		ajax = null
 		beforeEach ->

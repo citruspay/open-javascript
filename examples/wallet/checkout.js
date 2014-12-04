@@ -1,5 +1,5 @@
 var citruspg = $.citrus.gateway($.citrus.env.local);
-var citruswallet = $.citrus.wallet($.citrus.env.local, $('#walletToken').val());
+var citruswallet = $.citrus.wallet($('#walletToken').val(), $.citrus.env.local);
 
 function paynow() {
 	// reset errors

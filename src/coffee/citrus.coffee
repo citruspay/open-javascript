@@ -201,7 +201,7 @@ formatExipry = (expiry) ->
 	'' + xd.month + '/' + xd.year
 
 class Wallet
-	constructor: (@env, @token) ->
+	constructor: (@token, @env = $.citrus.env.production) ->
 
 	load: (onCard, onNetbanking) ->
 		$.ajax
