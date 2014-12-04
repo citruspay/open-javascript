@@ -21,3 +21,51 @@ In your page, you let the user choose her/his method of payment (credit / debit 
 * a callback function that will receive the URL to redirect the user to to complete payment (3D-secure, netbanking site, etc.) or an error if payment cannot proceed
 
 After the user has completed payment, she/he is redirected to your "return URL" (specified as part of your bill) with the result of the payment. You should verify the [signature](../../wiki/signature#response-signature) of this response, and you can, optionally, verify the status of the payment with a server-to-server webservice call. Depending on the status of the payment (success or failure), you can proceed with your online order flow and direct the user to the next step.
+
+# Sample usage
+
+In the following snipet, we try to do a netbanking payment of 10 rupees with ICICI Bank against CitrusPay 'sandbox' environment. The user's browser is redirected to the ICICI netbanking login page if the payment request is accepted by CitrusPay payment gateway, or the error is logged to the JavaScript console otherwise.
+
+```javascript
+// configure citrus.js with sandbox environment
+var citruspg = $.citrus.gateway($.citrus.env.sandbox);
+
+// creates bill
+var bill = {
+	"merchantAccessKey": "F2VZD1HBS2VVXJPMWO77",
+	"merchantTxnId": "xyz884422",
+	"amount": {
+		"currency": "INR",
+		"value": "10"
+	},
+	"returnUrl": "http://www.example.com",
+	"requestSignature": "3670241785923f1d389a6e0a7a97820ddae40307",
+	userDetails: {
+		firstName: "Chhota",
+		lastName: "Bheem",
+		email: "chhota.bheem@pogo.tv",
+		mobileNo: "9988776655",
+	}
+};
+
+// create payment options
+var paymentOptions = {
+    "mode": "netbanking",
+    "bankCode": "CID001"
+};
+
+// start payment processing
+citruspg.makePayment(
+	bill,
+	paymentOptions,
+	function(error, url) {
+		if (error) {
+			// log error
+			console.log(error);
+		} else {
+			// redirect user to second factor authentication (netbanking or 3D-secure)
+			$(location).attr({ href: url });
+		}
+	}
+);
+```
