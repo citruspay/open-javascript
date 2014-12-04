@@ -191,6 +191,58 @@ var wallet = $.citrus.wallet('2c245c89-fed6-493c-87df-fb109974c517');
 
 ## wallet.load(onCard, [onNetbanking])
 
-Loads payment options from user's Citrus Wallet and invoke callbacks with saved credit / debit cards and netbankings.
+Loads payment options from user's Citrus Wallet and invoke callbacks with each saved credit / debit cards or netbankings in the Citrus Wallet.
+
+`onCard` is a function that accepts a saved card, which is a JavaScript object with following fields
+* `number` the masked number of the saved credit / debit card PAN, for user display 
+* `holder` name on the saved credit / debit card
+* `scheme` the scheme of the credit / debit saved card; one of
+  * `visa`
+  * `mastercard`
+  * `maestro`
+  * `amex`
+  * `dinersclub`
+* `token` the identifier of the saved credit / debit card, to be used as `token` for payment options in `makePayment` API call
+
+`onNetbanking` is a function that accepts a saved NetBanking option, which is a JavaScript with following fields
+* `name` the human readable name of the bank
+* `code` the CitrusPay code of the bank, to be used as `bankCode` for payment options in `makePayment` API call
+
+Sample saved credit card
+```javascript
+{
+	number: '**** **** **** 4482',
+	holder: 'Chhota Bheem',
+	scheme: 'mastercard',
+	token: 'a74b5ad19da22e48c4d2d7468588ea16'
+}
+```
+
+Sample saved NetBanking
+```javascript
+{
+	name: 'ICICI Bank',
+	code: 'CID001'
+}
+```
+
+Example
+```javascript
+var citruswallet = $.citrus.wallet('2c245c89-fed6-493c-87df-fb109974c517');
+
+citruswallet.load(
+	function(card) {
+		// add card to list of saved cards
+		$('#savedCards').append(
+			'<input type="radio" name="savedCard" value="' 
+			+ card.token + '">' 
+			+ card.number);
+	},
+	function(netbanking) {
+		// select saved netbanking in banks drop-down
+		$('#banks').val(netbanking.code);
+	}
+);
+```
 
 ## wallet.save(paymentOptions)
