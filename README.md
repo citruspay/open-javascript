@@ -172,6 +172,23 @@ gateway.makePayment(
 ```
 ## $.citrus.wallet(token, [env])
 
+Creates a proxy to a user's Citrus Wallet. User is specified by `token` as provided by the [binding](../../wiki/bind) process. `env` specifies the CitrusPay target environment ("sandbox" for integration testing or "production" for live integration; default is "production").
+
+Example
+```javascript
+// create a wallet proxy for the integration environement
+var testwallet = $.citrus.wallet(
+	'2c245c89-fed6-493c-87df-fb109974c517', 
+	$.citrus.env.sandbox);
+
+// create a gateway proxy for the live environment
+var citruswallet = $.citrus.wallet(
+	'2c245c89-fed6-493c-87df-fb109974c517', 
+	$.citrus.env.production);
+// or
+var wallet = $.citrus.wallet('2c245c89-fed6-493c-87df-fb109974c517');
+```
+
 ## wallet.load(onCard, [onNetbanking])
 
 ## wallet.save(paymentOptions)
