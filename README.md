@@ -112,13 +112,13 @@ Submits a payment request to CitrusPay payment gateway and starts the payment in
 
 `callback` is a function that accepts 2 parameters:
 * `error` if an error occured while processing payment, `null` otherwise; an error is an object with an error code named `error` and an optional error explanation named `message`; valid error codes are
-  ** invalid_bank_code
-  ** invalid_card_cvv
-  ** invalid_card_expiry
-  ** invalid_card_number
-  ** invalid_payment_mode
-  ** network_error
-  ** payment_processing_error
-  ** payment_server_error
-  ** unsupported_card_scheme
+  * invalid_bank_code
+  * invalid_card_cvv
+  * invalid_card_expiry
+  * invalid_card_number
+  * invalid_payment_mode
+  * network_error
+  * payment_processing_error
+  * payment_server_error
+  * unsupported_card_scheme
 * `url` if the payment flow can proceed, `undefined` if error; `url` is URL the user's browser has to be redirected to to let the user complete the payment authorization
