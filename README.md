@@ -28,7 +28,7 @@ Once you have integrated with CitrusPay payment gateway as described above, you 
 
 For integrating your site with Citrus Wallet, you first need to get your Citrus Wallet credentials (a.k.a. "oauth client ids" and "oauth client secrets") from CitrusPay. Please contact our [technical support](mailto:tech.support@citruspay.com) for creating theses credentials...
 
-Then using these credentials, from your server, you 'bind' your identified user to a CitrusPay user:
+Then using these credentials, from your server, you '[bind](../../wiki/bind)' your identified user to a CitrusPay user:
 
 1. request a 'subscription' OAuth token using your subscription "oauth client id" and "oauth client secret"
 2. call the CitrusPay user binding webservice with the 'subscription' oauth token, the user's email and mobile number (optional)
@@ -116,7 +116,7 @@ var citruspg = $.citrus.gateway($.citrus.env.production);
 var gateway = $.citrus.gateway();
 ```
 
-## makePayment(bill, paymentOptions, callback)
+## gateway.makePayment(bill, paymentOptions, callback)
 
 Submits a payment request to CitrusPay payment gateway and starts the payment interactive authorization flow (3D-secure for credit / debit cards, and bank NetBanking site for netbanking).
 
@@ -170,3 +170,8 @@ gateway.makePayment(
 	}
 );
 ```
+## $.citrus.wallet(token, [env])
+
+## wallet.load(onCard, [onNetbanking])
+
+## wallet.save(paymentOptions)
