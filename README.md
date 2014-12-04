@@ -69,3 +69,18 @@ citruspg.makePayment(
 	}
 );
 ```
+
+# API
+
+## Dependencies
+
+`citrus.js` depends on
+* [jQuery](https://jquery.com): tested with version 1.11.1
+* [jquery.payment](https://github.com/stripe/jquery.payment): tested with version 1.1.4
+
+Thus, including `citrus.js` in your page should look like this
+```html
+	<script type="text/javascript" src="jquery.min.js"></script>
+	<script type="text/javascript" src="jquery.payment.js"></script>
+	<script type="text/javascript" src="citrus.js"></script>
+``` 
