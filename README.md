@@ -246,3 +246,48 @@ citruswallet.load(
 ```
 
 ## wallet.save(paymentOptions)
+
+Save payment options in Citrus Wallet. The format of `paymentOptions` is same as for `makePayment` and fill specification can be found [here](../../wiki/payment-options).
+
+Example
+```javascript
+// configure citrus to production environment
+var gateway = $.citrus.gateway();
+var wallet = $.citrus.wallet('2c245c89-fed6-493c-87df-fb109974c517');
+
+// create card payment options
+var card = {
+	"mode": "card",
+	"cardNumber": "4444 3333 2222 1111",
+	"cardHolder": "Chhota Bheem",
+	"cardExpiry": "08/22",
+	"cardCvv": "842",
+};
+
+// pay bill with card
+gateway.makePayment(
+	{
+		"merchantAccessKey": "F2VZD1HBS2VVXJPMWO77",
+		"merchantTxnId": "xyz884422",
+		"amount": { "currency": "INR", "value": "10" },
+		"returnUrl": "http://www.example.com",
+		"requestSignature": "3670241785923f1d389a6e0a7a97820ddae40307",
+		"userDetails": {
+			"email": "chhota.bheem@pogo.tv",
+			"mobileNo": "9988776655"
+		}
+	},
+	paymentOptions,
+	function(error, url) {
+		if (error) {
+			$('#error').html('<p>' + error.error + ': ' + error.message + '</p>');
+		} else {
+			// save successful card in wallet
+			wallet.save();
+
+			// redirect to 3D-secure
+			$(location).attr({ href: url });
+		}
+	}
+);
+```
