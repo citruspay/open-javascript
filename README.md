@@ -40,11 +40,11 @@ var bill = {
 	},
 	"returnUrl": "http://www.example.com",
 	"requestSignature": "3670241785923f1d389a6e0a7a97820ddae40307",
-	userDetails: {
-		firstName: "Chhota",
-		lastName: "Bheem",
-		email: "chhota.bheem@pogo.tv",
-		mobileNo: "9988776655",
+	"userDetails": {
+		"firstName": "Chhota",
+		"lastName": "Bheem",
+		"email": "chhota.bheem@pogo.tv",
+		"mobileNo": "9988776655",
 	}
 };
 
