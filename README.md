@@ -22,6 +22,19 @@ In your page, you let the user choose her/his method of payment (credit / debit 
 
 After the user has completed payment, she/he is redirected to your "return URL" (specified as part of your bill) with the result of the payment. You should verify the [signature](../../wiki/signature#response-signature) of this response, and you can, optionally, verify the status of the payment with a server-to-server webservice call. Depending on the status of the payment (success or failure), you can proceed with your online order flow and direct the user to the next step.
 
+## Save customer's cards with Citrus Wallet
+
+Once you have integrated with CitrusPay payment gateway as described above, you can let your customers save their paymant options (credit / debit cards, NetBanking bank) with CitrusPay and present her/him with these saved options the next time she/he wants to pay on your site, saving your customer the effort of entering credit / debit card details. This requires that you have verified the user's identity.
+
+For integrating your site with Citrus Wallet, you first need to get your Citrus Wallet credentials (a.k.a. "oauth client ids" and "oauth client secrets") from CitrusPay. Please contact our [technical support](mailto:tech.support@citruspay.com) for creating theses credentials...
+
+Then using these credentials, from your server, you 'bind' your identified user to a CitrusPay user:
+1. request a 'subscription' OAuth token using your subscription "oauth client id" and "oauth client secret"
+2. call the CitrusPay user binding webservice with the 'subscription' oauth token, the user's email and mobile number (optional)
+3. request a 'wallet' one-time OAuth token using your wallet "oauth client id" and "oauth client secret" and the username returned by the binding webservice
+
+When you generate your checkout page, you to embed the 'wallet' OAuth token. When your page loads, it can call the `load` API to fetch the saved payment options from Citrus Wallet. When your customer presses 'make payment', your page can call the `save` API to save the selected payment options to Citrus Wallet.
+
 # Sample usage
 
 In the following snipet, we try to do a netbanking payment of 10 rupees with ICICI Bank against CitrusPay 'sandbox' environment. The user's browser is redirected to the ICICI netbanking login page if the payment request is accepted by CitrusPay payment gateway, or the error is logged to the JavaScript console otherwise.
