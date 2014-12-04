@@ -112,13 +112,47 @@ Submits a payment request to CitrusPay payment gateway and starts the payment in
 
 `callback` is a function that accepts 2 parameters:
 * `error` if an error occured while processing payment, `null` otherwise; an error is an object with an error code named `error` and an optional error explanation named `message`; valid error codes are
-  * invalid_bank_code
-  * invalid_card_cvv
-  * invalid_card_expiry
-  * invalid_card_number
-  * invalid_payment_mode
-  * network_error
-  * payment_processing_error
-  * payment_server_error
-  * unsupported_card_scheme
+  * `invalid_bank_code` if payment options `mode` is `netbanking` but no `bankCode` is given
+  * `invalid_card_cvv` if payment options `mode` is `card` but `cardCvv` is not 3/4 digits
+  * `invalid_card_expiry` if payment options `mode` is `card` but `cardExpiry` is not a valid date ('mm/yy' or 'mm/yyyy') or the date is past
+  * `invalid_card_number` if payment options `mode` is `card` but `cardNumber` is not a valid PAN (i.e. passing the [Luhn algorithm](http://en.wikipedia.org/wiki/Luhn_algorithm) checksum test).
+  * `invalid_payment_mode` if payment options `mode` is not `card`, `netbanking` or `token`
+  * `network_error` if the gateway proxy could not access CitrusPay server
+  * `payment_processing_error` if the CitrusPay payment gateway rejected the payment; further explanation given in `message`
+  * `payment_server_error` if there was un unexpected error on CitrusPay payment gateway
+  * `unsupported_card_scheme` if payment options `mode` is `card` and `cardNumber` specifies an unsupported card scheme; supported schemes are: VISA, MasterCard, Maestro, AmericanExpress and DinersClub
+
 * `url` if the payment flow can proceed, `undefined` if error; `url` is URL the user's browser has to be redirected to to let the user complete the payment authorization
+
+Example
+```javascript
+var gateway = $.citrus.gateway();
+
+gateway.makePayment(
+	{
+		"merchantAccessKey": "F2VZD1HBS2VVXJPMWO77",
+		"merchantTxnId": "xyz884422",
+		"amount": { "currency": "INR", "value": "10" },
+		"returnUrl": "http://www.example.com",
+		"requestSignature": "3670241785923f1d389a6e0a7a97820ddae40307",
+		"userDetails": {
+			"email": "chhota.bheem@pogo.tv",
+			"mobileNo": "9988776655"
+		}
+	},
+	{
+		"mode": "card",
+		"cardNumber": "4444 3333 2222 1111",
+		"cardHolder": "Chhota Bheem",
+		"cardExpiry": "08/22",
+		"cardCvv": "842",
+	},
+	function(error, url) {
+		if (error) {
+			$('#error').html('<p>' + error.error + ': ' + error.message + '</p>');
+		} else {
+			$(location).attr({ href: url });
+		}
+	}
+);
+```
