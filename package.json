@@ -15,7 +15,10 @@
 		"url": "https://github.com/citruspay/open-javascript.git"
 	},
 	"main": "lib/citrus.js",
-	"dependencies": {
+	"scripts": {
+		"test": "cake test"
+	},
+  	"dependencies": {
 		"jQuery": "~1.7.0",
 		"jquery.payment": "~1.1.0"
 	},
