@@ -16,7 +16,7 @@
 	},
 	"main": "lib/citrus.js",
 	"dependencies": {
-		"jQuery": "~1.11.0",
+		"jQuery": "~1.7.0",
 		"jquery.payment": "~1.1.0"
 	},
 	"devDependencies": {
