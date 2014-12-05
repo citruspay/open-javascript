@@ -5,6 +5,38 @@ function paynow() {
 	// reset errors
 	$('#payerror').html('');
 
+	// create bill
+	var bill = {
+		merchantAccessKey: $('#merchantAccessKey').val(),
+		merchantTxnId: $('#merchantTxnId').val(),
+		amount: {
+			currency: 'INR',
+			value: $('#amount').val()
+		},
+		returnUrl: $('#returnUrl').val(),
+		requestSignature: $('#requestSignature').val(),
+		
+		userDetails: {
+			firstName: $('#firstName').val(),
+			lastName: $('#lastName').val(),
+			email: $('#email').val(),
+			mobileNo: $('#mobileNo').val(),
+			address: {
+				street1: $('#addressStreet1').val(),
+				street2: $('#addressStreet1').val(),
+				city: $('#addressCity').val(),
+				zip: $('#addressZip').val(),
+				state: $('#addressState option:selected').val(),
+				country: 'INDIA'
+			}
+		},
+		
+		customParameters: {
+			paramOne: $('#paramOne').val(),
+			secundo: $('#secundo').val()
+		}
+	};
+
 	// read payment options
 	var paymentOptions = {
 		mode: $('input[type="radio"][name="paymentMode"]:checked').attr('id'),
