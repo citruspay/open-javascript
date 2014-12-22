@@ -92,6 +92,15 @@ class CardToken extends PaymentMode
 	constructor: (@token, @cvv) ->
 		super 'token'
 
+	validate: ->
+		throw {
+			error: 'invalid_token'
+		} unless @token
+		throw {
+			error: 'invalid_card_cvv'
+		} unless @cvv
+		true
+
 	asChargePaymentOption: ->
 		type: 'paymentOptionIdToken'
 		id: @token

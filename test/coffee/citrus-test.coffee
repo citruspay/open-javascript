@@ -135,6 +135,29 @@ describe 'CardToken', ->
 			assert.equal 'deadbeef', tk.token
 		it 'has assigned cvv', ->
 			assert.equal '248', tk.cvv
+	describe 'validate', ->
+		it 'validates good token', ->
+			assert.ok tk.validate()
+		it 'invalidates null token', ->
+			invalid = $.citrus.token null, '248'
+			assert.throws(
+				() -> invalid.validate(),
+				(err) -> 'invalid_token' == err.error)
+		it 'invalidates empty token', ->
+			invalid = $.citrus.token '', '248'
+			assert.throws(
+				() -> invalid.validate(),
+				(err) -> 'invalid_token' == err.error)
+		it 'invalidates null cvv', ->
+			invalid = $.citrus.token 'deadbeef', null
+			assert.throws(
+				() -> invalid.validate(),
+				(err) -> 'invalid_card_cvv' == err.error)
+		it 'invalidates empty cvss', ->
+			invalid = $.citrus.token 'deadbeef', ''
+			assert.throws(
+				() -> invalid.validate(),
+				(err) -> 'invalid_card_cvv' == err.error)
 	describe 'asChargePaymentOption', ->
 		opt = tk.asChargePaymentOption()
 		it 'is a payment token', ->

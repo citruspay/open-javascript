@@ -78,6 +78,25 @@
 		<h2>your mode of payment</h2>
 		<ul id="checkout">
 			<li>
+				<input type="radio" name="paymentMode" id="token" checked="true"/>
+				<label for="token">saved cards</label>
+				<div>
+					<div>
+						<ul>
+							<li>
+								<input type="radio" name="walletToken" id="0123456789abcdef"/>
+								<label for="0123456789abcdef">
+									<span>**** **** **** 1111</span>
+									<span>02/2024</span>
+									<span class="cvv">cvv: <input type="text" class="cvv"/></span>
+								</label>
+							</li>
+						</ul>
+					</div>
+					<div><button class="pay">make payment</button></div>
+				</div>
+			</li>
+			<li>
 				<input type="radio" name="paymentMode" id="netbanking" />
 				<label for="netbanking">netbanking</label>
 				<div>

@@ -39,8 +39,10 @@ function paynow() {
 	// read payment options
 	var paymentOptions = {
 		mode: $$('input[type="radio"][name="paymentMode"]:checked')[0].readAttribute('id'),
-		token: '',
-		tokenCvv: '',
+
+		token: $$('input[type="radio"][name="walletToken"]:checked')[0].readAttribute('id'),
+		tokenCvv: $$('input[type="radio"][name="walletToken"]:checked + label input.cvv')[0].value,
+
 		cardNumber: $('cardNumber').value,
 		cardHolder: $('cardHolder').value,
 		cardExpiry: $('cardExpiry').value,
