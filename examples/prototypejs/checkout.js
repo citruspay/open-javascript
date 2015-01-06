@@ -37,11 +37,12 @@ function paynow() {
 	};
 
 	// read payment options
+	var wtk = $$('input[type="radio"][name="walletToken"]:checked');
 	var paymentOptions = {
 		mode: $$('input[type="radio"][name="paymentMode"]:checked')[0].readAttribute('id'),
 
-		token: $$('input[type="radio"][name="walletToken"]:checked')[0].readAttribute('id'),
-		tokenCvv: $$('input[type="radio"][name="walletToken"]:checked + label input.cvv')[0].value,
+		token: (wtk.length > 0) ? wtk[0].readAttribute('id') : null,
+		tokenCvv: (wtk.length > 0) ? $$('input[type="radio"][name="walletToken"]:checked + label input.cvv')[0].value : null,
 
 		cardNumber: $('cardNumber').value,
 		cardHolder: $('cardHolder').value,
