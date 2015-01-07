@@ -125,6 +125,11 @@ describe 'CreditCard', ->
 			assert.equal 'VISA', opt.paymentOptions[0].scheme
 			assert.equal 'foo bar', opt.paymentOptions[0].owner
 			assert.equal '04/2016', opt.paymentOptions[0].expiryDate
+		it 'escapes HTML Entities in owner', ->
+			xss = $.citrus.card '4444 3333 2222 1111', '<script>alert("foo&bar");</script>', '4 /16', '321'
+			assert.equal(
+				'&lt;script&gt;alert("foo&amp;bar");&lt;/script&gt;', 
+				xss.asWalletPaymentOption().paymentOptions[0].owner)
 
 describe 'CardToken', ->
 	tk = $.citrus.token 'deadbeef', '248'

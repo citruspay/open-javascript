@@ -5,6 +5,13 @@ $.citrus = {}
 
 # payment
 
+escapeHtmlEntities = (html) ->
+	entities = 
+		'&': '&amp;'
+		'<': '&lt;'
+		'>': '&gt;'
+	return html.replace /[&<>]/g, (entity) -> entities[entity] || entity
+
 class PaymentMode
 	constructor: (@type) ->
 
@@ -83,7 +90,7 @@ class CreditCard extends PaymentMode
 		paymentOptions: [
 			type: @type
 			number: @number
-			owner: @holder
+			owner: escapeHtmlEntities @holder
 			scheme: this.scheme()
 			expiryDate: this.expiry()
 		]
