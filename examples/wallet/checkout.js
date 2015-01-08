@@ -72,7 +72,7 @@ function paynow() {
 function onCard(card) {
 	if ($('#token').length == 0) {
 		$('ul#checkout li:first-child').before(walletTemplate);
-		$('button.pay').click(paynow);
+		$('#token + label + div button.pay').click(paynow);
 	}
 	wallet = $('#token + label + div ul');
 	wallet.append(savedCard(card));
