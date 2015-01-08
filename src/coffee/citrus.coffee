@@ -2,6 +2,7 @@
 
 $ = jQuery
 $.citrus = {}
+$.support.cors = true
 
 # payment
 
