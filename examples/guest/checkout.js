@@ -37,12 +37,13 @@ function paynow() {
 	};
 
 	// read payment options
+	var mode = $('input[type="radio"][name="paymentMode"]:checked').attr('id');
 	var paymentOptions = {
-		mode: $('input[type="radio"][name="paymentMode"]:checked').attr('id'),
+		mode: mode,
 		token: '',
 		tokenCvv: '',
 		cardNumber: $('#cardNumber').val(),
-		cardHolder: $('#cardHolder').val(),
+		cardHolder: mode == 'card' ? $('#cardHolder').val() : $('#prepaidCardHolder').val(),
 		cardExpiry: $('#cardExpiry').val(),
 		cardCvv: $('#cardCvv').val(),
 		bankCode: $('#bank option:selected').val(),

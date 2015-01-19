@@ -13,6 +13,9 @@ escapeHtmlEntities = (html) ->
 		'>': '&gt;'
 	return html.replace /[&<>]/g, (entity) -> entities[entity] || entity
 
+isEmail = (str) ->
+	return /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test str
+
 class PaymentMode
 	constructor: (@type) ->
 
@@ -96,6 +99,26 @@ class CreditCard extends PaymentMode
 			expiryDate: this.expiry()
 		]
 
+class PrepaidCard extends PaymentMode
+	constructor: (@holder) ->
+		super 'prepaid'
+
+	validate: ->
+		throw {
+			error: 'invalid_card_holder'
+		} unless isEmail @holder
+		true
+
+	asChargePaymentOption: ->
+		type: 'paymentOptionToken'
+		paymentMode:
+			type: 'prepaid'
+			scheme: 'CPAY'
+			number: ''
+			holder: @holder
+			expiry: ''
+			cvv: ''
+
 class CardToken extends PaymentMode
 	constructor: (@token, @cvv) ->
 		super 'token'
@@ -126,6 +149,7 @@ createPaymentMode = (paymentOptions) ->
 			paymentOptions.cardCvv)
 		when 'netbanking' then new Netbanking(
 			paymentOptions.bankCode)
+		when 'prepaid' then new PrepaidCard(paymentOptions.cardHolder)
 		else throw { error: 'invalid_payment_mode' }
 
 
@@ -186,6 +210,9 @@ $.citrus.netbanking = (code) ->
 
 $.citrus.card = (args...) ->
 	new CreditCard(args...)
+
+$.citrus.prepaid = (args...) ->
+	new PrepaidCard(args...)
 
 $.citrus.token = (args...) ->
 	new CardToken(args...)

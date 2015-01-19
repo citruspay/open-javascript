@@ -131,6 +131,53 @@ describe 'CreditCard', ->
 				'&lt;script&gt;alert("foo&amp;bar");&lt;/script&gt;', 
 				xss.asWalletPaymentOption().paymentOptions[0].owner)
 
+describe 'PrepaidCard', ->
+	ppc = $.citrus.prepaid 'fix@fuzz.biz'
+	describe 'constructor', ->
+		it 'has prepaid type', ->
+			assert.equal 'prepaid', ppc.type
+		it 'has assigned holder', ->
+			assert.equal 'fix@fuzz.biz', ppc.holder
+	describe 'validate', ->
+		it 'validates good prepaid', ->
+			assert.ok ppc.validate()
+		it 'invalidates null holder', ->
+			invalid = $.citrus.prepaid null
+			assert.throws(
+				() -> invalid.validate(),
+				(err) -> 'invalid_card_holder' == err.error
+			)
+		it 'invalidates empty holder', ->
+			invalid = $.citrus.prepaid ""
+			assert.throws(
+				() -> invalid.validate(),
+				(err) -> 'invalid_card_holder' == err.error
+			)
+		it 'invalidates non email holder', ->
+			invalid = $.citrus.prepaid "fix-fuzz.biz"
+			assert.throws(
+				() -> invalid.validate(),
+				(err) -> 'invalid_card_holder' == err.error
+			)
+	describe 'asChargePaymentOption', ->
+		opt = ppc.asChargePaymentOption()
+		it 'is a payment option', ->
+			assert.equal 'paymentOptionToken', opt.type
+		describe 'paymentMode', ->
+			pm = opt.paymentMode
+			it 'is prepaid', ->
+				assert.equal 'prepaid', pm.type
+			it 'has right scheme', ->
+				assert.equal 'CPAY', pm.scheme
+			it 'has empty number', ->
+				assert.equal '', pm.number
+			it 'has right holder', ->
+				assert.equal 'fix@fuzz.biz', pm.holder
+			it 'has empty expiry', ->
+				assert.equal '', pm.expiry
+			it 'has empty cvv', ->
+				assert.equal '', pm.cvv
+
 describe 'CardToken', ->
 	tk = $.citrus.token 'deadbeef', '248'
 	describe 'constructor', ->
@@ -196,6 +243,11 @@ describe 'createPaymentMode', ->
 		assert.equal 'redloh', card.holder
 		assert.deepEqual { month: 12, year: 2012 }, card.xd
 		assert.equal 'cvc', card.cvv
+	it 'creates prepaid card', ->
+		prepaid = $.citrus.paymentMode { 
+			mode: 'prepaid', 
+			cardHolder: 'zap@zip.us' }
+		assert.equal 'zap@zip.us', prepaid.holder
 	it 'rejects invalid mode', ->
 		assert.throws(
 			() -> $.citrus.paymentMode { mode: 'foo' },
