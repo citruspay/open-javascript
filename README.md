@@ -15,7 +15,7 @@ When you generate your checkout page, you need to embed at least the following d
 * the amount of your order (or transactuion)
 * the signature generated for the 3 above fields
 
-In your page, you let the user choose her/his method of payment (credit / debit card, netbanking), then you call `citrus.js` `makePayment` API with 3 parameters:
+In your page, you let the user choose her/his method of payment (credit / debit card, netbanking, Citrus Cash prepaid card), then you call `citrus.js` `makePayment` API with 3 parameters:
 * the [bill](../../wiki/bill) to be paid (containing your order (or transaction) details, your "merchant access key", the signature, your "return URL", user contact details and optional additional parameters of your choice (a.k.a. "custom parameters"))
 * the [payment options](../../wiki/payment-options) selected by the user
 * a callback function that will receive the URL to redirect the user to to complete payment (3D-secure, netbanking site, etc.) or an error if payment cannot proceed
@@ -118,7 +118,7 @@ var gateway = $.citrus.gateway();
 
 ## gateway.makePayment(bill, paymentOptions, callback)
 
-Submits a payment request to CitrusPay payment gateway and starts the payment interactive authorization flow (3D-secure for credit / debit cards, and bank NetBanking site for netbanking).
+Submits a payment request to CitrusPay payment gateway and starts the payment interactive authorization flow (3D-secure for credit / debit cards, bank NetBanking site for netbanking, or Citrus Cash verification for prepaid card).
 
 `bill` lets you specify your CitrusPay merchant credentials, your transaction parameters and customer details. Full specification can be found [here](../../wiki/bill).
 
@@ -130,6 +130,7 @@ Submits a payment request to CitrusPay payment gateway and starts the payment in
   * `invalid_card_cvv` if payment options `mode` is `card` but `cardCvv` is not 3/4 digits
   * `invalid_card_expiry` if payment options `mode` is `card` but `cardExpiry` is not a valid date ('mm/yy' or 'mm/yyyy') or the date is past
   * `invalid_card_number` if payment options `mode` is `card` but `cardNumber` is not a valid PAN (i.e. passing the [Luhn algorithm](http://en.wikipedia.org/wiki/Luhn_algorithm) checksum test)
+  * `invalid_card_holder` if payment options `mode` is `prepaid` but `cardHolder` is not a valid email
   * `invalid_payment_mode` if payment options `mode` is not `card`, `netbanking` or `token`
   * `network_error` if the gateway proxy could not access CitrusPay server
   * `payment_processing_error` if the CitrusPay payment gateway rejected the payment; further explanation given in `message`
