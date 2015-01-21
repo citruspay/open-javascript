@@ -65,8 +65,9 @@ describe 'Wallet', ->
 				card = callback.getCall(0).args[0]
 				assert.equal '**** **** **** 4444', card.number
 				assert.equal 'Foo Bar', card.holder
-				assert.equal 'visa', card.scheme
 				assert.equal '08/2016', card.expiry
+				assert.equal 'visa', card.scheme
+				assert.equal 'debit', card.type
 				assert.equal '84eef66', card.token
 			it 'ignores buggy cards', ->
 				ajax.returns
@@ -102,8 +103,9 @@ describe 'Wallet', ->
 				card = callback.getCall(0).args[0]
 				assert.equal '**** **** **** 8420', card.number
 				assert.equal 'fu bar', card.holder
-				assert.equal 'amex', card.scheme
 				assert.equal '02/2052', card.expiry
+				assert.equal 'amex', card.scheme
+				assert.equal 'credit', card.type
 				assert.equal 'k0t38', card.token
 			it 'calls back with netbankings', ->
 				ajax.returns
@@ -159,7 +161,7 @@ describe 'Wallet', ->
 			assert.equal 1, cards.length
 			assert.equal '4242', cards[0].number
 			load.restore()
-		it 'cashes cards', ->
+		it 'caches cards', ->
 			w._cards = true
 			assert.equal true, w.cards()
 	describe 'netbankings', ->

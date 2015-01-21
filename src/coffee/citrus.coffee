@@ -307,8 +307,9 @@ class Wallet
 							when 'debit', 'credit' then onCard(
 								number: option.number.replace /XXXX/g, '**** '
 								holder: option.owner
-								scheme: _2scheme option.scheme
 								expiry: formatExipry option.expiryDate
+								scheme: _2scheme option.scheme
+								type: option.type
 								token: option.token
 							) if onCard
 							when 'netbanking' then onNetbanking(
