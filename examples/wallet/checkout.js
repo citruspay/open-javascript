@@ -60,14 +60,14 @@ function paynow() {
 				$('#payerror').html('<p>' + error.error + ': ' + error.message + '</p>');
 			}
 			else {
+				// save payments option in wallet
+				citruswallet.save(paymentOptions);
+
 				// display error
 				$(location).attr({ href: redirect });
 			}
 		}
 	);
-
-	// save payments option in wallet
-	citruswallet.save(paymentOptions);
 }
 
 function onCard(card) {
