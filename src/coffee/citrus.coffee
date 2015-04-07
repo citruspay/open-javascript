@@ -74,7 +74,8 @@ class CreditCard extends PaymentMode
 
 		throw {
 			error: 'invalid_card_cvv'
-		} unless $.payment.validateCardCVC(@cvv)
+		} unless $.payment.cardType(@number) == 'maestro' 
+				or $.payment.validateCardCVC(@cvv)
 
 		true
 

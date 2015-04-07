@@ -96,6 +96,24 @@ describe 'CreditCard', ->
 			assert.throws(
 				() -> invalid.validate(),
 				(err) -> 'invalid_card_cvv' == err.error)
+		it 'accepts empty cvv for maestro 12 digits cards', ->
+			maestro = $.citrus.card '6759649826438453', '', '04/2048', ''
+			assert.ok maestro.validate()
+		it 'accepts null cvv for maestro 12 digits cards', ->
+			maestro = $.citrus.card '6759649826438453', '', '04/2048', null
+			assert.ok maestro.validate()
+		it 'accepts undefined cvv for maestro 12 digits cards', ->
+			maestro = $.citrus.card '6759649826438453', '', '04/2048'
+			assert.ok maestro.validate()
+		it 'accepts empty cvv for maestro 19 digits cards', ->
+			maestro = $.citrus.card '6799990100000000019', '', '04/2048', ''
+			assert.ok maestro.validate()
+		it 'accepts null cvv for maestro 19 digits cards', ->
+			maestro = $.citrus.card '6799990100000000019', '', '04/2048', null
+			assert.ok maestro.validate()
+		it 'accepts undefined cvv for maestro 19 digits cards', ->
+			maestro = $.citrus.card '6799990100000000019', '', '04/2048'
+			assert.ok maestro.validate()
 	describe 'asChargePaymentOption', ->
 		opt = cc.asChargePaymentOption()
 		it 'is a payment option', ->
