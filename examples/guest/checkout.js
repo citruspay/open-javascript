@@ -1,4 +1,4 @@
-var citruspg = $.citrus.gateway($.citrus.env.local);
+var citruspg = $.citrus.gateway($.citrus.env.sandbox);
 
 function paynow() {
 	// reset errors
@@ -60,7 +60,10 @@ function paynow() {
 			}
 			else {
 				// display error
+				setTimeout(function() {						
+				// display error
 				$(location).attr({ href: redirect });
+				},15);				
 			}
 		}
 	);

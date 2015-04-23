@@ -62,8 +62,11 @@ function paynow() {
 				$('payerror').update('<p>' + error.error + ': ' + error.message + '</p>');
 			}
 			else {
-				// redirect
+				// redirect								
+				setTimeout(function() {						
+				// display error
 				window.location = redirect;
+				},15);
 			}
 		}
 	);

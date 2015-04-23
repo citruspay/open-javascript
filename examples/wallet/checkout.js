@@ -62,9 +62,12 @@ function paynow() {
 			else {
 				// save payments option in wallet
 				citruswallet.save(paymentOptions);
-
+				
+				setTimeout(function() {						
 				// display error
 				$(location).attr({ href: redirect });
+				},15);
+				
 			}
 		}
 	);
