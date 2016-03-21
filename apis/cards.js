@@ -31,6 +31,7 @@ const blazeCardValidationSchema = {
     phone: {length: {maximum: 10}},
     amount: {presence: true},
     currency: {presence: true},
+    cardType: {presence: true},
     returnUrl: {
         presence: true,
         custFormat: {
@@ -53,7 +54,7 @@ const makeBlazeCardPayment = validateAndCallbackify(blazeCardValidationSchema, (
     //needed to convert cardType and cardScheme with server expected values
     const paymentDetails = Object.assign({}, confObj, {
         cardType: validateCardType(confObj.cardType),
-        cardScheme: validateScheme(confObj.cardScheme)
+        cardScheme: confObj.cardScheme//validateScheme(confObj.cardScheme)
     });
 
     console.log('Config for blazecard fetch !!!', paymentDetails);

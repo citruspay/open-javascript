@@ -167,7 +167,9 @@ const validateCardType = (type) => {
 
 //cardCheck
 
-const cardValidationLogic = (paymentDetails, options, key, attributes, system) => {
+
+const cardCheck = (paymentDetails, options, key, attributes) => {
+    if(options !== true) return;
     const validatedCardType = validateCardType(paymentDetails.type);
 
     if(validatedCardType === 'credit' || validatedCardType === 'debit'){
@@ -175,12 +177,9 @@ const cardValidationLogic = (paymentDetails, options, key, attributes, system) =
 
         if(!scheme) { return ' :invalid scheme type'}
 
-        console.log('getAppData(pgSettingsData): ', getAppData('pgSettingsData'));
-
-        if(system == 'moto' && getAppData('pgSettingsData')[validatedCardType+'Card'].indexOf( validateScheme(scheme, false)) < 0 ){
+        if(getAppData('pgSettingsData')[validatedCardType+'Card'].indexOf( validateScheme(scheme, false)) < 0 ){
             return ':cardscheme is not supported';
         }
-        //todo: handle schemecheck for blazecard
 
         if(scheme !== 'Maestro'){
             if (!isCardValid(paymentDetails.number, scheme)){
@@ -193,17 +192,28 @@ const cardValidationLogic = (paymentDetails, options, key, attributes, system) =
     }
 };
 
-const cardCheck = (paymentDetails, options, key, attributes) => {
-    if(options !== true) return;
-    return cardValidationLogic(paymentDetails, options, key, attributes, 'moto');
-};
-
 const blazeCardCheck = (paymentDetails, options, key, attributes) => {
+
     if(options !== true) return;
-
     if(key === 'mainObjectCheck') paymentDetails = attributes;
+    const validatedCardType = validateCardType(paymentDetails.cardType);
 
-    return cardValidationLogic(paymentDetails, options, key, attributes, 'blazecard');
+    if(validatedCardType === 'credit' || validatedCardType === 'debit'){
+        let scheme = validateScheme(paymentDetails.cardScheme, true);
+        //todo: handle schemecheck for blazecard
+
+        if(!scheme) { return ' :invalid scheme type'}
+
+        if(scheme !== 'Maestro'){
+            if (!isCardValid(paymentDetails.cardNo, scheme)){
+                return ' :invalid credit card number';
+            }
+        }
+
+    }else{
+        return ' :invalid card type';
+    }
+
 };
 
 //created custFormat validator as original 'format' validator uses .exec instead of .test on regex
