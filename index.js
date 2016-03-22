@@ -4,9 +4,9 @@ import 'core-js/fn/object/assign';
 import 'core-js/fn/promise';
 import 'core-js/fn/string/includes';
 
-import {makeNetBankingPayment} from './apis/net-banking';
+import {makeNetBankingPayment, makeSavedNBPayment, makeBlazeNBPayment} from './apis/net-banking';
 import {getPaymentDetails, getPaymentDetailsForMCP} from './apis/payment-details';
-import  {makeBlazeCardPayment, getmerchantCardSchemes, makeMotoCardPayment} from './apis/cards';
+import  {makeBlazeCardPayment, getmerchantCardSchemes, makeMotoCardPayment, makeSavedCardPayment} from './apis/cards';
 import {validateExpiryDate, validateScheme, validateCreditCard} from './validation/custom-validations';
 import {init, handlersMap, setConfig, getConfig} from './config';
 import {makeMCPCardPayment, getCardCurrencyInfo} from './apis/mcp';
@@ -35,12 +35,15 @@ Object.assign(window.citrus, {
         getPaymentDetails
     },
     netbanking: {
-        makeNetBankingPayment
+        makeNetBankingPayment,
+        makeSavedNBPayment,
+        makeBlazeNBPayment
     },
     cards: {
         getmerchantCardSchemes,
         makeMotoCardPayment,
         makeBlazeCardPayment,
+        makeSavedCardPayment,
         makeMCPCardPayment,
         getCardCurrencyInfo,
         getPaymentDetailsForMCP,

@@ -1,4 +1,5 @@
 import {validateAndCallbackify, getMerchantAccessKey, schemeFromNumber} from './../utils';
+import {savedNBValidationSchema, savedAPIFunc} from './net-banking';
 import {baseSchema} from './../validation/validation-schema';
 import cloneDeep from 'lodash/cloneDeep';
 import {getConfig} from '../config';
@@ -143,9 +144,6 @@ const  motoCardApiFunc = (confObj) => {
     delete reqConf.paymentDetails;
     delete reqConf.currency;
 
-    console.log('Config for fetch!!', reqConf);
-
-
     return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
         method: 'post',
         headers: {
@@ -201,6 +199,15 @@ const makeMotoCardPayment = validateAndCallbackify(motoCardValidationSchema, mot
 
 */
 
+//------------------- makeSavedCardPayment ----------------//
+
+const savedCardValidationSchema = Object.assign({}, savedNBValidationSchema, {CVV: {presence: true}});
+
+const makeSavedCardPayment = validateAndCallbackify(savedCardValidationSchema, (confObj)=>{
+    const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;
+    return savedAPIFunc(confObj, apiUrl);
+});
+
 export {makeBlazeCardPayment, getmerchantCardSchemes, motoCardValidationSchema, motoCardApiFunc,
-    makeMotoCardPayment};
+    makeMotoCardPayment, makeSavedCardPayment};
 

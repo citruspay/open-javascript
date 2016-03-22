@@ -4,6 +4,33 @@ import cloneDeep from 'lodash/cloneDeep';
 import {getConfig} from '../config';
 import {custFetch} from '../interceptor';
 
+const NBAPIFunc = (confObj, apiUrl) => {
+    const reqConf = Object.assign({}, confObj, {
+        amount: {
+            currency: 'INR',
+            value: confObj.amount
+        },
+        paymentToken: {
+            type: 'paymentOptionToken',
+            paymentMode: {
+                type: 'netbanking',
+                code: confObj.bankCode
+            }
+        },
+        merchantAccessKey: getMerchantAccessKey(confObj),
+        requestOrigin: "CJSG"
+    });
+    delete reqConf.bankCode;
+    return custFetch(apiUrl, {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        //mode: 'cors',
+        body: JSON.stringify(reqConf)
+    })
+};
+
 /*
 
 const netBankingConfig = {
@@ -40,37 +67,9 @@ const netBankingValidationSchema = Object.assign(cloneDeep(baseSchema), {
 netBankingValidationSchema.mainObjectCheck.keysCheck.push('bankCode');
 
 
-const makeNetBankingPayment = validateAndCallbackify(netBankingValidationSchema,(confObj) => {
-    const reqConf = Object.assign({}, confObj, {
-        amount: {
-            currency: 'INR',
-            value: confObj.amount
-        },
-        paymentToken: {
-            type: 'paymentOptionToken',
-            paymentMode: {
-                type: 'netbanking',
-                code: confObj.bankCode
-            }
-        },
-        merchantAccessKey: getMerchantAccessKey(confObj),
-        //requestOrigin: "CJSG"
-    });
-
-    delete reqConf.bankCode;
-
-    console.log('net banking Config for fetch: ', reqConf);
-
-    //${apiUrl}/moto/authorize/struct/${getConfig().vanityUrl}
-
-    return custFetch(`${getConfig().blazeNetApiUrl}/netbank/chksumtrans`, {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        //mode: 'cors',
-        body: JSON.stringify(reqConf)
-    })
+const makeNetBankingPayment = validateAndCallbackify(netBankingValidationSchema, (confObj) => {
+    const apiUrl = `${getConfig().blazeNetApiUrl}/netbank/chksumtrans`;
+    return NBAPIFunc(confObj, apiUrl);
 });
 
 /*
@@ -110,7 +109,56 @@ const makeNetBankingPayment = validateAndCallbackify(netBankingValidationSchema,
     //"requestOrigin": "CJSG"
 */
 
+//------------------- makeBlazeNBPayment ----------------//
+
+const makeBlazeNBPayment = validateAndCallbackify(netBankingValidationSchema, (confObj) => {
+    const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;
+    return NBAPIFunc(confObj, apiUrl);
+});
 
 
-export {makeNetBankingPayment}
+//------------------- makeSavedNBPayment ----------------//
+
+
+const savedNBValidationSchema = Object.assign(cloneDeep(baseSchema), {
+    token: {presence: true}
+});
+
+savedNBValidationSchema.mainObjectCheck.keysCheck.push('token');
+
+const savedAPIFunc = (confObj, url) => {
+    const reqConf = Object.assign({}, confObj, {
+        amount: {
+            currency: 'INR',
+            value: confObj.amount
+        },
+        paymentToken: {
+            type: 'paymentOptionIdToken',
+            id: confObj.token
+        },
+        merchantAccessKey: getMerchantAccessKey(confObj),
+        requestOrigin: "CJSW"
+    });
+
+    confObj.CVV && (reqConf.paymentToken.cvv = confObj.CVV);
+
+    delete reqConf.token;
+    delete reqConf.CVV; //will delete if present
+
+    return custFetch(url, { //for Blazenet use `${getConfig().blazeNetApiUrl}/netbank/chksumtrans`
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        //mode: 'cors',
+        body: JSON.stringify(reqConf)
+    })
+};
+
+const makeSavedNBPayment = validateAndCallbackify(savedNBValidationSchema, (confObj)=>{
+    const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;
+    return savedAPIFunc(confObj, apiUrl);
+});
+
+export {makeNetBankingPayment, makeSavedNBPayment, makeBlazeNBPayment, savedAPIFunc, savedNBValidationSchema}
 
