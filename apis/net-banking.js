@@ -70,10 +70,7 @@ const makeNetBankingPayment = validateAndCallbackify(netBankingValidationSchema,
         },
         //mode: 'cors',
         body: JSON.stringify(reqConf)
-    }).then(resp => {
-        console.log('response from netbanking request: ', resp.data );
-        return resp.data;
-    });
+    })
 });
 
 /*
