@@ -39,6 +39,7 @@ Object.assign(window.citrus, {
     },
     cards: {
         getmerchantCardSchemes,
+        makeMotoCardPayment,
         makeBlazeCardPayment,
         makeMCPCardPayment,
         getCardCurrencyInfo,
