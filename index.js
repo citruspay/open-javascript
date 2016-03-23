@@ -47,8 +47,7 @@ Object.assign(window.citrus, {
         makeMCPCardPayment,
         getCardCurrencyInfo,
         getPaymentDetailsForMCP,
-        getPaymentDetails
+        getPaymentDetails,
+        applyDynamicPricing
     }
 });
-//some dummy comment dfdfs
-//tests.test1();

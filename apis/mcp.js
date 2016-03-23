@@ -16,7 +16,6 @@ MCPCardSchema.mainObjectCheck.keysCheck.push('targetMcpCurrency');
 //MCPCardSchema.currencyToken = {presence: true};
 //MCPCardSchema.targetMcpCurrency = {presence: true};
 
-//hello nagama
 const makeMCPCardPayment = validateAndCallbackify(MCPCardSchema, (confObj) => {
     MCPData.MCPWrapperAPIData.mcpConversionBeans.some((el) => {
         if(el.targetCurrency === confObj.targetMcpCurrency){
@@ -24,7 +23,6 @@ const makeMCPCardPayment = validateAndCallbackify(MCPCardSchema, (confObj) => {
             return true;
         }
     });
-
     return motoCardApiFunc(confObj);
 });
 
