@@ -182,7 +182,7 @@ const makeMotoCardPayment = validateAndCallbackify(motoCardValidationSchema, mot
     "returnUrl": "http://localhost:3000/returnUrl",
     "paymentToken": {
     "type": "paymentOptionToken",
-        "paymentMode": {
+    "paymentMode": {
         "type": "credit",
             "scheme": "VISA",
             "number": "4111111111111111",
@@ -202,6 +202,7 @@ const makeMotoCardPayment = validateAndCallbackify(motoCardValidationSchema, mot
 //------------------- makeSavedCardPayment ----------------//
 
 const savedCardValidationSchema = Object.assign({}, savedNBValidationSchema, {CVV: {presence: true}});
+savedCardValidationSchema.mainObjectCheck.keysCheck.push('CVV');
 
 const makeSavedCardPayment = validateAndCallbackify(savedCardValidationSchema, (confObj)=>{
     const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;

@@ -29,8 +29,7 @@ const handlersMap = {
         }
     },
     serverErrorHandler: (error) => {
-        alert(JSON.stringify(error));
-        console.log("Error from server. handled in default server error handler");
+        console.error("Error from server. handled in default server error handler", JSON.stringify(error));
         //console.log(error);
     }
 };

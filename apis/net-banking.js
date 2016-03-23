@@ -129,7 +129,7 @@ savedNBValidationSchema.mainObjectCheck.keysCheck.push('token');
 const savedAPIFunc = (confObj, url) => {
     const reqConf = Object.assign({}, confObj, {
         amount: {
-            currency: 'INR',
+            currency: confObj.currency,
             value: confObj.amount
         },
         paymentToken: {
@@ -142,6 +142,7 @@ const savedAPIFunc = (confObj, url) => {
 
     confObj.CVV && (reqConf.paymentToken.cvv = confObj.CVV);
 
+    delete reqConf.currency;
     delete reqConf.token;
     delete reqConf.CVV; //will delete if present
 
