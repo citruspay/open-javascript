@@ -48,6 +48,6 @@ Object.assign(window.citrus, {
         getCardCurrencyInfo,
         getPaymentDetailsForMCP,
         getPaymentDetails,
-        applyDynamicPricing
+        //applyDynamicPricing
     }
 });
