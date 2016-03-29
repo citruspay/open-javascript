@@ -3,6 +3,7 @@ import {motoCardValidationSchema, motoCardApiFunc} from './cards';
 import {validateCardType, validateScheme} from '../validation/custom-validations';
 import {validateAndCallbackify, schemeFromNumber} from './../utils';
 import {custFetch} from '../interceptor';
+import {getConfig} from '../config'
 /*
 
 
@@ -90,7 +91,7 @@ const applyDynamicPricing = validateAndCallbackify(dynamicPricingSchema, (confOb
      }
      }
      * */
-    return custFetch('https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing/validateRuleForPayment', {
+    return custFetch(`${getConfig().dpApiUrl}/validateRuleForPayment`, {
         method: 'post',
         headers: {
             'Content-Type': 'application/json'

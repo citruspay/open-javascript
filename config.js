@@ -6,13 +6,15 @@ const apiConfMap = {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
         motoApiUrl: 'https://sandboxadmin.citruspay.com/service',
-        MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies'
+        MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
+        dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing'
     },
     prodConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl : 'https://sboxblaze.citruspay.com',
         motoApiUrl: 'https://admin.citruspay.com/service',
-        MCPAPIUrl: 'https://mercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies'
+        MCPAPIUrl: 'https://mercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
+        dpApiUrl: 'https://mars.citruspay.com/dynamic-pricing/dynamicpricing'
     }
 };
 
@@ -29,7 +31,6 @@ const handlersMap = {
     },
     serverErrorHandler: (error) => {
         console.error("Error from server. handled in default server error handler", JSON.stringify(error));
-        //console.log(error);
     }
 };
 
@@ -51,13 +52,13 @@ const setConfig = (configObj) => {
         blazeCardApiUrl: apiConfMap[env+'Conf'].blazeCardApiUrl,
         blazeNetApiUrl: apiConfMap[env+'Conf'].blazeNetApiUrl,
         motoApiUrl : apiConfMap[env+'Conf'].motoApiUrl,
-        MCPAPIUrl: apiConfMap[env+'Conf'].MCPAPIUrl
+        MCPAPIUrl: apiConfMap[env+'Conf'].MCPAPIUrl,
+        dpApiUrl:apiConfMap[env+'Conf'].dpApiUrl
     }, configObj);
     return Object.assign({}, configMap);
 };
 
 const getConfig = () => {
-    console.log(configMap);
     return Object.assign({}, configMap);
 };
 
