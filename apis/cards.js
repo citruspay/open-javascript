@@ -50,8 +50,10 @@ const blazeCardValidationSchema = {
     signature: {presence: true}
 };
 
+let makeBlazeCardPaymentConfObj;
 
 const makeBlazeCardPayment = validateAndCallbackify(blazeCardValidationSchema, (confObj) => {
+    makeBlazeCardPaymentConfObj = confObj;
     //needed to convert cardType and cardScheme with server expected values
     const paymentDetails = Object.assign({}, confObj, {
         cardType: validateCardType(confObj.cardType),
@@ -68,6 +70,18 @@ const makeBlazeCardPayment = validateAndCallbackify(blazeCardValidationSchema, (
         },
         mode: 'cors',
         body: JSON.stringify(paymentDetails)
+    }).then(function(resp){
+        //to handler back button cancellation scenario
+
+        if (history &&  history.pushState) {
+            let href = window.location.href;
+            let appendChar = href.indexOf('?') > -1  ? '&' : '?';
+            let newurl = window.location.href + appendChar + 'fromBank=yes';
+            window.history.pushState({path:newurl},'',newurl);
+            makeBlazeCardPaymentConfObj.citrusTransactionId = resp.data.citrusTransactionId;
+            localStorage.setItem('blazeCardcancelRequestObj',JSON.stringify(makeBlazeCardPaymentConfObj));
+        }
+        return resp;
     });
 
 });
