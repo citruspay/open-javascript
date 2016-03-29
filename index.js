@@ -12,6 +12,7 @@ import {init, handlersMap, setConfig, getConfig} from './config';
 import {makeMCPCardPayment, getCardCurrencyInfo} from './apis/mcp';
 import * as tests from './tests/simple-tests';
 import {schemeFromNumber} from './utils';
+import {applyDynamicPricing} from './apis/card-dp'
 
 init(); //initializes custom validators
 

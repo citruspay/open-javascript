@@ -21,7 +21,6 @@ const apiConfMap = {
 const apiUrl = 'https://sboxblazenet.citruspay.com';
 const handlersMap = {
     errorHandler: (error) =>{ //default Error Handler
-
         if(console.error){
             console.error('Error thrown from citrus.js sdk: ', error);
         }else{

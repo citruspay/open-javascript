@@ -96,11 +96,7 @@ const getmerchantCardSchemes = validateAndCallbackify(merchantCardSchemesSchema,
     });
 });
 
-
-
 //----------------------------------------------------------------------------------------------------
-
-
 
 //moto implementation
 
