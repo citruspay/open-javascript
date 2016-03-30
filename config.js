@@ -94,8 +94,6 @@ const init = () => {
     let deviceType = getDeviceType();
     setConfig({deviceType});
 
-};
-
     //for back button cancellation scenario
 
     if (history && history.pushState) {
@@ -110,7 +108,6 @@ const init = () => {
         console.log('for cancellation API ==> not from bank!');
         }
     }
-
 
 };
 
