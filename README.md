@@ -18,7 +18,7 @@ When you generate your checkout page, you need to embed at least the following d
 In your page, you let the user choose her/his method of payment (credit / debit card, netbanking, Citrus Cash prepaid card), then you call `citrus.js` `makePayment` API with 3 parameters:
 * the [bill](../../wiki/bill) to be paid (containing your order (or transaction) details, your "merchant access key", the signature, your "return URL", user contact details and optional additional parameters of your choice (a.k.a. "custom parameters"))
 * the [payment options](../../wiki/payment-options) selected by the user
-* a callback function that will receive the URL to redirect the user to to complete payment (3D-secure, netbanking site, etc.) or an error if payment cannot proceed
+* a callback function that will receive the URL to redirect the user to complete payment (3D-secure, netbanking site, etc.) or an error if payment cannot proceed
 
 After the user has completed payment, she/he is redirected to your "return URL" (specified as part of your bill) with the result of the payment. You should verify the [signature](../../wiki/signature#response-signature) of this response, and you can, optionally, verify the status of the payment with a server-to-server webservice call. Depending on the status of the payment (success or failure), you can proceed with your online order flow and direct the user to the next step.
 
@@ -38,7 +38,7 @@ When you generate your checkout page, you to embed the 'wallet' OAuth token. Whe
 
 # Sample usage
 
-In the following snipet, we try to do a netbanking payment of 10 rupees with ICICI Bank against CitrusPay 'sandbox' environment. The user's browser is redirected to the ICICI netbanking login page if the payment request is accepted by CitrusPay payment gateway, or the error is logged to the JavaScript console otherwise.
+In the following snippet, we try to do a netbanking payment of 10 rupees with ICICI Bank against CitrusPay 'sandbox' environment. The user's browser is redirected to the ICICI netbanking login page if the payment request is accepted by CitrusPay payment gateway, or the error is logged to the JavaScript console otherwise.
 
 ```javascript
 // configure citrus.js with sandbox environment
@@ -107,7 +107,7 @@ Creates a proxy to CitrusPay payment gateway. You can specify to which CitrusPay
 
 Example
 ```javascript
-// create a gateway proxy for the integration environement
+// create a gateway proxy for the integration environment
 var testpg = $.citrus.gateway($.citrus.env.sandbox);
 
 // create a gateway proxy for the live environment
@@ -137,7 +137,7 @@ Submits a payment request to CitrusPay payment gateway and starts the payment in
   * `payment_server_error` if there was un unexpected error on CitrusPay payment gateway
   * `unsupported_card_scheme` if payment options `mode` is `card` and `cardNumber` specifies an unsupported card scheme; supported schemes are: _VISA_, _MasterCard_, _Maestro_, _AmericanExpress_ and _DinersClub_
 
-* `url` if the payment flow can proceed, `undefined` if error; `url` is URL the user's browser has to be redirected to to let the user complete the payment authorization
+* `url` if the payment flow can proceed, `undefined` if error; `url` is URL the user's browser has to be redirected to let the user complete the payment authorization
 
 Example
 ```javascript
