@@ -44,7 +44,6 @@ const getCardCurrencyInfo = validateAndCallbackify(binServiceSchema, (confObj) =
         }else{
             throw 'Not valid card!'
         }
-
         let cardCurrency = countryCurrencyMap[resp.data.country];
 
         if(MCPData.calculatedMCPSchemes.indexOf(aliasedScheme) > -1){
@@ -61,10 +60,6 @@ const getCardCurrencyInfo = validateAndCallbackify(binServiceSchema, (confObj) =
         }else{
             return [];
         }
-
     });
 });
-
-
 export {makeMCPCardPayment, getCardCurrencyInfo};
-
