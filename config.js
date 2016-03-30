@@ -22,10 +22,10 @@ const apiConfMap = {
 //const apiUrl = "https://sandboxadmin.citruspay.com/service";
 const apiUrl = 'https://sboxblazenet.citruspay.com';
 const handlersMap = {
-    errorHandler: (error) =>{ //default Error Handler
-        if(console.error){
+    errorHandler: (error) => { //default Error Handler
+        if (console.error) {
             console.error('Error thrown from citrus.js sdk: ', error);
-        }else{
+        } else {
             console.log('Error thrown from citrus.js sdk: ', error);
         }
     },
@@ -37,13 +37,13 @@ const handlersMap = {
 let env = 'prod';
 
 const configMap = {
-    merchantAccessKey:'',
-    vanityUrl:'',
+    merchantAccessKey: '',
+    vanityUrl: '',
     env: 'prod',
-    blazeCardApiUrl: apiConfMap[env+'Conf'].blazeCardApiUrl,
-    blazeNetApiUrl: apiConfMap[env+'Conf'].blazeNetApiUrl,
-    motoApiUrl : apiConfMap[env+'Conf'].motoApiUrl,
-    MCPAPIUrl: apiConfMap[env+'Conf'].MCPAPIUrl
+    blazeCardApiUrl: apiConfMap[env + 'Conf'].blazeCardApiUrl,
+    blazeNetApiUrl: apiConfMap[env + 'Conf'].blazeNetApiUrl,
+    motoApiUrl: apiConfMap[env + 'Conf'].motoApiUrl,
+    MCPAPIUrl: apiConfMap[env + 'Conf'].MCPAPIUrl
 };
 
 const setConfig = (configObj) => {
@@ -60,6 +60,17 @@ const setConfig = (configObj) => {
 
 const getConfig = () => {
     return Object.assign({}, configMap);
+};
+
+const getParameterByName = (name, url) => {
+    if (!url) url = window.location.href;
+    url = url.toLowerCase(); // This is just to avoid case sensitiveness
+    name = name.replace(/[\[\]]/g, "\\$&").toLowerCase();// This is just to avoid case sensitiveness for query parameter name
+    let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
 };
 
 function getDeviceType() {
@@ -85,6 +96,23 @@ const init = () => {
 
 };
 
+    //for back button cancellation scenario
+
+    if (history && history.pushState) {
+        if (getParameterByName('fromBank') === 'yes') {
+            console.log('for cancellation API ==> from bank! ', localStorage.getItem('blazeCardcancelRequestObj'));
+            let urlWithQS = window.location.href;
+            urlWithQS = urlWithQS.replace('&fromBank=yes', '');
+            urlWithQS = urlWithQS.replace('fromBank=yes&', '');
+            urlWithQS = urlWithQS.replace('?fromBank=yes', '');
+            window.history.pushState({path: urlWithQS}, '', urlWithQS);
+        }else {
+        console.log('for cancellation API ==> not from bank!');
+        }
+    }
+
+
+};
 
 
 export {init, handlersMap, configMap, setConfig, getConfig};
