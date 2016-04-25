@@ -221,4 +221,3 @@ const makeSavedCardPayment = validateAndCallbackify(savedCardValidationSchema, (
 
 export {makeBlazeCardPayment, getmerchantCardSchemes, motoCardValidationSchema, motoCardApiFunc,
     makeMotoCardPayment, makeSavedCardPayment};
-

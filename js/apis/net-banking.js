@@ -21,6 +21,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
         requestOrigin: "CJSG"
     });
     delete reqConf.bankCode;
+    delete reqConf.currency;
     return custFetch(apiUrl, {
         method: 'post',
         headers: {
@@ -68,7 +69,7 @@ netBankingValidationSchema.mainObjectCheck.keysCheck.push('bankCode');
 
 
 const makeNetBankingPayment = validateAndCallbackify(netBankingValidationSchema, (confObj) => {
-    const apiUrl = `${getConfig().blazeNetApiUrl}/netbank/chksumtrans`;
+    const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;
     return NBAPIFunc(confObj, apiUrl);
 });
 
@@ -162,4 +163,3 @@ const makeSavedNBPayment = validateAndCallbackify(savedNBValidationSchema, (conf
 });
 
 export {makeNetBankingPayment, makeSavedNBPayment, makeBlazeNBPayment, savedAPIFunc, savedNBValidationSchema}
-

@@ -13,6 +13,7 @@ import {makeMCPCardPayment, getCardCurrencyInfo} from './apis/mcp';
 import * as tests from './tests/simple-tests';
 import {schemeFromNumber} from './utils';
 import {applyDynamicPricing,makeDPCardPayment} from './apis/card-dp'
+import {applyDynamicPricing} from './apis/dynamic-pricing'
 
 init(); //initializes custom validators
 
@@ -49,7 +50,10 @@ Object.assign(window.citrus, {
         getCardCurrencyInfo,
         getPaymentDetailsForMCP,
         getPaymentDetails,
-        applyDynamicPricing,
+        applyDynamicPricing,  //move it to features
         makeDPCardPayment
+    },
+    features: {
+        applyDynamicPricing
     }
 });

@@ -1,6 +1,9 @@
+/**
+ * Created by nagamai on 4/7/2016.
+ */
 import cloneDeep from 'lodash/cloneDeep';
 import {motoCardValidationSchema, motoCardApiFunc} from './cards';
-import {validateCardType, validateScheme} from '../validation/custom-validations';
+import {validateCardType, validateScheme, keysCheck} from '../validation/custom-validations';
 import {validateAndCallbackify, schemeFromNumber} from './../utils';
 import {custFetch} from '../interceptor';
 import {getConfig} from '../config';
@@ -39,6 +42,7 @@ const applyDynamicPricing = validateAndCallbackify(dynamicPricingSchema, (confOb
     delete reqConf.cardNo;
     delete reqConf.currency;
     delete reqConf.paymentMode;
+
 
     if(!reqConf.ruleName && !reqConf.alteredAmount.value)
     {

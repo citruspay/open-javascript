@@ -186,7 +186,6 @@ const cardCheck = (paymentDetails, options, key, attributes) => {
                 return ' :invalid credit card number';
             }
         }
-
     }else{
         return ' :invalid card type';
     }

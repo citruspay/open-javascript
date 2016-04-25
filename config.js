@@ -2,6 +2,13 @@ import {validate} from 'validate.js';
 import {keysCheck, cardDate, custFormat, cardCheck, blazeCardCheck} from './validation/custom-validations';
 
 const apiConfMap = {
+    stagingConf : {
+        blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
+        blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
+        motoApiUrl: 'http://stgadmin4.citruspay.com/service',
+        MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
+        dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing'
+    },
     sandboxConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
@@ -17,7 +24,6 @@ const apiConfMap = {
         dpApiUrl: 'https://mars.citruspay.com/dynamic-pricing/dynamicpricing'
     }
 };
-
 
 //const apiUrl = "https://sandboxadmin.citruspay.com/service";
 const apiUrl = 'https://sboxblazenet.citruspay.com';
@@ -108,8 +114,6 @@ const init = () => {
         console.log('for cancellation API ==> not from bank!');
         }
     }
-
 };
-
 
 export {init, handlersMap, configMap, setConfig, getConfig};

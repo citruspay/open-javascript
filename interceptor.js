@@ -18,7 +18,6 @@ const custFetch = function () {
                 });
             }
         } else {
-
             if (response.headers.get('Content-Type').includes('application/json')) {
                 promise = response.json().then(function (val) {
                     response.data = val;

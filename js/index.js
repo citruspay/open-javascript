@@ -38,7 +38,8 @@ Object.assign(window.citrus, {
     netbanking: {
         makeNetBankingPayment,
         makeSavedNBPayment,
-        makeBlazeNBPayment
+        makeBlazeNBPayment,
+        applyDynamicPricing
     },
     cards: {
         getmerchantCardSchemes,
@@ -51,5 +52,8 @@ Object.assign(window.citrus, {
         getPaymentDetails,
         applyDynamicPricing,
         makeDPCardPayment
+    },
+    features: {
+        applyDynamicPricing
     }
 });
