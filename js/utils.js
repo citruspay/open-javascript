@@ -81,7 +81,7 @@ const cards = [
         luhn: true
     }, {
         type: 'maestro',
-        patterns: [5018, 502, 503, 56, 58, 639, 6220, 67],
+        patterns: /^(?:5[0678]\d\d|6304|6390|6220|67\d\d)\d{8,15}$/,//[5018, 502, 503, 56, 58, 639, 6220, 67],
         format: defaultFormat,
         length: [12, 13, 14, 15, 16, 17, 18, 19],
         cvcLength: [3],
@@ -109,7 +109,7 @@ const cards = [
         luhn: true
     }, {
         type: 'mastercard',
-        patterns: [51, 52, 53, 54, 55, 22, 23, 24, 25, 26, 27],
+        patterns: /^5[1-5]/,//[51, 52, 53, 54, 55, 22, 23, 24, 25, 26, 27],
         format: defaultFormat,
         length: [16],
         cvcLength: [3],
@@ -186,6 +186,5 @@ const setAppData = (key, data) => {
 const getAppData = (key) => {
     return appDataStore[key]
 };
-
 
 export {validateAndCallbackify, getMerchantAccessKey, schemeFromNumber, setAppData, getAppData};

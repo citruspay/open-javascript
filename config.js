@@ -2,13 +2,6 @@ import {validate} from 'validate.js';
 import {keysCheck, cardDate, custFormat, cardCheck, blazeCardCheck} from './validation/custom-validations';
 
 const apiConfMap = {
-    stagingConf : {
-        blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
-        blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
-        motoApiUrl: 'http://stgadmin4.citruspay.com/service',
-        MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
-        dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing'
-    },
     sandboxConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
@@ -22,6 +15,13 @@ const apiConfMap = {
         motoApiUrl: 'https://admin.citruspay.com/service',
         MCPAPIUrl: 'https://mercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://mars.citruspay.com/dynamic-pricing/dynamicpricing'
+    },
+    stagingConf : {
+        blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
+        blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
+        motoApiUrl: 'http://stgadmin4.citruspay.com/service',
+        MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
+        dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing'
     }
 };
 
@@ -41,6 +41,7 @@ const handlersMap = {
 };
 
 let env = 'prod';
+
 
 const configMap = {
     merchantAccessKey: '',

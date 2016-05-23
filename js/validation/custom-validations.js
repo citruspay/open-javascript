@@ -32,6 +32,14 @@ const keysCheck = (value, options, key, attributes) => {
  */
 
 const validateExpiryDate = (dateStr) => {
+
+   	var d = dateStr.slice(3);
+        if(d.length==2){
+            var today = new Date();
+            var year = today.getFullYear().toString().slice(0,2);
+            dateStr = dateStr.toString().slice(0,3) + year + d;
+        }
+
     var today = new Date();
     var month = today.getMonth() + 1;
 

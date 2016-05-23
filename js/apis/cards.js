@@ -70,16 +70,16 @@ const makeBlazeCardPayment = validateAndCallbackify(blazeCardValidationSchema, (
         },
         mode: 'cors',
         body: JSON.stringify(paymentDetails)
-    }).then(function(resp){
+    }).then(function (resp) {
         //to handler back button cancellation scenario
 
-        if (history &&  history.pushState) {
+        if (history && history.pushState) {
             let href = window.location.href;
-            let appendChar = href.indexOf('?') > -1  ? '&' : '?';
+            let appendChar = href.indexOf('?') > -1 ? '&' : '?';
             let newurl = window.location.href + appendChar + 'fromBank=yes';
-            window.history.pushState({path:newurl},'',newurl);
+            window.history.pushState({path: newurl}, '', newurl);
             makeBlazeCardPaymentConfObj.citrusTransactionId = resp.data.citrusTransactionId;
-            localStorage.setItem('blazeCardcancelRequestObj',JSON.stringify(makeBlazeCardPaymentConfObj));
+            localStorage.setItem('blazeCardcancelRequestObj', JSON.stringify(makeBlazeCardPaymentConfObj));
         }
         return resp;
     });
@@ -131,13 +131,20 @@ const motoCardValidationSchema = Object.assign(cloneDeep(baseSchema), {
 
 motoCardValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 
-const  motoCardApiFunc = (confObj) => {
+const motoCardApiFunc = (confObj) => {
 
     const paymentDetails = Object.assign({}, confObj.paymentDetails, {
         type: validateCardType(confObj.paymentDetails.type),
         scheme: validateScheme(schemeFromNumber(confObj.paymentDetails.number))
     });
 
+    var d = confObj.paymentDetails.expiry.slice(3);
+    if (d.length == 2) {
+        var today = new Date();
+        var year = today.getFullYear().toString().slice(0, 2);
+        confObj.paymentDetails.expiry = confObj.paymentDetails.expiry.toString().slice(0, 3) + year + d;
+    }
+    console.log(confObj.paymentDetails);
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: confObj.currency || 'INR',
@@ -150,7 +157,7 @@ const  motoCardApiFunc = (confObj) => {
         merchantAccessKey: getMerchantAccessKey(confObj),
         requestOrigin: "CJSG"
     });
-
+    reqConf.paymentToken.paymentMode.expiry = confObj.paymentDetails.expiry;
     delete reqConf.paymentDetails;
     delete reqConf.currency;
 
@@ -169,55 +176,57 @@ const makeMotoCardPayment = validateAndCallbackify(motoCardValidationSchema, mot
 
 /*
 
-{
-    "merchantTxnId": "nosdfjlkeuwjffasdf2418",
-    "amount": {
-    "currency": "INR",
-        "value": "1.00"
-},
-    "userDetails": {
-    "email": "nikhil.yeole1@gmail.com",
-        "firstName": "nikhil",
-        "lastName": "yeole",
-        "address": {
-        "street1": "abcstree1",
-            "street2": "abcstree2",
-            "city": "Pune",
-            "state": "MS",
-            "country": "IND",
-            "zip": "411038"
-    },
-    "mobileNo": "99349494944"
-},
-    "returnUrl": "http://localhost:3000/returnUrl",
-    "paymentToken": {
-    "type": "paymentOptionToken",
-    "paymentMode": {
-        "type": "credit",
-            "scheme": "VISA",
-            "number": "4111111111111111",
-            "holder": "nikhil",
-            "expiry": "12/2016",
-            "cvv": "223"
-    }
-},
-    "notifyUrl": "<%= notifyUrl %>",
-    "merchantAccessKey": "66PT1PDZ38A5OB1PTF01",
-    "requestSignature": "45b693d8eeed6f5d135f6d6a13333da50055f5bb",
-    "requestOrigin": "CJSG"
-}
+ {
+ "merchantTxnId": "nosdfjlkeuwjffasdf2418",
+ "amount": {
+ "currency": "INR",
+ "value": "1.00"
+ },
+ "userDetails": {
+ "email": "nikhil.yeole1@gmail.com",
+ "firstName": "nikhil",
+ "lastName": "yeole",
+ "address": {
+ "street1": "abcstree1",
+ "street2": "abcstree2",
+ "city": "Pune",
+ "state": "MS",
+ "country": "IND",
+ "zip": "411038"
+ },
+ "mobileNo": "99349494944"
+ },
+ "returnUrl": "http://localhost:3000/returnUrl",
+ "paymentToken": {
+ "type": "paymentOptionToken",
+ "paymentMode": {
+ "type": "credit",
+ "scheme": "VISA",
+ "number": "4111111111111111",
+ "holder": "nikhil",
+ "expiry": "12/2016",
+ "cvv": "223"
+ }
+ },
+ "notifyUrl": "<%= notifyUrl %>",
+ "merchantAccessKey": "66PT1PDZ38A5OB1PTF01",
+ "requestSignature": "45b693d8eeed6f5d135f6d6a13333da50055f5bb",
+ "requestOrigin": "CJSG"
+ }
 
-*/
+ */
 
 //------------------- makeSavedCardPayment ----------------//
 
 const savedCardValidationSchema = Object.assign({}, savedNBValidationSchema, {CVV: {presence: true}});
 savedCardValidationSchema.mainObjectCheck.keysCheck.push('CVV');
 
-const makeSavedCardPayment = validateAndCallbackify(savedCardValidationSchema, (confObj)=>{
+const makeSavedCardPayment = validateAndCallbackify(savedCardValidationSchema, (confObj)=> {
     const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;
     return savedAPIFunc(confObj, apiUrl);
 });
 
-export {makeBlazeCardPayment, getmerchantCardSchemes, motoCardValidationSchema, motoCardApiFunc,
-    makeMotoCardPayment, makeSavedCardPayment};
+export {
+    makeBlazeCardPayment, getmerchantCardSchemes, motoCardValidationSchema, motoCardApiFunc,
+    makeMotoCardPayment, makeSavedCardPayment
+};

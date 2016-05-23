@@ -35,12 +35,21 @@ const validateExpiryDate = (dateStr) => {
     var today = new Date();
     var month = today.getMonth() + 1;
 
+    if(dateStr)
+    {	d = dateStr.slice(3);
+        if(d.length==2){
+            var today = new Date();
+            var year = today.getFullYear().toString().slice(0,2);
+            dateStr = dateStr.toString().slice(0,3) + year + d;
+        }
+    }
+
     var expiry = dateStr.replace(/\s+/g, '').replace("/", "");
     var inputMonth = expiry.substr(0, 2);
     var inputYear = expiry.slice(-4);
     var len = expiry.length;
     var year = today.getFullYear().toString().slice(-4);
-
+    console.log(expiry);
     let returnVal = true;
 
     if (len == 6) {
@@ -52,7 +61,7 @@ const validateExpiryDate = (dateStr) => {
     else {
         returnVal = false;
     }
-    
+
     return returnVal;
 };
 
