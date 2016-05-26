@@ -82,7 +82,7 @@ const cards = [
     }, {
         type: 'maestro',
         patterns: [5018, 502, 503, 56, 58, 639, 6220, 67],
-        format: defaultFormat,
+        format: /^(?:5[0678]\d\d|6304|6390|6220|67\d\d)\d{8,15}$/,
         length: [12, 13, 14, 15, 16, 17, 18, 19],
         cvcLength: [3],
         luhn: true
@@ -103,14 +103,14 @@ const cards = [
     }, {
         type: 'visa',
         patterns: [4],
-        format: defaultFormat,
+        format: /^4/,
         length: [13, 16],
         cvcLength: [3],
         luhn: true
     }, {
         type: 'mastercard',
         patterns: [51, 52, 53, 54, 55, 22, 23, 24, 25, 26, 27],
-        format: defaultFormat,
+        format: /^5[1-5]|22|23|24|25|26|27/,
         length: [16],
         cvcLength: [3],
         luhn: true
@@ -152,8 +152,8 @@ const cards = [
     },
     {
         type: 'rupay',
-        pattern: /^(60|50|65|55|69)/,
-        format: defaultFormat,
+        pattern: [60, 50, 65, 55, 69], // /^(60|50|65|55|69)/,
+        format: /^(60|50|65|55|69)/,
         length: [16],
         cvcLength: [3],
         luhn: true
