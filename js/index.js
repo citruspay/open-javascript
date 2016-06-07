@@ -55,7 +55,7 @@ Object.assign(window.citrus, {
         makeDPCardPayment
     },
     wallet: {
-        walletPayment
+        makeWallletPayment
     },
     features: {
         applyDynamicPricing,
