@@ -18,7 +18,6 @@ const regExMap = {
 
 
 const blazeCardValidationSchema = {
-
     mainObjectCheck: {
         /* keysCheck: ['cardNo', 'expiry', 'cvv', 'cardHolderName',
          'email', 'phone', 'amount', 'currency', 'returnUrl', 'notifyUrl', 'merchantTransactionId', 'merchantAccessKey',

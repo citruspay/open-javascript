@@ -40,6 +40,7 @@ const applyDynamicPricing = validateAndCallbackify(dynamicPricingSchema, (confOb
     delete reqConf.currency;
     delete reqConf.paymentMode;
 
+
     if(!reqConf.ruleName && !reqConf.alteredAmount.value)
     {
         dpAction = '/searchAndApplyRuleForPayment';

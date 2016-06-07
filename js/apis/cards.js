@@ -60,9 +60,6 @@ const makeBlazeCardPayment = validateAndCallbackify(blazeCardValidationSchema, (
         cardScheme: confObj.cardScheme//validateScheme(confObj.cardScheme)
     });
 
-    console.log('Config for blazecard fetch !!!', paymentDetails);
-
-
     return custFetch(getConfig().blazeCardApiUrl + '/cards-gateway/rest/cardspg/mpi', {
         method: 'post',
         headers: {

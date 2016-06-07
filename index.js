@@ -6,7 +6,8 @@ import 'core-js/fn/string/includes';
 
 import {makeNetBankingPayment, makeSavedNBPayment, makeBlazeNBPayment} from './apis/net-banking';
 import {getPaymentDetails, getPaymentDetailsForMCP} from './apis/payment-details';
-import  {makeBlazeCardPayment, getmerchantCardSchemes, makeMotoCardPayment, makeSavedCardPayment} from './apis/cards';
+import {makeBlazeCardPayment, getmerchantCardSchemes, makeMotoCardPayment, makeSavedCardPayment} from './apis/cards';
+import {makeWallletPayment} from './apis/wallet';
 import {validateExpiryDate, validateScheme, validateCreditCard} from './validation/custom-validations';
 import {init, handlersMap, setConfig, getConfig} from './config';
 import {makeMCPCardPayment, getCardCurrencyInfo} from './apis/mcp';
@@ -54,6 +55,7 @@ Object.assign(window.citrus, {
         makeDPCardPayment
     },
     features: {
-        applyDynamicPricing
+        applyDynamicPricing,
+        makeWallletPayment
     }
 });

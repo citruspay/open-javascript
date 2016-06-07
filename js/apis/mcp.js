@@ -11,10 +11,8 @@ const MCPCardSchema = cloneDeep(motoCardValidationSchema);
 
 const countryCurrencyMap =  currencyMap;
 
-//MCPCardSchema.mainObjectCheck.keysCheck.push('currencyToken');
 MCPCardSchema.mainObjectCheck.keysCheck.push('targetMcpCurrency');
-//MCPCardSchema.currencyToken = {presence: true};
-//MCPCardSchema.targetMcpCurrency = {presence: true};
+
 
 const makeMCPCardPayment = validateAndCallbackify(MCPCardSchema, (confObj) => {
     MCPData.MCPWrapperAPIData.mcpConversionBeans.some((el) => {
