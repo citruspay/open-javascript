@@ -1,8 +1,10 @@
 import {validateAndCallbackify, getMerchantAccessKey} from './../utils';
 import {baseSchema} from './../validation/validation-schema';
 import cloneDeep from 'lodash/cloneDeep';
-import {getConfig} from '../config';
+import {handlersMap,getConfig} from '../config';
 import {custFetch} from '../interceptor';
+
+let windowResp = { txstatus : "" , txMessage : "Transaction cancelled by user" }
 
 const NBAPIFunc = (confObj, apiUrl) => {
     const reqConf = Object.assign({}, confObj, {
@@ -27,13 +29,127 @@ const NBAPIFunc = (confObj, apiUrl) => {
         headers: {
             'Content-Type': 'application/json'
         },
-        //mode: 'cors',
         body: JSON.stringify(reqConf)
-    })
+    }).then(function(resp){
+        let data;
+        if(resp.data.redirectUrl) {
+            var winRef = openPopupWindow(resp.data.redirectUrl);
+            if (!isIE()) {
+                workFlowForModernBrowsers(winRef)
+            } else {
+                workFlowForIE(winRef);
+            }
+        }
+    });
+};
+
+let winRef = null;
+let transactionCompleted = false;
+
+const openPopupWindow =  (url) => {
+
+    if (winRef == null || winRef.closed) {
+
+        const w = 680;
+        const h = 550;
+
+        const dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+        const dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+
+        const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+        const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+        const left = ((width / 2) - (w / 2)) + dualScreenLeft;
+        const top = ((height / 2) - (h / 2)) + dualScreenTop;
+        winRef = window.open(url, 'PromoteFirefoxWindowName', 'scrollbars=yes, resizable=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+    } else {
+        winRef.focus();
+    }
+    ;
+
+    return winRef;
+
+};
+
+const isIE = () => {
+    const ua = window.navigator.userAgent;
+
+    const ie10orless = ua.indexOf('MSIE ');
+    const ie11 = ua.indexOf('Trident/');
+    const edge = ua.indexOf('Edge/');
+
+    if (ie10orless > -1 || ie11 > -1 || edge > -1) {
+        return true
+    } else {
+        return false
+    }
+};
+
+const workFlowForModernBrowsers = (winRef) => {
+
+    var intervalId = setInterval(function () {
+        if (transactionCompleted) {
+            return clearInterval(intervalId);
+        }
+        if (winRef) {
+            if (winRef.closed === true) {
+                clearInterval(intervalId);
+                windowResp.txstatus = "cancelled";
+                handlersMap['transactionHandler'](windowResp);
+            }
+        } else {
+            clearInterval(intervalId);
+        }
+    }, 500);
+
+};
+
+const workFlowForIE = (winRef) => {
+
+    const intervalId = setInterval(function () {
+        if (transactionCompleted) {
+            return clearInterval(intervalId);
+        }
+        if (winRef) {
+            if (typeof winRef.setInterval !== 'function') {
+                clearInterval(intervalId);
+                windowResp.txstatus = "cancelled";
+                handlersMap['transactionHandler'](windowResp);
+            }
+        } else {
+            clearInterval(intervalId);
+        }
+        try {
+            console.log(winRef);
+            winRef.IEPollingFunc && winRef.IEPollingFunc(function (data) {
+                console.log('from cb to function Available');
+                notifyTransactionToGoodBrowsers(data);
+            });
+        } catch (e) {
+            console.log('Exception: ', e)
+        }
+
+    }, 500);
+
+}
+
+window.notifyTransactionToGoodBrowsers = function (data) {
+    transactionCompleted = true;
+    console.log('redirected data ', data);
+    data = JSON.parse(data);
+    handlersMap['transactionHandler'](data);
+    var showObj = {
+        TxStatus: data.TxStatus,
+        TxMsg: data.TxMsg,
+        pgRespCode: data.pgRespCode
+    };
+    console.log(showObj);
+    setTimeout(function () {
+        parent.postMessage('closeWallet', '*');
+    }, 6000);
 };
 
 /*
-
 const netBankingConfig = {
     "merchantTxnId": "nosdfjlkeuwjffasdf1354",
     "amount": 1.00,

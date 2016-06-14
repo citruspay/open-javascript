@@ -18,7 +18,6 @@ const custFetch = function () {
                 });
             }
         } else {
-
             if (response.headers.get('Content-Type').includes('application/json')) {
                 promise = response.json().then(function (val) {
                     response.data = val;
@@ -31,7 +30,6 @@ const custFetch = function () {
                 });
             }
         }
-
         return promise;
     }, function (response) {
         if (response.headers && response.text) {
@@ -47,9 +45,7 @@ const custFetch = function () {
         } else {
             response.data = response.message || response.description;
         }
-
         return Promise.reject(response);
-
     }).then(res => {
         return res;
     }, (err) => {

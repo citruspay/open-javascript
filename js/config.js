@@ -45,6 +45,9 @@ const handlersMap = {
     },
     serverErrorHandler: (error) => {
         console.error("Error from server. handled in default server error handler", JSON.stringify(error));
+    },
+    transactionHandler:(error) => {
+        console.log("Transaction status :", error);
     }
 };
 
