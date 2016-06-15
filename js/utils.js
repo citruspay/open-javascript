@@ -28,7 +28,6 @@ const enhanceWithValidation = (schema, func) =>{
 
     return (confObj) => {
         const validationResult = custValidate(confObj, schema);
-        console.log('validation Result :: ', validationResult);
         if(validationResult){
             handlersMap['errorHandler'](validationResult);
             throw JSON.stringify(validationResult);
@@ -124,35 +123,35 @@ const cards = [
     }, {
         type: 'dinersclub',
         patterns: [30, 36, 38, 39],
-        format: /(\d{1,4})(\d{1,6})?(\d{1,4})?/,
+        format: /^(36|38|30[0-5])/,
         length: [14],
         cvcLength: [3],
         luhn: true
     }, {
         type: 'discover',
-        patterns: [60, 64, 65, 622],
-        format: defaultFormat,
+        patterns: [6011, 64, 65, 622],
+        format: /^(6011|65|64[4-9]|622)/,
         length: [16],
         cvcLength: [3],
         luhn: true
     }, {
         type: 'unionpay',
         patterns: [62, 88],
-        format: defaultFormat,
+        format: /^62/,
         length: [16, 17, 18, 19],
         cvcLength: [3],
         luhn: false
     }, {
         type: 'jcb',
         patterns: [35],
-        format: defaultFormat,
+        format: /^35/,
         length: [16],
         cvcLength: [3],
         luhn: true
     },
     {
         type: 'rupay',
-        pattern: [60, 50, 65, 55, 69], // /^(60|50|65|55|69)/,
+        patterns: [60, 50, 65, 55, 69], // /^(60|50|65|55|69)/,
         format: /^(60|50|65|55|69)/,
         length: [16],
         cvcLength: [3],

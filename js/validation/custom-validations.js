@@ -2,6 +2,7 @@ import isCardValid from './credit-card-validation';
 import some from '../../node_modules/lodash/some';
 import {validate as v} from 'validate.js';
 import {schemeFromNumber, getAppData} from '../utils';
+import {handlersMap} from '../config'
 
 
 const keysCheck = (value, options, key, attributes) => {
@@ -66,15 +67,12 @@ const validateExpiryDate = (dateStr) => {
 
 //copied from old citrus.js
 
-const cardDate = (value, options) => {
-
-    if(options !== true) return;
-
-    if(!value) return; // if field is not mandatory then do nothing
-
-    if(!validateExpiryDate(value)){
-        return 'invalid date';
+const cardDate = (value) => {
+    if(validateExpiryDate(value)){
+        return value;
     };
+    handlersMap['errorHandler']("Expiry date is invalid");
+    throw ("Expiry date is invalid");
 };
 
 const schemeMap = {
@@ -137,7 +135,6 @@ const schemeMap = {
 const validateScheme = (scheme, ignoreServerAlias) => {
     scheme = scheme.toLowerCase().replace(/\s+/g, '');
 
-
     const found = some(schemeMap, (config, cardType) => {
         if (
             some(config.aliases, (val) => {
@@ -174,7 +171,19 @@ const validateCardType = (type) => {
 };
 
 //cardCheck
+const validateCvv = (value,scheme) => {
 
+    if(scheme === 'amex' && value.length == 4)
+    {
+        return value;
+    }else if(value.length > 0 && value.length < 4){
+        return value;
+    }
+
+    handlersMap['errorHandler']("CVV is invalid");
+    throw ("CVV is invalid");
+
+};
 
 const cardCheck = (paymentDetails, options, key, attributes) => {
     if(options !== true) return;
@@ -262,5 +271,5 @@ const validateCreditCard = (cardNo, scheme) =>{
 };
 
 
-export { keysCheck, cardDate, cardCheck, custFormat, validateScheme, validateExpiryDate,
+export { keysCheck, cardDate, cardCheck, custFormat, validateScheme, validateExpiryDate, validateCvv,
     validateCreditCard, validateCardType, blazeCardCheck }

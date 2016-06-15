@@ -119,22 +119,20 @@ const motoCardValidationSchema = Object.assign(cloneDeep(baseSchema), {
         cardCheck: true,
         keysCheck: ['type', 'number', 'holder', 'cvv', 'expiry']
     },
-    //"paymentDetails.type" : { presence: true },
-    //"paymentDetails.scheme": { presence: true},
-    //"paymentDetails.number": {presence: true },
     "paymentDetails.holder": {presence: true, format: regExMap.name},
-    "paymentDetails.cvv": {presence: true, format: regExMap.CVV},
-    "paymentDetails.expiry": {presence: true, cardDate: true}
+    // "paymentDetails.cvv": {presence: true, format: regExMap.CVV},
+    // "paymentDetails.expiry": {presence: true, cardDate: true}
 
 });
 
 motoCardValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 
 const  motoCardApiFunc = (confObj) => {
-
+    const cardScheme = schemeFromNumber(confObj.paymentDetails.number);
+    console.log(cardScheme);
     const paymentDetails = Object.assign({}, confObj.paymentDetails, {
         type: validateCardType(confObj.paymentDetails.type),
-        scheme: validateScheme(schemeFromNumber(confObj.paymentDetails.number))
+        scheme: validateScheme(cardScheme)
     });
 
     const reqConf = Object.assign({}, confObj, {

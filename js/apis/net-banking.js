@@ -4,7 +4,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import {handlersMap,getConfig} from '../config';
 import {custFetch} from '../interceptor';
 
-let windowResp = { txstatus : "" , txMessage : "Transaction cancelled by user" }
+let windowResp = { txstatus : "" , txMessage : "Transaction cancelled by user" };
 
 const NBAPIFunc = (confObj, apiUrl) => {
     const reqConf = Object.assign({}, confObj, {
@@ -31,7 +31,6 @@ const NBAPIFunc = (confObj, apiUrl) => {
         },
         body: JSON.stringify(reqConf)
     }).then(function(resp){
-        let data;
         if(resp.data.redirectUrl) {
             var winRef = openPopupWindow(resp.data.redirectUrl);
             if (!isIE()) {
@@ -65,7 +64,7 @@ const openPopupWindow =  (url) => {
     } else {
         winRef.focus();
     }
-    ;
+
 
     return winRef;
 
@@ -78,11 +77,7 @@ const isIE = () => {
     const ie11 = ua.indexOf('Trident/');
     const edge = ua.indexOf('Edge/');
 
-    if (ie10orless > -1 || ie11 > -1 || edge > -1) {
-        return true
-    } else {
-        return false
-    }
+    return !!(ie10orless > -1 || ie11 > -1 || edge > -1);
 };
 
 const workFlowForModernBrowsers = (winRef) => {
@@ -120,7 +115,6 @@ const workFlowForIE = (winRef) => {
             clearInterval(intervalId);
         }
         try {
-            console.log(winRef);
             winRef.IEPollingFunc && winRef.IEPollingFunc(function (data) {
                 console.log('from cb to function Available');
                 notifyTransactionToGoodBrowsers(data);
@@ -131,11 +125,10 @@ const workFlowForIE = (winRef) => {
 
     }, 500);
 
-}
+};
 
 window.notifyTransactionToGoodBrowsers = function (data) {
     transactionCompleted = true;
-    console.log('redirected data ', data);
     data = JSON.parse(data);
     handlersMap['transactionHandler'](data);
     var showObj = {
@@ -143,7 +136,6 @@ window.notifyTransactionToGoodBrowsers = function (data) {
         TxMsg: data.TxMsg,
         pgRespCode: data.pgRespCode
     };
-    console.log(showObj);
     setTimeout(function () {
         parent.postMessage('closeWallet', '*');
     }, 6000);

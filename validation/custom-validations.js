@@ -138,7 +138,6 @@ const schemeMap = {
 const validateScheme = (scheme, ignoreServerAlias) => {
     scheme = scheme.toLowerCase().replace(/\s+/g, '');
 
-
     const found = some(schemeMap, (config, cardType) => {
         if (
             some(config.aliases, (val) => {
@@ -174,6 +173,11 @@ const validateCardType = (type) => {
     return found ? type : false;
 };
 
+const validateExpiry = (value) => {
+
+
+
+};
 //cardCheck
 
 
@@ -265,4 +269,4 @@ const validateCreditCard = (cardNo, scheme) =>{
 
 
 export { keysCheck, cardDate, cardCheck, custFormat, validateScheme, validateExpiryDate,
-    validateCreditCard, validateCardType, blazeCardCheck }
+    validateCreditCard, validateCardType, blazeCardCheck}
