@@ -38,6 +38,6 @@ export const baseSchema = {
         keysCheck: ['street1', 'street2', 'city', 'state', 'country', 'zip']
     },
     'userDetails.mobileNo' : {
-        length: {maximum: 10}
+        length: {maximum: 15}
     }
 };
