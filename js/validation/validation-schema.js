@@ -9,7 +9,7 @@ window.r2 = regEXMap.url;
 export const baseSchema = {
     'mainObjectCheck':{
         keysCheck: ['merchantTxnId', 'amount', 'currency', 'userDetails', 'returnUrl',
-            'notifyUrl', 'requestSignature', 'merchantAccessKey', 'customParameters', 'requestOrigin']
+            'notifyUrl', 'requestSignature', 'merchantAccessKey', 'customParameters', 'requestOrigin', 'mode']
     },
     returnUrl: {
         presence: true,

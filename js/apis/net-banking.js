@@ -24,6 +24,11 @@ const NBAPIFunc = (confObj, apiUrl) => {
     });
     delete reqConf.bankCode;
     delete reqConf.currency;
+    const mode = reqConf.mode;
+    delete reqConf.mode;
+    if(mode === 'drop-in'){
+    reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
+    }
     return custFetch(apiUrl, {
         method: 'post',
         headers: {
@@ -32,12 +37,19 @@ const NBAPIFunc = (confObj, apiUrl) => {
         body: JSON.stringify(reqConf)
     }).then(function(resp){
         if(resp.data.redirectUrl) {
-            var winRef = openPopupWindow(resp.data.redirectUrl);
-            if (!isIE()) {
-                workFlowForModernBrowsers(winRef)
-            } else {
-                workFlowForIE(winRef);
+            if( mode === "drop-out" ){
+                window.location = resp.data.redirectUrl;
             }
+            else {
+                var winRef = openPopupWindow(resp.data.redirectUrl);
+                if (!isIE()) {
+                    workFlowForModernBrowsers(winRef)
+                } else {
+                    workFlowForIE(winRef);
+                }
+            }
+        }else {
+            handlersMap['serverErrorHandler'](resp.data);
         }
     });
 };
@@ -254,7 +266,6 @@ const savedAPIFunc = (confObj, url) => {
     delete reqConf.currency;
     delete reqConf.token;
     delete reqConf.CVV; //will delete if present
-
     return custFetch(url, { //for Blazenet use `${getConfig().blazeNetApiUrl}/netbank/chksumtrans`
         method: 'post',
         headers: {
