@@ -33,8 +33,6 @@ const apiConfMap = {
 };
 
 
-//const apiUrl = "https://sandboxadmin.citruspay.com/service";
-const apiUrl = 'https://sboxblazenet.citruspay.com';
 const handlersMap = {
     errorHandler: (error) => { //default Error Handler
         if (console.error) {
@@ -100,7 +98,7 @@ function getDeviceType() {
         device = "DESKTOP";
     }
     return device;
-};
+}
 
 const init = () => {
     validate.validators.keysCheck = keysCheck;

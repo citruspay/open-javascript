@@ -120,7 +120,7 @@ const motoCardValidationSchema = Object.assign(cloneDeep(baseSchema), {
     //"paymentDetails.type" : { presence: true },
     //"paymentDetails.scheme": { presence: true},
     //"paymentDetails.number": {presence: true },
-    "paymentDetails.holder": {presence: true, format: regExMap.name},
+    "paymentDetails.holder": {presence: true, format: regExMap.name}
     // "paymentDetails.cvv": {presence: true, format: regExMap.CVV},
     // "paymentDetails.expiry": {presence: true, cardDate: true}
 
@@ -168,6 +168,9 @@ const motoCardApiFunc = (confObj) => {
     delete reqConf.currency;
     const mode = reqConf.mode;
     delete reqConf.mode;
+    if(mode !== 'drop-out'){
+        reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
+    }
     return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
         method: 'post',
         headers: {
@@ -285,11 +288,6 @@ window.notifyTransactionToGoodBrowsers = function (data) {
     transactionCompleted = true;
     data = JSON.parse(data);
     handlersMap['transactionHandler'](data);
-    var showObj = {
-        TxStatus: data.TxStatus,
-        TxMsg: data.TxMsg,
-        pgRespCode: data.pgRespCode
-    };
     setTimeout(function () {
         parent.postMessage('closeWallet', '*');
     }, 6000);

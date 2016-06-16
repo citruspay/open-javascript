@@ -26,7 +26,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
     delete reqConf.currency;
     const mode = reqConf.mode;
     delete reqConf.mode;
-    if(mode === 'drop-in'){
+    if(mode !== 'drop-out'){
     reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
     }
     return custFetch(apiUrl, {
@@ -143,11 +143,7 @@ window.notifyTransactionToGoodBrowsers = function (data) {
     transactionCompleted = true;
     data = JSON.parse(data);
     handlersMap['transactionHandler'](data);
-    var showObj = {
-        TxStatus: data.TxStatus,
-        TxMsg: data.TxMsg,
-        pgRespCode: data.pgRespCode
-    };
+
     setTimeout(function () {
         parent.postMessage('closeWallet', '*');
     }, 6000);
