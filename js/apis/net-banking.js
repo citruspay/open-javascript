@@ -22,6 +22,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
         merchantAccessKey: getMerchantAccessKey(confObj),
         requestOrigin: "CJSG"
     });
+    reqConf.offerToken = getConfig().dpOfferToken;
     delete reqConf.bankCode;
     delete reqConf.currency;
     const mode = reqConf.mode;

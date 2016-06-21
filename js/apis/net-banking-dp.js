@@ -16,7 +16,6 @@ const dpCardSchema = cloneDeep(motoCardValidationSchema);
 let DPData;
 
 const applyNbDynamicPricing = validateAndCallbackify(dynamicPricingSchema, (confObj) => {
-    let dpAction;
     const reqConf = Object.assign({}, confObj, {
         originalAmount: {
             value: confObj.originalAmount, currency : confObj.currency
