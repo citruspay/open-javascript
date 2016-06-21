@@ -2,7 +2,7 @@ import isCardValid from './credit-card-validation';
 import some from '../../node_modules/lodash/some';
 import {validate as v} from 'validate.js';
 import {schemeFromNumber, getAppData} from '../utils';
-import {handlersMap} from '../config'
+import {handlersMap,getConfig} from '../config'
 
 
 const keysCheck = (value, options, key, attributes) => {
@@ -194,7 +194,7 @@ const cardCheck = (paymentDetails, options, key, attributes) => {
 
         if(!scheme) { return ' :invalid scheme type'}
 
-        if(getAppData('pgSettingsData')[validatedCardType+'Card'].indexOf( validateScheme(scheme, false)) < 0 ){
+        if(!getConfig().fastForward && getAppData('pgSettingsData')[validatedCardType+'Card'].indexOf( validateScheme(scheme, false)) < 0 ){
             return ':cardscheme is not supported';
         }
 

@@ -3,7 +3,7 @@ import {savedNBValidationSchema, savedAPIFunc} from './net-banking';
 import {baseSchema} from './../validation/validation-schema';
 import cloneDeep from 'lodash/cloneDeep';
 import {handlersMap, getConfig} from '../config';
-import {validateCardType, validateScheme,cardDate,validateCvv} from '../validation/custom-validations';
+import {validateCardType, validateScheme, cardDate, validateCvv} from '../validation/custom-validations';
 //import $ from 'jquery';
 import {custFetch} from '../interceptor';
 import {urlReEx} from '../constants';
@@ -134,14 +134,16 @@ const motoCardApiFunc = (confObj) => {
     if (cardScheme === 'maestro') {
         paymentDetails = Object.assign({}, confObj.paymentDetails, {
             type: validateCardType(confObj.paymentDetails.type),
-            scheme: validateScheme(cardScheme)
+            scheme: validateScheme(cardScheme),
+            expiry: confObj.paymentDetails.expiry,
+            cvv: confObj.paymentDetails.cvv
         });
     } else {
         paymentDetails = Object.assign({}, confObj.paymentDetails, {
             type: validateCardType(confObj.paymentDetails.type),
             scheme: validateScheme(cardScheme),
             expiry: cardDate(confObj.paymentDetails.expiry),
-            cvv: validateCvv(confObj.paymentDetails.cvv,cardScheme)
+            cvv: validateCvv(confObj.paymentDetails.cvv, cardScheme)
         });
     }
 
@@ -164,11 +166,12 @@ const motoCardApiFunc = (confObj) => {
         requestOrigin: "CJSG"
     });
     reqConf.paymentToken.paymentMode.expiry = confObj.paymentDetails.expiry;
+    reqConf.offerToken = getConfig().dpOfferToken;
     delete reqConf.paymentDetails;
     delete reqConf.currency;
     const mode = reqConf.mode;
     delete reqConf.mode;
-    if(mode !== 'drop-out'){
+    if (mode !== 'drop-out') {
         reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
     }
     return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
@@ -179,8 +182,8 @@ const motoCardApiFunc = (confObj) => {
         mode: 'cors',
         body: JSON.stringify(reqConf)
     }).then(function (resp) {
-        if(resp.data.redirectUrl) {
-            if( mode === "drop-out" ){
+        if (resp.data.redirectUrl) {
+            if (mode === "drop-out") {
                 window.location = resp.data.redirectUrl;
             }
             else {
@@ -191,7 +194,7 @@ const motoCardApiFunc = (confObj) => {
                     workFlowForIE(winRef);
                 }
             }
-        }else {
+        } else {
             handlersMap['serverErrorHandler'](resp.data);
         }
     });

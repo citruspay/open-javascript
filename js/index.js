@@ -13,6 +13,7 @@ import {makeMCPCardPayment, getCardCurrencyInfo} from './apis/mcp';
 import * as tests from './tests/simple-tests';
 import {schemeFromNumber} from './utils';
 import {applyDynamicPricing,makeDPCardPayment} from './apis/card-dp'
+import {applyNbDynamicPricing} from './apis/net-banking-dp'
 
 
 init(); //initializes custom validators
@@ -40,7 +41,7 @@ Object.assign(window.citrus, {
         makeNetBankingPayment,
         makeSavedNBPayment,
         makeBlazeNBPayment,
-        applyDynamicPricing
+        applyNbDynamicPricing
     },
     cards: {
         getmerchantCardSchemes,

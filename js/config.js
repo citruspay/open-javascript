@@ -62,14 +62,13 @@ const configMap = {
 };
 
 const setConfig = (configObj) => {
-    configObj.env && (env = configObj.env);
-    Object.assign(configMap, {
+    configObj.env && (env = configObj.env);    Object.assign(configMap, {
         blazeCardApiUrl: apiConfMap[env+'Conf'].blazeCardApiUrl,
         blazeNetApiUrl: apiConfMap[env+'Conf'].blazeNetApiUrl,
         motoApiUrl : apiConfMap[env+'Conf'].motoApiUrl,
         MCPAPIUrl: apiConfMap[env+'Conf'].MCPAPIUrl,
         dpApiUrl:apiConfMap[env+'Conf'].dpApiUrl
-    }, configObj);
+    }, configObj)
     return Object.assign({}, configMap);
 };
 

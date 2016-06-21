@@ -15,7 +15,7 @@ const currencyMap = {
     'Japan' : 'JPY', 'United Kingdom' : 'GBP', 'Liechtenstein' : 'CHF', 'Switzerland' : 'CHF', 'Sweden' : 'SEK',
     'Greenland' : 'DKK', 'Denmark' : 'DKK', 'Norway' : 'NOK', 'Svalbard and Jan Mayen' : 'NOK', 'Singapore' : 'SGD',
     'Australia' : 'AUD', 'Christmas Island' : 'AUD', 'Cocos (Keeling) Islands' : 'AUD', 'Kiribati' : 'AUD', 'Nauru' : 'AUD',
-    'Norfolk Island' : 'AUD', 'Tuvalu' : 'AUD', 'Canada' : 'CAD', 'United Arab Em,irates' : 'AED', 'Hong Kong' : 'HKD',
+    'Norfolk Island' : 'AUD', 'Tuvalu' : 'AUD', 'Canada' : 'CAD', 'United Arab Emirates' : 'AED', 'Hong Kong' : 'HKD',
     'Qatar' : 'QAR', 'Saudi Arabia' : 'SAR', 'Oman' : 'OMR', 'South Africa' : 'ZAR', 'Malaysia' : 'MYR', 'Kuwait' : 'KWD',
     'Mauritius' : 'MUR', 'Sri Lanka' : 'LKR', 'Kenya' : 'KES', 'Philippines' : 'PHP', 'New Zealand' : 'NZD', 'Niue' : 'NZD',
     'Pitcairn' : 'NZD', 'Tokelau' : 'NZD', 'Thailand' : 'THB', 'Bangladesh' : 'BDT', 'China' : 'CNY', 'Nepal' : 'NPR', 'Bahrain' : 'BHD',

@@ -9,12 +9,14 @@ const dynamicPricingSchema = {
     phone : { length: { maximum : 10 } },
     originalAmount: { presence : true },
     currency: { presence : true },
-    cardNo: { presence : true },
+    bankCode: { presence : true },
     signature : { presence : true }
 };
 const dpCardSchema = cloneDeep(motoCardValidationSchema);
+let DPData;
 
-const applyDynamicPricing = validateAndCallbackify(dynamicPricingSchema, (confObj) => {
+const applyNbDynamicPricing = validateAndCallbackify(dynamicPricingSchema, (confObj) => {
+    let dpAction;
     const reqConf = Object.assign({}, confObj, {
         originalAmount: {
             value: confObj.originalAmount, currency : confObj.currency
@@ -24,7 +26,7 @@ const applyDynamicPricing = validateAndCallbackify(dynamicPricingSchema, (confOb
         },
         paymentInfo : {
             cardNo : confObj.cardNo,
-            issuerId : confObj.issuerId,
+            issuerId : confObj.bankCode,
             paymentMode : confObj.paymentMode,
             paymentToken : confObj.paymentToken
         },
@@ -36,11 +38,13 @@ const applyDynamicPricing = validateAndCallbackify(dynamicPricingSchema, (confOb
     delete reqConf.cardNo;
     delete reqConf.currency;
     delete reqConf.paymentMode;
+    delete reqConf.bankCode;
     return dynamicPricingFunction(reqConf);
 });
 
 const makeDPCardPayment = validateAndCallbackify(dpCardSchema, (confObj) => {
+    confObj.offerToken = DPData.offerToken;
     return motoCardApiFunc(confObj);
 });
 
-export {applyDynamicPricing, makeDPCardPayment}
+export {applyNbDynamicPricing, makeDPCardPayment}
