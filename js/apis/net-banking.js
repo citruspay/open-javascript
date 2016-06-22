@@ -77,19 +77,14 @@ const openPopupWindow =  (url) => {
     } else {
         winRef.focus();
     }
-
-
     return winRef;
-
 };
 
 const isIE = () => {
     const ua = window.navigator.userAgent;
-
     const ie10orless = ua.indexOf('MSIE ');
     const ie11 = ua.indexOf('Trident/');
     const edge = ua.indexOf('Edge/');
-
     return !!(ie10orless > -1 || ie11 > -1 || edge > -1);
 };
 

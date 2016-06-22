@@ -3,6 +3,7 @@ import {motoCardValidationSchema, motoCardApiFunc} from './cards';
 import {dynamicPricingFunction} from './dynamic-pricing';
 import {validateAndCallbackify, schemeFromNumber} from './../utils';
 import {getConfig} from '../config';
+import {validateScheme} from '../validation/custom-validations'
 
 const dynamicPricingSchema = {
     email: { presence : true, email : true },
@@ -32,7 +33,7 @@ const applyDynamicPricing = validateAndCallbackify(dynamicPricingSchema, (confOb
             deviceType : `${getConfig().deviceType}`
         }
     });
-    reqConf.paymentInfo.cardType = schemeFromNumber(confObj.cardNo);
+    reqConf.paymentInfo.cardType = validateScheme(schemeFromNumber(confObj.cardNo));
     delete reqConf.cardNo;
     delete reqConf.currency;
     delete reqConf.paymentMode;

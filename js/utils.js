@@ -160,7 +160,7 @@ const cards = [
 
 ];
 
-const schemeFromNumber = function(num) {
+const schemeFromNumber = (num) => {
     var card, p, pattern, _i, _j, _len, _len1, _ref;
     num = (num + '').replace(/\D/g, '');
     for (_i = 0, _len = cards.length; _i < _len; _i++) {
