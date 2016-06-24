@@ -71,16 +71,17 @@ const getMerchantAccessKey = (optionsObj) => {
 const defaultFormat = /(\d{1,4})/g;
 
 const cards = [
+    // {
+    //     type: 'visaelectron',
+    //     patterns: [4026, 417500, 4405, 4508, 4844, 4913, 4917],
+    //     format: defaultFormat,
+    //     length: [16],
+    //     cvcLength: [3],
+    //     luhn: true
+    // },
     {
-        type: 'visaelectron',
-        patterns: [4026, 417500, 4405, 4508, 4844, 4913, 4917],
-        format: defaultFormat,
-        length: [16],
-        cvcLength: [3],
-        luhn: true
-    }, {
         type: 'maestro',
-        patterns: [5018, 502, 503, 56, 58, 639, 6220, 67],
+        patterns: [5018, 502, 503, 504, 545, 56, 58, 639, 6220, 67],
         format: /^(?:5[0678]\d\d|6304|6390|6220|67\d\d)\d{8,15}$/,
         length: [12, 13, 14, 15, 16, 17, 18, 19],
         cvcLength: [3],
@@ -88,13 +89,13 @@ const cards = [
     }, {
         type: 'forbrugsforeningen',
         patterns: [600],
-        format: defaultFormat,
+        format: /^600/,
         length: [16],
         cvcLength: [3],
         luhn: true
     }, {
         type: 'dankort',
-        patterns: [5019],
+        patterns: /^5019/,
         format: defaultFormat,
         length: [16],
         cvcLength: [3],
@@ -151,27 +152,23 @@ const cards = [
     },
     {
         type: 'rupay',
-        patterns: [60, 50, 65, 55, 69], // /^(60|50|65|55|69)/,
+        patterns: [60, 50, 65, 55, 69],
         format: /^(60|50|65|55|69)/,
         length: [16],
         cvcLength: [3],
         luhn: true
     }
-
 ];
 
 const schemeFromNumber = (num) => {
-    var card, p, pattern, _i, _j, _len, _len1, _ref;
+    var card, _i, _len, _ref;
     num = (num + '').replace(/\D/g, '');
     for (_i = 0, _len = cards.length; _i < _len; _i++) {
         card = cards[_i];
         _ref = card.patterns;
-        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            pattern = _ref[_j];
-            p = pattern + '';
-            if (num.substr(0, p.length) === p) {
-                return card.type;
-            }
+        if(card.format.test(num))
+        {
+            return card.type;
         }
     }
 };
