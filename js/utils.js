@@ -68,8 +68,6 @@ const getMerchantAccessKey = (optionsObj) => {
 
 //logic from jquery payment plugin
 
-const defaultFormat = /(\d{1,4})/g;
-
 const cards = [
     // {
     //     type: 'visaelectron',
@@ -90,13 +88,6 @@ const cards = [
         type: 'forbrugsforeningen',
         patterns: [600],
         format: /^600/,
-        length: [16],
-        cvcLength: [3],
-        luhn: true
-    }, {
-        type: 'dankort',
-        patterns: /^5019/,
-        format: defaultFormat,
         length: [16],
         cvcLength: [3],
         luhn: true
