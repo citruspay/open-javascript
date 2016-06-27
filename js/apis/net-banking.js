@@ -16,7 +16,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
             type: 'paymentOptionToken',
             paymentMode: {
                 type: 'netbanking',
-                code: confObj.bankCode
+                code: confObj.paymentDetails.bankCode
             }
         },
         merchantAccessKey: getMerchantAccessKey(confObj),
@@ -25,9 +25,10 @@ const NBAPIFunc = (confObj, apiUrl) => {
     reqConf.offerToken = getConfig().dpOfferToken;
     delete reqConf.bankCode;
     delete reqConf.currency;
+    delete reqConf.paymentDetails;
     const mode = reqConf.mode;
     delete reqConf.mode;
-    if(mode !== 'drop-out'){
+    if(mode === 'drop-in'){
     reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
     }
     return custFetch(apiUrl, {
@@ -38,16 +39,19 @@ const NBAPIFunc = (confObj, apiUrl) => {
         body: JSON.stringify(reqConf)
     }).then(function(resp){
         if(resp.data.redirectUrl) {
-            if( mode === "drop-out" ){
+            if (mode === "drop-out") {
                 window.location = resp.data.redirectUrl;
             }
             else {
-                var winRef = openPopupWindow(resp.data.redirectUrl);
-                if (!isIE()) {
-                    workFlowForModernBrowsers(winRef)
-                } else {
-                    workFlowForIE(winRef);
-                }
+                winRef = openPopupWindow("");
+                setTimeout(function(){
+                    winRef.location.replace(resp.data.redirectUrl);
+                    if (!isIE()) {
+                        workFlowForModernBrowsers(winRef)
+                    } else {
+                        workFlowForIE(winRef);
+                    }
+                },1000);
             }
         }else {
             handlersMap['serverErrorHandler'](resp.data);
@@ -64,7 +68,6 @@ const openPopupWindow =  (url) => {
 
         const w = 680;
         const h = 550;
-
         const dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
         const dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
 
@@ -108,31 +111,17 @@ const workFlowForModernBrowsers = (winRef) => {
 };
 
 const workFlowForIE = (winRef) => {
-
-    const intervalId = setInterval(function () {
-        if (transactionCompleted) {
+    const intervalId = setInterval(function(){
+        if(transactionCompleted){
             return clearInterval(intervalId);
         }
-        if (winRef) {
-            if (typeof winRef.setInterval !== 'function') {
+        if(winRef) {
+            if (winRef.closed) {
                 clearInterval(intervalId);
-                windowResp.txstatus = "cancelled";
-                handlersMap['transactionHandler'](windowResp);
+                handlersMap['transactionHandler']({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});
             }
-        } else {
-            clearInterval(intervalId);
         }
-        try {
-            winRef.IEPollingFunc && winRef.IEPollingFunc(function (data) {
-                console.log('from cb to function Available');
-                notifyTransactionToGoodBrowsers(data);
-            });
-        } catch (e) {
-            console.log('Exception: ', e)
-        }
-
-    }, 500);
-
+    },500);
 };
 
 window.notifyTransactionToGoodBrowsers = function (data) {
@@ -145,82 +134,21 @@ window.notifyTransactionToGoodBrowsers = function (data) {
     }, 6000);
 };
 
-/*
-const netBankingConfig = {
-    "merchantTxnId": "nosdfjlkeuwjffasdf1354",
-    "amount": 1.00,
-    "userDetails": {
-        "email": "nikhil.yeole1@gmail.com",
-        "firstName": "nikhil",
-        "lastName": "yeole",
-        "address": {
-            "street1": "abcstree1",
-            "street2": "abcstree2",
-            "city": "Pune",
-            "state": "MS",
-            "country": "IND",
-            "zip": "411038"
-        },
-        "mobileNo": "99349494944"
-    },
-    //"bankName" : 'AXIS Bank',
-    "bankCode": "CID002",
-    "returnUrl": "http://locahost:3000/returnUrl",
-    //"notifyUrl": "<%= notifyUrl>",
-    "merchantAccessKey": "66PT1PDZ38A5OB1PTF01",
-    "requestSignature": "e87dd86b0a888e7c2f90b8c6754d1369da4b2b88"
-};
-
-*/
-
 const netBankingValidationSchema = Object.assign(cloneDeep(baseSchema), {
-    bankCode: {presence: true}
+    paymentDetails: {
+        presence: true,
+        keysCheck: ['paymentMode','bankCode']
+    },
+    "paymentDetails.bankCode" : {presence: true}
 });
 
-netBankingValidationSchema.mainObjectCheck.keysCheck.push('bankCode');
+netBankingValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 
 
 const makeNetBankingPayment = validateAndCallbackify(netBankingValidationSchema, (confObj) => {
     const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;
     return NBAPIFunc(confObj, apiUrl);
 });
-
-/*
-//api data
- {
-    "merchantTxnId": "nosdfjlkeuwjffasdf1354",
-    "amount": {
-        "currency": "INR",
-        "value": "1.00" // todo: check if we can send it as float
-    },
-    "userDetails": {
-        "email": "nikhil.yeole1@gmail.com",
-        "firstName": "nikhil",
-        "lastName": "yeole",
-        "address": {
-            "street1": "abcstree1",
-            "street2": "abcstree2",
-            "city": "Pune",
-            "state": "MS",
-            "country": "IND",
-            "zip": "411038"
-        },
-        "mobileNo": "99349494944"
-    },
-    "returnUrl": "http://localhost:3000/returnUrl",
-    "paymentToken": {
-        "type": "paymentOptionToken",
-        "paymentMode": {
-            "type": "netbanking",
-            //"bank": "AXIS Bank",
-            "code": "CID002"
-        }
-    },
-    "notifyUrl": "<%= notifyUrl>",
-    "merchantAccessKey": "66PT1PDZ38A5OB1PTF01",
-    "requestSignature": "e87dd86b0a888e7c2f90b8c6754d1369da4b2b88",
-    //"requestOrigin": "CJSG"
-*/
 
 //------------------- makeBlazeNBPayment ----------------//
 
@@ -229,9 +157,7 @@ const makeBlazeNBPayment = validateAndCallbackify(netBankingValidationSchema, (c
     return NBAPIFunc(confObj, apiUrl);
 });
 
-
 //------------------- makeSavedNBPayment ----------------//
-
 
 const savedNBValidationSchema = Object.assign(cloneDeep(baseSchema), {
     token: {presence: true}

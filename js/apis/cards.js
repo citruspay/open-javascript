@@ -83,17 +83,9 @@ const makeBlazeCardPayment = validateAndCallbackify(blazeCardValidationSchema, (
 
 });
 
-//----------------------------------------------------------------------------------------------------
-
 const merchantCardSchemesSchema = {
     merchantAccessKey: {presence: true}
 };
-
-/*
- confObj = {
- "merchantAccessKey" : "27AOYSJCQOR6VZ39V7JV"
- };
- */
 
 const getmerchantCardSchemes = validateAndCallbackify(merchantCardSchemesSchema, (confObj) => {
 
@@ -106,8 +98,6 @@ const getmerchantCardSchemes = validateAndCallbackify(merchantCardSchemesSchema,
         body: JSON.stringify(confObj)
     });
 });
-
-//----------------------------------------------------------------------------------------------------
 
 //moto implementation
 
@@ -172,7 +162,7 @@ const motoCardApiFunc = (confObj) => {
     const mode = reqConf.mode;
     delete reqConf.mode;
     if (mode !== 'drop-out') {
-        reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
+        reqConf.returnUrl = "http://localhost:8090/blade/returnUrl"; //window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
     }
     return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
         method: 'post',
@@ -187,12 +177,15 @@ const motoCardApiFunc = (confObj) => {
                 window.location = resp.data.redirectUrl;
             }
             else {
-                var winRef = openPopupWindow(resp.data.redirectUrl);
-                if (!isIE()) {
-                    workFlowForModernBrowsers(winRef)
-                } else {
-                    workFlowForIE(winRef);
-                }
+                winRef = openPopupWindow("");
+                setTimeout(function(){
+                    winRef.location.replace(resp.data.redirectUrl);
+                    if (!isIE()) {
+                        workFlowForModernBrowsers(winRef)
+                    } else {
+                        workFlowForIE(winRef);
+                    }
+                },1000);
             }
         } else {
             handlersMap['serverErrorHandler'](resp.data);
@@ -256,35 +249,20 @@ const workFlowForModernBrowsers = (winRef) => {
             clearInterval(intervalId);
         }
     }, 500);
-
 };
 
 const workFlowForIE = (winRef) => {
-
-    const intervalId = setInterval(function () {
-        if (transactionCompleted) {
+    const intervalId = setInterval(function(){
+        if(transactionCompleted){
             return clearInterval(intervalId);
         }
-        if (winRef) {
-            if (typeof winRef.setInterval !== 'function') {
+        if(winRef) {
+            if (winRef.closed) {
                 clearInterval(intervalId);
-                windowResp.txstatus = "cancelled";
-                handlersMap['transactionHandler'](windowResp);
+                handlersMap['transactionHandler']({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});
             }
-        } else {
-            clearInterval(intervalId);
         }
-        try {
-            winRef.IEPollingFunc && winRef.IEPollingFunc(function (data) {
-                console.log('from cb to function Available');
-                notifyTransactionToGoodBrowsers(data);
-            });
-        } catch (e) {
-            console.log('Exception: ', e)
-        }
-
-    }, 500);
-
+    },500);
 };
 
 window.notifyTransactionToGoodBrowsers = function (data) {
@@ -295,49 +273,6 @@ window.notifyTransactionToGoodBrowsers = function (data) {
         parent.postMessage('closeWallet', '*');
     }, 6000);
 };
-
-
-/*
-
- {
- "merchantTxnId": "nosdfjlkeuwjffasdf2418",
- "amount": {
- "currency": "INR",
- "value": "1.00"
- },
- "userDetails": {
- "email": "nikhil.yeole1@gmail.com",
- "firstName": "nikhil",
- "lastName": "yeole",
- "address": {
- "street1": "abcstree1",
- "street2": "abcstree2",
- "city": "Pune",
- "state": "MS",
- "country": "IND",
- "zip": "411038"
- },
- "mobileNo": "99349494944"
- },
- "returnUrl": "http://localhost:3000/returnUrl",
- "paymentToken": {
- "type": "paymentOptionToken",
- "paymentMode": {
- "type": "credit",
- "scheme": "VISA",
- "number": "4111111111111111",
- "holder": "nikhil",
- "expiry": "12/2016",
- "cvv": "223"
- }
- },
- "notifyUrl": "<%= notifyUrl %>",
- "merchantAccessKey": "66PT1PDZ38A5OB1PTF01",
- "requestSignature": "45b693d8eeed6f5d135f6d6a13333da50055f5bb",
- "requestOrigin": "CJSG"
- }
-
- */
 
 //------------------- makeSavedCardPayment ----------------//
 
