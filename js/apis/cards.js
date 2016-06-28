@@ -243,7 +243,7 @@ const workFlowForModernBrowsers = (winRef) => {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
                 windowResp.txstatus = "cancelled";
-                handlersMap['transactionHandler'](windowResp);
+                handlersMap['transactionHandler']({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});
             }
         } else {
             clearInterval(intervalId);

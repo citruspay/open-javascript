@@ -26,9 +26,9 @@ const NBAPIFunc = (confObj, apiUrl) => {
     delete reqConf.bankCode;
     delete reqConf.currency;
     delete reqConf.paymentDetails;
-    const mode = reqConf.mode;
+    const mode = reqConf.mode.toLowerCase();
     delete reqConf.mode;
-    if(mode === 'drop-in'){
+    if(mode !== 'dropout'){
     reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
     }
     return custFetch(apiUrl, {
@@ -39,7 +39,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
         body: JSON.stringify(reqConf)
     }).then(function(resp){
         if(resp.data.redirectUrl) {
-            if (mode === "drop-out") {
+            if (mode === "dropout") {
                 window.location = resp.data.redirectUrl;
             }
             else {
