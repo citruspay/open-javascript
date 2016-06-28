@@ -108,7 +108,7 @@ const cards = [
     }, {
         type: 'amex',
         patterns: [34, 37],
-        format: /(\d{1,4})(\d{1,6})?(\d{1,5})?/,
+        format: /^3[47]/,
         length: [15],
         cvcLength: [3, 4],
         luhn: true

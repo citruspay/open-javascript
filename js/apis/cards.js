@@ -159,9 +159,9 @@ const motoCardApiFunc = (confObj) => {
     reqConf.offerToken = getConfig().dpOfferToken;
     delete reqConf.paymentDetails;
     delete reqConf.currency;
-    const mode = reqConf.mode;
+    const mode = reqConf.mode.toLowerCase();
     delete reqConf.mode;
-    if (mode !== 'drop-out') {
+    if (mode !== 'dropout') {
         reqConf.returnUrl = "http://localhost:8090/blade/returnUrl"; //window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
     }
     return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
@@ -173,7 +173,7 @@ const motoCardApiFunc = (confObj) => {
         body: JSON.stringify(reqConf)
     }).then(function (resp) {
         if (resp.data.redirectUrl) {
-            if (mode === "drop-out") {
+            if (mode === "dropout") {
                 window.location = resp.data.redirectUrl;
             }
             else {

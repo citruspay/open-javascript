@@ -225,11 +225,9 @@ const blazeCardCheck = (paymentDetails, options, key, attributes) => {
                 return ' :invalid credit card number';
             }
         }
-
     }else{
         return ' :invalid card type';
     }
-
 };
 
 //created custFormat validator as original 'format' validator uses .exec instead of .test on regex
