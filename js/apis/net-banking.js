@@ -100,8 +100,7 @@ const workFlowForModernBrowsers = (winRef) => {
         if (winRef) {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
-                windowResp.txstatus = "cancelled";
-                handlersMap['transactionHandler'](windowResp);
+                window.responseHandler({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});
             }
         } else {
             clearInterval(intervalId);
@@ -118,7 +117,8 @@ const workFlowForIE = (winRef) => {
         if(winRef) {
             if (winRef.closed) {
                 clearInterval(intervalId);
-                handlersMap['transactionHandler']({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});
+                if(!getConfig().responded)
+                {window.responseHandler({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});}
             }
         }
     },500);
@@ -132,6 +132,10 @@ window.notifyTransactionToGoodBrowsers = function (data) {
     setTimeout(function () {
         parent.postMessage('closeWallet', '*');
     }, 6000);
+};
+
+window.responseHandler = function(response){
+    handlersMap['transactionHandler'](response);
 };
 
 const netBankingValidationSchema = Object.assign(cloneDeep(baseSchema), {

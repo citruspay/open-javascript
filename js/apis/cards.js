@@ -162,8 +162,9 @@ const motoCardApiFunc = (confObj) => {
     const mode = reqConf.mode.toLowerCase();
     delete reqConf.mode;
     if (mode !== 'dropout') {
-        reqConf.returnUrl = "http://localhost:8090/blade/returnUrl"; //window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
+        reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
     }
+    winRef = openPopupWindow("");
     return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
         method: 'post',
         headers: {
@@ -177,7 +178,6 @@ const motoCardApiFunc = (confObj) => {
                 window.location = resp.data.redirectUrl;
             }
             else {
-                winRef = openPopupWindow("");
                 setTimeout(function(){
                     winRef.location.replace(resp.data.redirectUrl);
                     if (!isIE()) {
@@ -242,8 +242,7 @@ const workFlowForModernBrowsers = (winRef) => {
         if (winRef) {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
-                windowResp.txstatus = "cancelled";
-                handlersMap['transactionHandler']({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});
+                window.responseHandler({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});
             }
         } else {
             clearInterval(intervalId);
@@ -259,10 +258,15 @@ const workFlowForIE = (winRef) => {
         if(winRef) {
             if (winRef.closed) {
                 clearInterval(intervalId);
-                handlersMap['transactionHandler']({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});
+                if(!getConfig().responded)
+                {window.responseHandler({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});}
             }
         }
     },500);
+};
+
+window.responseHandler = function(response){
+    handlersMap['transactionHandler'](response);
 };
 
 window.notifyTransactionToGoodBrowsers = function (data) {

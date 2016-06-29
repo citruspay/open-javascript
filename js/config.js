@@ -107,6 +107,8 @@ const init = () => {
     validate.validators.custFormat = custFormat;
     let deviceType = getDeviceType();
     setConfig({deviceType});
+    let responded = false;
+    setConfig({responded});
 
     //for back button cancellation scenario
 

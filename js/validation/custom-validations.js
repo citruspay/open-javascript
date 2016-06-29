@@ -199,7 +199,7 @@ const cardCheck = (paymentDetails, options, key, attributes) => {
         }
 
         if(scheme !== 'Maestro'){
-            if (!isCardValid(paymentDetails.number, scheme)){
+            if (!isCardValid(paymentDetails.number)){
                 return ' :invalid credit card number';
             }
         }

@@ -20,6 +20,12 @@ init(); //initializes custom validators
 
 window.citrus = window.citrus || {};
 
+window.responseHandler = function(response){
+    const responded = true;
+    setConfig({responded});
+    handlersMap['transactionHandler'](response);
+}
+
 Object.assign(window.citrus, {
     setConfig,
     getConfig,
