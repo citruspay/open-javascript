@@ -30,6 +30,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
     delete reqConf.mode;
     if(mode !== 'dropout'){
     reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
+        winRef = openPopupWindow("");
     }
     return custFetch(apiUrl, {
         method: 'post',
@@ -54,6 +55,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
                 },1000);
             }
         }else {
+            winRef.close();
             handlersMap['serverErrorHandler'](resp.data);
         }
     });
@@ -100,7 +102,8 @@ const workFlowForModernBrowsers = (winRef) => {
         if (winRef) {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
-                window.responseHandler({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});
+                if(!getConfig().responded)
+                {window.responseHandler({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});}
             }
         } else {
             clearInterval(intervalId);

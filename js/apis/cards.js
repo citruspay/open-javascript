@@ -163,8 +163,9 @@ const motoCardApiFunc = (confObj) => {
     delete reqConf.mode;
     if (mode !== 'dropout') {
         reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
+        winRef = openPopupWindow("");
     }
-    winRef = openPopupWindow("");
+
     return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
         method: 'post',
         headers: {
@@ -188,6 +189,7 @@ const motoCardApiFunc = (confObj) => {
                 },1000);
             }
         } else {
+            winRef.close();
             handlersMap['serverErrorHandler'](resp.data);
         }
     });
@@ -242,7 +244,8 @@ const workFlowForModernBrowsers = (winRef) => {
         if (winRef) {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
-                window.responseHandler({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});
+                if(!getConfig().responded)
+                {window.responseHandler({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});}
             }
         } else {
             clearInterval(intervalId);
