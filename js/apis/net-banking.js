@@ -28,38 +28,52 @@ const NBAPIFunc = (confObj, apiUrl) => {
     delete reqConf.paymentDetails;
     const mode = reqConf.mode.toLowerCase();
     delete reqConf.mode;
-    if(mode !== 'dropout'){
-    reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
+    if (mode === 'dropout' || getConfig().page === 'ICP') {
+    } else {
+        reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
         winRef = openPopupWindow("");
         winRef.document.write('<html><head><meta name="viewport" content="width=device-width" /><meta http-equiv="Cache-control" content="public" /><title>Redirecting to Bank</title></head><style>body {background:#fafafa;}#wrapper {position: fixed;position: absolute;top: 20%;left: 0;right:0;margin: 0 auto;font-family: Tahoma, Geneva, sans-serif; color:#000;text-align:center;font-size: 14px;padding: 20px;max-width: 500px;width:70%;}.maintext {font-family: Roboto, Tahoma, Geneva, sans-serif;color:#f6931e;margin-bottom: 0;text-align:center;font-size: 21pt;font-weight: 400;}.textRedirect {color:#675f58;}.subtext{margin : 15px 0 15px;font-family: Roboto, Tahoma, Geneva, sans-serif;color:#929292;text-align:center;font-size: 14pt;}.subtextOne{margin : 35px 0 15px;font-family: Roboto, Tahoma, Geneva, sans-serif;color:#929292;text-align:center;font-size: 14pt;}@media screen and (max-width: 480px) {#wrapper {max-width:100%!important;}}</style><body><div id="wrapper"><div id = "imgtext" style=" margin-left:1%; margin-bottom: 5px;"><img src="https://www.citruspay.com/resources/pg/images/logo_citrus.png"/></div><p class="maintext">Quick <span class="textRedirect">Redirection</span></p><p class="subtext"><span>We are processing your payment..</span></p><p class="subtextOne"><span>IT MIGHT TAKE A WHILE</span></p></div></body></html>');
     }
-    return custFetch(apiUrl, {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(reqConf)
-    }).then(function(resp){
-        if(resp.data.redirectUrl) {
-            if (mode === "dropout") {
-                window.location = resp.data.redirectUrl;
+    if (getConfig().page === 'ICP') {
+
+        return custFetch(apiUrl, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(reqConf)
+        });
+
+    }
+    else {
+        return custFetch(apiUrl, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(reqConf)
+        }).then(function (resp) {
+            if (resp.data.redirectUrl) {
+                if (mode === "dropout") {
+                    window.location = resp.data.redirectUrl;
+                }
+                else {
+                    winRef = openPopupWindow("");
+                    setTimeout(function () {
+                        winRef.location.replace(resp.data.redirectUrl);
+                        if (!isIE()) {
+                            workFlowForModernBrowsers(winRef)
+                        } else {
+                            workFlowForIE(winRef);
+                        }
+                    }, 1000);
+                }
+            } else {
+                winRef.close();
+                handlersMap['serverErrorHandler'](resp.data);
             }
-            else {
-                winRef = openPopupWindow("");
-                setTimeout(function(){
-                    winRef.location.replace(resp.data.redirectUrl);
-                    if (!isIE()) {
-                        workFlowForModernBrowsers(winRef)
-                    } else {
-                        workFlowForIE(winRef);
-                    }
-                },1000);
-            }
-        }else {
-            winRef.close();
-            handlersMap['serverErrorHandler'](resp.data);
-        }
-    });
+        });
+    }
 };
 
 let winRef = null;

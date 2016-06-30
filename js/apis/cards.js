@@ -1,12 +1,12 @@
-import {validateAndCallbackify, getMerchantAccessKey, schemeFromNumber} from './../utils';
-import {savedNBValidationSchema, savedAPIFunc} from './net-banking';
-import {baseSchema} from './../validation/validation-schema';
-import cloneDeep from 'lodash/cloneDeep';
-import {handlersMap, getConfig} from '../config';
-import {validateCardType, validateScheme, cardDate, validateCvv} from '../validation/custom-validations';
+import {validateAndCallbackify, getMerchantAccessKey, schemeFromNumber} from "./../utils";
+import {savedNBValidationSchema, savedAPIFunc} from "./net-banking";
+import {baseSchema} from "./../validation/validation-schema";
+import cloneDeep from "lodash/cloneDeep";
+import {handlersMap, getConfig} from "../config";
+import {validateCardType, validateScheme, cardDate, validateCvv} from "../validation/custom-validations";
+import {custFetch} from "../interceptor";
+import {urlReEx} from "../constants";
 //import $ from 'jquery';
-import {custFetch} from '../interceptor';
-import {urlReEx} from '../constants';
 
 
 const regExMap = {
@@ -161,40 +161,53 @@ const motoCardApiFunc = (confObj) => {
     delete reqConf.currency;
     const mode = reqConf.mode.toLowerCase();
     delete reqConf.mode;
-    if (mode === 'dropout') {
+    if (mode === 'dropout' || getConfig().page === 'ICP') {
     } else {
         reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
         winRef = openPopupWindow("");
         winRef.document.write('<html><head><meta name="viewport" content="width=device-width" /><meta http-equiv="Cache-control" content="public" /><title>Redirecting to Bank</title></head><style>body {background:#fafafa;}#wrapper {position: fixed;position: absolute;top: 20%;left: 0;right:0;margin: 0 auto;font-family: Tahoma, Geneva, sans-serif; color:#000;text-align:center;font-size: 14px;padding: 20px;max-width: 500px;width:70%;}.maintext {font-family: Roboto, Tahoma, Geneva, sans-serif;color:#f6931e;margin-bottom: 0;text-align:center;font-size: 21pt;font-weight: 400;}.textRedirect {color:#675f58;}.subtext{margin : 15px 0 15px;font-family: Roboto, Tahoma, Geneva, sans-serif;color:#929292;text-align:center;font-size: 14pt;}.subtextOne{margin : 35px 0 15px;font-family: Roboto, Tahoma, Geneva, sans-serif;color:#929292;text-align:center;font-size: 14pt;}@media screen and (max-width: 480px) {#wrapper {max-width:100%!important;}}</style><body><div id="wrapper"><div id = "imgtext" style=" margin-left:1%; margin-bottom: 5px;"><img src="https://www.citruspay.com/resources/pg/images/logo_citrus.png"/></div><p class="maintext">Quick <span class="textRedirect">Redirection</span></p><p class="subtext"><span>We are processing your payment..</span></p><p class="subtextOne"><span>IT MIGHT TAKE A WHILE</span></p></div></body></html>');
     }
-
-    return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        mode: 'cors',
-        body: JSON.stringify(reqConf)
-    }).then(function (resp) {
-        if (resp.data.redirectUrl) {
-            if (mode === "dropout") {
-                window.location = resp.data.redirectUrl;
-            }
-            else {
-                setTimeout(function(){
-                    winRef.location.replace(resp.data.redirectUrl);
-                    if (!isIE()) {
-                        workFlowForModernBrowsers(winRef)
-                    } else {
-                        workFlowForIE(winRef);
+    if (getConfig().page === 'ICP') {
+        return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            mode: 'cors',
+            body: JSON.stringify(reqConf)
+        })
+    }
+    else {
+        return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            mode: 'cors',
+            body: JSON.stringify(reqConf)
+        }).then(function (resp) {
+            if (getConfig().page !== 'ICP') {
+                if (resp.data.redirectUrl) {
+                    if (mode === "dropout") {
+                        window.location = resp.data.redirectUrl;
                     }
-                },1000);
+                    else {
+                        setTimeout(function () {
+                            winRef.location.replace(resp.data.redirectUrl);
+                            if (!isIE()) {
+                                workFlowForModernBrowsers(winRef)
+                            } else {
+                                workFlowForIE(winRef);
+                            }
+                        }, 1000);
+                    }
+                } else {
+                    winRef.close();
+                    handlersMap['serverErrorHandler'](resp.data);
+                }
             }
-        } else {
-            winRef.close();
-            handlersMap['serverErrorHandler'](resp.data);
-        }
-    });
+        });
+    }
 
 };
 
@@ -246,8 +259,13 @@ const workFlowForModernBrowsers = (winRef) => {
         if (winRef) {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
-                if(!getConfig().responded)
-                {window.responseHandler({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});}
+                if (!getConfig().responded) {
+                    window.responseHandler({
+                        txnStatus: "cancelled",
+                        pgRespCode: "111",
+                        txMessage: "Transaction cancelled by user"
+                    });
+                }
             }
         } else {
             clearInterval(intervalId);
@@ -256,21 +274,26 @@ const workFlowForModernBrowsers = (winRef) => {
 };
 
 const workFlowForIE = (winRef) => {
-    const intervalId = setInterval(function(){
-        if(transactionCompleted){
+    const intervalId = setInterval(function () {
+        if (transactionCompleted) {
             return clearInterval(intervalId);
         }
-        if(winRef) {
+        if (winRef) {
             if (winRef.closed) {
                 clearInterval(intervalId);
-                if(!getConfig().responded)
-                {window.responseHandler({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});}
+                if (!getConfig().responded) {
+                    window.responseHandler({
+                        txnStatus: "cancelled",
+                        pgRespCode: "111",
+                        txMessage: "Transaction cancelled by user"
+                    });
+                }
             }
         }
-    },500);
+    }, 500);
 };
 
-window.responseHandler = function(response){
+window.responseHandler = function (response) {
     handlersMap['transactionHandler'](response);
 };
 
