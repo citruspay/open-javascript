@@ -117,11 +117,15 @@ const workFlowForModernBrowsers = (winRef) => {
         if (winRef) {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
+                if (!getConfig().responded) {
+                    const responded = false;
+                    setConfig({responded});
                     window.responseHandler({
                         txnStatus: "cancelled",
                         pgRespCode: "111",
                         txMessage: "Transaction cancelled by user"
                     });
+                }
             }
         } else {
             clearInterval(intervalId);
