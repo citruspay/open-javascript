@@ -117,9 +117,8 @@ const workFlowForModernBrowsers = (winRef) => {
         if (winRef) {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
-                if (!getConfig().responded) {
-                    const responded = false;
-                    setConfig({responded});
+                if (getConfig().responded) {
+                } else {
                     window.responseHandler({
                         txnStatus: "cancelled",
                         pgRespCode: "111",

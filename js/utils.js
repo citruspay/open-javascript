@@ -179,7 +179,6 @@ const  isIE = () => {
     var ie10orless = ua.indexOf('MSIE ');
     var ie11= ua.indexOf('Trident/');
     var edge= ua.indexOf('Edge/');
-
     return !!(ie10orless > -1 || ie11 > -1 || edge > -1);
 };
 

@@ -23,7 +23,7 @@ init(); //initializes custom validators
 window.citrus = window.citrus || {};
 
 window.responseHandler = function(response){
-    if(isIE) {
+    if(isIE()) {
         const responded = true;
         setConfig({responded});
     }
