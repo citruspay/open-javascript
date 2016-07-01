@@ -109,6 +109,8 @@ const init = () => {
     setConfig({deviceType});
     let responded = false;
     setConfig({responded});
+    let page = "CJS";
+    setConfig({page});
 
     //for back button cancellation scenario
 

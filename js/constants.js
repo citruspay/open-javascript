@@ -18,7 +18,7 @@ const currencyMap = {
     'Norfolk Island' : 'AUD', 'Tuvalu' : 'AUD', 'Canada' : 'CAD', 'United Arab Emirates' : 'AED', 'Hong Kong' : 'HKD',
     'Qatar' : 'QAR', 'Saudi Arabia' : 'SAR', 'Oman' : 'OMR', 'South Africa' : 'ZAR', 'Malaysia' : 'MYR', 'Kuwait' : 'KWD',
     'Mauritius' : 'MUR', 'Sri Lanka' : 'LKR', 'Kenya' : 'KES', 'Philippines' : 'PHP', 'New Zealand' : 'NZD', 'Niue' : 'NZD',
-    'Pitcairn' : 'NZD', 'Tokelau' : 'NZD', 'Thailand' : 'THB', 'Bangladesh' : 'BDT', 'China' : 'CNY', 'Nepal' : 'NPR', 'Bahrain' : 'BHD',
+    'Pitcairn' : 'NZD', 'Tokelau' : 'NZD', 'Thailand' : 'THB', 'Bangladesh' : 'BDT', 'China' : 'CNY', 'Nepal' : 'NPR', 'Bahrain' : 'BHD'
 };
 
 export {urlReEx, currencyMap}

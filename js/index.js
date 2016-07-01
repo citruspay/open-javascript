@@ -12,9 +12,10 @@ import {init, handlersMap, setConfig, getConfig} from './config';
 import {makeMCPCardPayment, getCardCurrencyInfo} from './apis/mcp';
 //import * as tests from './tests/simple-tests';
 import {schemeFromNumber} from './utils';
-import {applyDynamicPricing,makeDPCardPayment} from './apis/card-dp'
-import {applyNbDynamicPricing} from './apis/net-banking-dp'
-import {makePayment} from './apis/payment'
+import {applyDynamicPricing,makeDPCardPayment} from './apis/card-dp';
+import {applyNbDynamicPricing} from './apis/net-banking-dp';
+import {makePayment} from './apis/payment';
+import {isIE} from './utils';
 
 
 init(); //initializes custom validators
@@ -22,8 +23,10 @@ init(); //initializes custom validators
 window.citrus = window.citrus || {};
 
 window.responseHandler = function(response){
-    const responded = true;
-    setConfig({responded});
+    if(isIE) {
+        const responded = true;
+        setConfig({responded});
+    }
     handlersMap['transactionHandler'](response);
 };
 

@@ -1,10 +1,10 @@
-import {validateAndCallbackify, getMerchantAccessKey} from './../utils';
-import {baseSchema} from './../validation/validation-schema';
-import cloneDeep from 'lodash/cloneDeep';
-import {handlersMap,getConfig} from '../config';
-import {custFetch} from '../interceptor';
+import {validateAndCallbackify, getMerchantAccessKey} from "./../utils";
+import {baseSchema} from "./../validation/validation-schema";
+import cloneDeep from "lodash/cloneDeep";
+import {handlersMap, getConfig, setConfig} from "../config";
+import {custFetch} from "../interceptor";
 
-let windowResp = { txstatus : "" , txMessage : "Transaction cancelled by user" };
+let windowResp = {txstatus: "", txMessage: "Transaction cancelled by user"};
 
 const NBAPIFunc = (confObj, apiUrl) => {
     const reqConf = Object.assign({}, confObj, {
@@ -79,7 +79,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
 let winRef = null;
 let transactionCompleted = false;
 
-const openPopupWindow =  (url) => {
+const openPopupWindow = (url) => {
 
     if (winRef == null || winRef.closed) {
 
@@ -117,8 +117,11 @@ const workFlowForModernBrowsers = (winRef) => {
         if (winRef) {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
-                if(!getConfig().responded)
-                {window.responseHandler({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});}
+                    window.responseHandler({
+                        txnStatus: "cancelled",
+                        pgRespCode: "111",
+                        txMessage: "Transaction cancelled by user"
+                    });
             }
         } else {
             clearInterval(intervalId);
@@ -128,18 +131,25 @@ const workFlowForModernBrowsers = (winRef) => {
 };
 
 const workFlowForIE = (winRef) => {
-    const intervalId = setInterval(function(){
-        if(transactionCompleted){
+    const intervalId = setInterval(function () {
+        if (transactionCompleted) {
             return clearInterval(intervalId);
         }
-        if(winRef) {
+        if (winRef) {
             if (winRef.closed) {
                 clearInterval(intervalId);
-                if(!getConfig().responded)
-                {window.responseHandler({txnStatus : "cancelled", pgRespCode : "111", txMessage : "Transaction cancelled by user"});}
+                if (!getConfig().responded) {
+                    const responded = false;
+                    setConfig({responded});
+                    window.responseHandler({
+                        txnStatus: "cancelled",
+                        pgRespCode: "111",
+                        txMessage: "Transaction cancelled by user"
+                    });
+                }
             }
         }
-    },500);
+    }, 500);
 };
 
 window.notifyTransactionToGoodBrowsers = function (data) {
@@ -152,16 +162,16 @@ window.notifyTransactionToGoodBrowsers = function (data) {
     }, 6000);
 };
 
-window.responseHandler = function(response){
+window.responseHandler = function (response) {
     handlersMap['transactionHandler'](response);
 };
 
 const netBankingValidationSchema = Object.assign(cloneDeep(baseSchema), {
     paymentDetails: {
         presence: true,
-        keysCheck: ['paymentMode','bankCode']
+        keysCheck: ['paymentMode', 'bankCode']
     },
-    "paymentDetails.bankCode" : {presence: true}
+    "paymentDetails.bankCode": {presence: true}
 });
 
 netBankingValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
@@ -216,7 +226,7 @@ const savedAPIFunc = (confObj, url) => {
     })
 };
 
-const makeSavedNBPayment = validateAndCallbackify(savedNBValidationSchema, (confObj)=>{
+const makeSavedNBPayment = validateAndCallbackify(savedNBValidationSchema, (confObj)=> {
     const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;
     return savedAPIFunc(confObj, apiUrl);
 });

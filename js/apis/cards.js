@@ -2,7 +2,7 @@ import {validateAndCallbackify, getMerchantAccessKey, schemeFromNumber} from "./
 import {savedNBValidationSchema, savedAPIFunc} from "./net-banking";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
-import {handlersMap, getConfig} from "../config";
+import {handlersMap, getConfig, setConfig} from "../config";
 import {validateCardType, validateScheme, cardDate, validateCvv} from "../validation/custom-validations";
 import {custFetch} from "../interceptor";
 import {urlReEx} from "../constants";
@@ -159,7 +159,7 @@ const motoCardApiFunc = (confObj) => {
     reqConf.offerToken = getConfig().dpOfferToken;
     delete reqConf.paymentDetails;
     delete reqConf.currency;
-    const mode = reqConf.mode.toLowerCase();
+    const mode = (reqConf.mode.toLowerCase()) ?  reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
     if (mode === 'dropout' || getConfig().page === 'ICP') {
     } else {
@@ -259,13 +259,11 @@ const workFlowForModernBrowsers = (winRef) => {
         if (winRef) {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
-                if (!getConfig().responded) {
                     window.responseHandler({
                         txnStatus: "cancelled",
                         pgRespCode: "111",
                         txMessage: "Transaction cancelled by user"
                     });
-                }
             }
         } else {
             clearInterval(intervalId);
@@ -282,6 +280,8 @@ const workFlowForIE = (winRef) => {
             if (winRef.closed) {
                 clearInterval(intervalId);
                 if (!getConfig().responded) {
+                    const responded = false;
+                    setConfig({responded});
                     window.responseHandler({
                         txnStatus: "cancelled",
                         pgRespCode: "111",
