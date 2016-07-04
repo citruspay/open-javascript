@@ -2,10 +2,11 @@ import {validateAndCallbackify, getMerchantAccessKey, schemeFromNumber} from "./
 import {savedNBValidationSchema, savedAPIFunc} from "./net-banking";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
-import {handlersMap, getConfig, setConfig} from "../config";
+import {handlersMap, getConfig} from "../config";
 import {validateCardType, validateScheme, cardDate, validateCvv} from "../validation/custom-validations";
 import {custFetch} from "../interceptor";
 import {urlReEx} from "../constants";
+import {getCancelResponse} from "./cancel-response";
 //import $ from 'jquery';
 
 
@@ -16,6 +17,7 @@ const regExMap = {
     url: urlReEx
 };
 
+let cancelApiResp;
 
 const blazeCardValidationSchema = {
 
@@ -107,13 +109,7 @@ const motoCardValidationSchema = Object.assign(cloneDeep(baseSchema), {
         cardCheck: true,
         keysCheck: ['type', 'number', 'holder', 'cvv', 'expiry']
     },
-    //"paymentDetails.type" : { presence: true },
-    //"paymentDetails.scheme": { presence: true},
-    //"paymentDetails.number": {presence: true },
     "paymentDetails.holder": {presence: true, format: regExMap.name}
-    // "paymentDetails.cvv": {presence: true, format: regExMap.CVV},
-    // "paymentDetails.expiry": {presence: true, cardDate: true}
-
 });
 
 motoCardValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
@@ -161,6 +157,7 @@ const motoCardApiFunc = (confObj) => {
     delete reqConf.currency;
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
+    cancelApiResp = getCancelResponse(reqConf);
     if (mode === 'dropout' || getConfig().page === 'ICP') {
     } else {
         reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
@@ -261,11 +258,7 @@ const workFlowForModernBrowsers = (winRef) => {
                 clearInterval(intervalId);
                 if (getConfig().responded === true) {
                 } else {
-                    window.responseHandler({
-                        txnStatus: "cancelled",
-                        pgRespCode: "111",
-                        txMessage: "Transaction cancelled by user"
-                    });
+                    window.responseHandler(cancelApiResp);
                 }
             }
         } else {
@@ -284,11 +277,7 @@ const workFlowForIE = (winRef) => {
                 clearInterval(intervalId);
                 if (getConfig().responded === true) {
                 } else {
-                    window.responseHandler({
-                        txnStatus: "cancelled",
-                        pgRespCode: "111",
-                        txMessage: "Transaction cancelled by user"
-                    });
+                    window.responseHandler(cancelApiResp);
                 }
             }
         }
