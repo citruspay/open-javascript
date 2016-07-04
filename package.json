@@ -23,7 +23,7 @@
       "es2015"
     ]
   },
-  "author": "Nikhil Yeole",
+  "author": "Nagama Inamdar",
   "dependencies": {
     "body-parser": "^1.15.0",
     "core-js": "^2.1.3",

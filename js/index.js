@@ -23,10 +23,11 @@ init(); //initializes custom validators
 window.citrus = window.citrus || {};
 
 window.responseHandler = function(response){
-    if(isIE()) {
-        const responded = true;
+    if(response.txnHandle) {
+        let responded = true;
         setConfig({responded});
-    }
+        delete response.txnHandle;
+     }
     handlersMap['transactionHandler'](response);
 };
 
@@ -69,7 +70,7 @@ Object.assign(window.citrus, {
         //makeWallletPayment
     },
     features: {
-        applyDynamicPricing,
+        applyDynamicPricing
         //makeWallletPayment
     },
     payment:{

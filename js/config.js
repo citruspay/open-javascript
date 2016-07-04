@@ -116,14 +116,14 @@ const init = () => {
 
     if (history && history.pushState) {
         if (getParameterByName('fromBank') === 'yes') {
-            console.log('for cancellation API ==> from bank! ', localStorage.getItem('blazeCardcancelRequestObj'));
+            //console.log('for cancellation API ==> from bank! ', localStorage.getItem('blazeCardcancelRequestObj'));
             let urlWithQS = window.location.href;
             urlWithQS = urlWithQS.replace('&fromBank=yes', '');
             urlWithQS = urlWithQS.replace('fromBank=yes&', '');
             urlWithQS = urlWithQS.replace('?fromBank=yes', '');
             window.history.pushState({path: urlWithQS}, '', urlWithQS);
         }else {
-        console.log('for cancellation API ==> not from bank!');
+        //console.log('for cancellation API ==> not from bank!');
         }
     }
 

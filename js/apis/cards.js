@@ -159,7 +159,7 @@ const motoCardApiFunc = (confObj) => {
     reqConf.offerToken = getConfig().dpOfferToken;
     delete reqConf.paymentDetails;
     delete reqConf.currency;
-    const mode = (reqConf.mode.toLowerCase()) ?  reqConf.mode.toLowerCase() : "";
+    const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
     if (mode === 'dropout' || getConfig().page === 'ICP') {
     } else {
@@ -259,7 +259,7 @@ const workFlowForModernBrowsers = (winRef) => {
         if (winRef) {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
-                if (getConfig().responded) {
+                if (getConfig().responded === true) {
                 } else {
                     window.responseHandler({
                         txnStatus: "cancelled",
@@ -282,9 +282,8 @@ const workFlowForIE = (winRef) => {
         if (winRef) {
             if (winRef.closed) {
                 clearInterval(intervalId);
-                if (!getConfig().responded) {
-                    const responded = false;
-                    setConfig({responded});
+                if (getConfig().responded === true) {
+                } else {
                     window.responseHandler({
                         txnStatus: "cancelled",
                         pgRespCode: "111",
