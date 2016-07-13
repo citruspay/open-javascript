@@ -65,7 +65,7 @@ const getCancelResponse = (obj) => {
         encryptedCardNumber :  "",
         expiryMonth :  "",
         expiryYear :  "",
-        cardHolderName :  obj.paymentToken.paymentMode.scheme.holder || "",
+        cardHolderName :  obj.paymentToken.paymentMode.holder || "",
         txn3DSecure :  "",
         eci :  "",
         cardCode :  "",
