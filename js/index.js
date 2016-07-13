@@ -15,7 +15,6 @@ import {schemeFromNumber} from './utils';
 import {applyDynamicPricing,makeDPCardPayment} from './apis/card-dp';
 import {applyNbDynamicPricing} from './apis/net-banking-dp';
 import {makePayment} from './apis/payment';
-import {isIE} from './utils';
 
 
 init(); //initializes custom validators

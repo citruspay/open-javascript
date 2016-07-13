@@ -9,7 +9,6 @@ import {urlReEx} from "../constants";
 import {getCancelResponse} from "./cancel-response";
 //import $ from 'jquery';
 
-
 const regExMap = {
     'cardNumber': /^[0-9]{15,19}$/,
     'name': /^(?!\s*$)[a-zA-Z .]{1,50}$/,

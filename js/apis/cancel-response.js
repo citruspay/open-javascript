@@ -90,7 +90,7 @@ const getCancelResponse = (obj) => {
         addressZip :  obj.userDetails.address.zip || "",
         mobileNo :  obj.mobileNo || "",
         isCOD :  "",
-        txnDateTime : "",
+        txnDateTime : new Date(),
         impsMmid :  "",
         impsMobileNumber :  ""
     };

@@ -1,10 +1,10 @@
 import {validateAndCallbackify, getMerchantAccessKey} from "./../utils";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
-import {handlersMap, getConfig, setConfig} from "../config";
+import {handlersMap, getConfig} from "../config";
 import {custFetch} from "../interceptor";
-
-let windowResp = {txstatus: "", txMessage: "Transaction cancelled by user"};
+import {getCancelResponse} from "./cancel-response";
+let cancelApiResp;
 
 const NBAPIFunc = (confObj, apiUrl) => {
     const reqConf = Object.assign({}, confObj, {
@@ -26,8 +26,9 @@ const NBAPIFunc = (confObj, apiUrl) => {
     delete reqConf.bankCode;
     delete reqConf.currency;
     delete reqConf.paymentDetails;
-    const mode = reqConf.mode.toLowerCase();
+    const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
+    cancelApiResp = getCancelResponse(reqConf);
     if (mode === 'dropout' || getConfig().page === 'ICP') {
     } else {
         reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
@@ -119,11 +120,7 @@ const workFlowForModernBrowsers = (winRef) => {
                 clearInterval(intervalId);
                 if (getConfig().responded === true) {
                 } else {
-                    window.responseHandler({
-                        txnStatus: "cancelled",
-                        pgRespCode: "111",
-                        txMessage: "Transaction cancelled by user"
-                    });
+                    window.responseHandler(cancelApiResp);
                 }
             }
         } else {
@@ -143,11 +140,7 @@ const workFlowForIE = (winRef) => {
                 clearInterval(intervalId);
                 if (getConfig().responded === true) {
                 } else {
-                    window.responseHandler({
-                        txnStatus: "cancelled",
-                        pgRespCode: "111",
-                        txMessage: "Transaction cancelled by user"
-                    });
+                    window.responseHandler(cancelApiResp);
                 }
             }
         }
