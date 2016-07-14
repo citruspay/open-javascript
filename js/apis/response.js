@@ -102,6 +102,15 @@ const maskedCard = (initial, end, card) => {
     return card.substring(0, initial) + mask + card.substring(end);
 };
 
+const refineMotoResponse = (resp) => {
+
+    switch (resp.pgRespCode){
+        case "400" : resp.txMsg = "This transaction has been processed already.";
+                     break;
+    }
+    return resp;
+}
+
 // //Formats d to MM/dd/yyyy HH:mm:ss format
 // const formatDate  function formatDate(d){
 //     function addZero(n){
@@ -116,4 +125,4 @@ const maskedCard = (initial, end, card) => {
 // var date = new Date(Date.parse(str));
 // var formatted = formatDate(date);
 
-export {getCancelResponse, maskedCard};
+export {getCancelResponse, refineMotoResponse};

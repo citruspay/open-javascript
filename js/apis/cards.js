@@ -6,7 +6,7 @@ import {handlersMap, getConfig} from "../config";
 import {validateCardType, validateScheme, cardDate, validateCvv} from "../validation/custom-validations";
 import {custFetch} from "../interceptor";
 import {urlReEx} from "../constants";
-import {getCancelResponse} from "./cancel-response";
+import {getCancelResponse, refineMotoResponse} from "./response";
 //import $ from 'jquery';
 
 const regExMap = {
@@ -199,7 +199,8 @@ const motoCardApiFunc = (confObj) => {
                     }
                 } else {
                     winRef.close();
-                    handlersMap['serverErrorHandler'](resp.data);
+                    const response = refineMotoResponse(resp.data);
+                    handlersMap['serverErrorHandler'](response);
                 }
             }
         });

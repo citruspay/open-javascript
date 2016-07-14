@@ -3,7 +3,7 @@ import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {handlersMap, getConfig} from "../config";
 import {custFetch} from "../interceptor";
-import {getCancelResponse} from "./cancel-response";
+import {getCancelResponse, refineMotoResponse} from "./response";
 let cancelApiResp;
 
 const NBAPIFunc = (confObj, apiUrl) => {
@@ -71,7 +71,8 @@ const NBAPIFunc = (confObj, apiUrl) => {
                 }
             } else {
                 winRef.close();
-                handlersMap['serverErrorHandler'](resp.data);
+                const response = refineMotoResponse(resp.data);
+                handlersMap['serverErrorHandler'](response);
             }
         });
     }
@@ -176,6 +177,11 @@ const makeNetBankingPayment = validateAndCallbackify(netBankingValidationSchema,
     const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;
     return NBAPIFunc(confObj, apiUrl);
 });
+//wrapper function call
+const netbanking = validateAndCallbackify(netBankingValidationSchema, (confObj) => {
+    const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;
+    return NBAPIFunc(confObj, apiUrl);
+});
 
 //------------------- makeBlazeNBPayment ----------------//
 
@@ -226,4 +232,4 @@ const makeSavedNBPayment = validateAndCallbackify(savedNBValidationSchema, (conf
     return savedAPIFunc(confObj, apiUrl);
 });
 
-export {makeNetBankingPayment, makeSavedNBPayment, makeBlazeNBPayment, savedAPIFunc, savedNBValidationSchema}
+export {makeNetBankingPayment, makeSavedNBPayment, makeBlazeNBPayment, savedAPIFunc, savedNBValidationSchema, netbanking}
