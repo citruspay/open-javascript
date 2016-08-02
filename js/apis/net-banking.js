@@ -208,7 +208,7 @@ const savedAPIFunc = (confObj, url) => {
             id: confObj.token
         },
         merchantAccessKey: getMerchantAccessKey(confObj),
-        requestOrigin: "CJSW"
+        requestOrigin: confObj.requestOrigin || "CJSW"
     });
 
     confObj.CVV && (reqConf.paymentToken.cvv = confObj.CVV);
