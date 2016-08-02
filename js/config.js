@@ -19,7 +19,7 @@ const apiConfMap = {
     stagingConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
-        motoApiUrl: 'https://stgadmin5.citruspay.com/service',
+        motoApiUrl: 'https://stgadmin2.citruspay.com/service',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing'
     },
@@ -128,6 +128,5 @@ const init = () => {
     }
 
 };
-
 
 export {init, handlersMap, configMap, setConfig, getConfig};
