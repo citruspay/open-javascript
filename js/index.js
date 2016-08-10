@@ -27,7 +27,7 @@ window.responseHandler = function(response){
         setConfig({responded});
         delete response.txnHandle;
      }
-    handlersMap['transactionHandler'](response);
+    
 };
 
 Object.assign(window.citrus, {

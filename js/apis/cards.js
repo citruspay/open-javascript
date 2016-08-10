@@ -7,6 +7,7 @@ import {validateCardType, validateScheme, cardDate, validateCvv} from "../valida
 import {custFetch} from "../interceptor";
 import {urlReEx} from "../constants";
 import {getCancelResponse, refineMotoResponse} from "./response";
+import {singleHopDropOutFunction,singleHopDropInFunction} from "./singleHop";
 //import $ from 'jquery';
 
 const regExMap = {
@@ -185,17 +186,24 @@ const motoCardApiFunc = (confObj) => {
             if (getConfig().page !== 'ICP') {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
-                        window.location = resp.data.redirectUrl;
+                        singleHopDropOutFunction(resp.data.redirectUrl);
                     }
                     else {
+                        singleHopDropInFunction(resp.data.redirectUrl).then(function(response){
                         setTimeout(function () {
-                            winRef.location.replace(resp.data.redirectUrl);
+                            var el = winRef.document.createElement('html');
+                            el.innerHTML = response;
+                            var form = el.getElementsByTagName('form');
+                            console.log(form);
+                            form.submitForm.submit();
+                           // winRef.document.replace(resp.data.redirectUrl);
                             if (!isIE()) {
                                 workFlowForModernBrowsers(winRef)
                             } else {
                                 workFlowForIE(winRef);
                             }
                         }, 1000);
+                        });
                     }
                 } else {
                     winRef.close();
@@ -214,7 +222,6 @@ let winRef = null;
 let transactionCompleted = false;
 
 const openPopupWindow = (url) => {
-
     if(winRef == null || winRef.closed) {
         var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
         var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
@@ -224,13 +231,10 @@ const openPopupWindow = (url) => {
         var top = height/10;
         console.log('url to open :', url);
         winRef = window.open(url,'PromoteFirefoxWindowName', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left + 'visible=none;');
-        winRef.data = "nagama";
-
     } else {
         winRef.focus();
     }
     return winRef;
-
 };
 
 const isIE = () => {
@@ -249,15 +253,21 @@ const workFlowForModernBrowsers = (winRef) => {
             return clearInterval(intervalId);
         }
         if (winRef) {
-            console.log(winRef.opener);
-            console.log(winRef.closed);
-            console.log(winRef.nagama);
             if (winRef.closed === true) {
                 clearInterval(intervalId);
-                if (getConfig().responded === true) {
-                } else {
-                    window.responseHandler(cancelApiResp);
-                }
+                let form = new FormData();
+                form.append("merchantAccessKey", `${getConfig().merchantAccessKey}`);
+                form.append("transactionId", cancelApiResp.TxId);
+                const url = `${getConfig().adminUrl}/api/v1/txn/enquiry`;
+                // const url = 'https://admin.citruspay.com/api/v1/txn/enquiry';
+                console.log(url);
+                return  custFetch(url, {
+                    method: 'post',
+                    mode: 'cors',
+                    body: form
+                }).then(function(resp){
+                    handlersMap['transactionHandler'](resp.data.enquiry);
+                });
             }
         } else {
             clearInterval(intervalId);
@@ -273,26 +283,21 @@ const workFlowForIE = (winRef) => {
         if (winRef) {
             if (winRef.closed) {
                 clearInterval(intervalId);
-                if (getConfig().responded === true) {
-                } else {
-                    window.responseHandler(cancelApiResp);
-                }
+                let form = new FormData();
+                form.append("merchantAccessKey", `${getConfig().merchantAccessKey}`);
+                form.append("transactionId", cancelApiResp.TxId);
+                const url = `${getConfig().adminUrl}/api/v1/txn/enquiry`;
+                console.log(url);
+                return  custFetch(url, {
+                    method: 'post',
+                    mode: 'cors',
+                    body: form
+                }).then(function(resp){
+                    handlersMap['transactionHandler'](resp.data.enquiry);
+                });
             }
         }
     }, 500);
-};
-
-window.responseHandler = function (response) {
-    handlersMap['transactionHandler'](response);
-};
-
-window.notifyTransactionToGoodBrowsers = function (data) {
-    transactionCompleted = true;
-    data = JSON.parse(data);
-    handlersMap['transactionHandler'](data);
-    setTimeout(function () {
-        parent.postMessage('closeWallet', '*');
-    }, 6000);
 };
 
 //------------------- makeSavedCardPayment ----------------//

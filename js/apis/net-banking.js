@@ -1,9 +1,10 @@
 import {validateAndCallbackify, getMerchantAccessKey} from "./../utils";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
-import {handlersMap, getConfig} from "../config";
+import {handlersMap, getConfig, setConfig} from "../config";
 import {custFetch} from "../interceptor";
 import {getCancelResponse, refineMotoResponse} from "./response";
+import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
 let cancelApiResp;
 
 const NBAPIFunc = (confObj, apiUrl) => {
@@ -29,12 +30,15 @@ const NBAPIFunc = (confObj, apiUrl) => {
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
     cancelApiResp = getCancelResponse(reqConf);
+    setConfig({cancelApiResp});
+    //var winRef = openPopupWindow("");
+    //var winRef = window.open("",'PromoteFirefoxWindowName', 'scrollbars=yes, top= 1000, left= 1000 ,visible=none;');
     if (mode === 'dropout' || getConfig().page === 'ICP') {
     } else {
-        //reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
-        winRef = openPopupWindow("");
+        reqConf.returnUrl = "http://localhost/return.php";//window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
+       winRef = openPopupWindow("");
         //winRef.document.write('<html><head><meta name="viewport" content="width=device-width" /><meta http-equiv="Cache-control" content="public" /><title>Redirecting to Bank</title></head><style>body {background:#fafafa;}#wrapper {position: fixed;position: absolute;top: 20%;left: 0;right:0;margin: 0 auto;font-family: Tahoma, Geneva, sans-serif; color:#000;text-align:center;font-size: 14px;padding: 20px;max-width: 500px;width:70%;}.maintext {font-family: Roboto, Tahoma, Geneva, sans-serif;color:#f6931e;margin-bottom: 0;text-align:center;font-size: 21pt;font-weight: 400;}.textRedirect {color:#675f58;}.subtext{margin : 15px 0 15px;font-family: Roboto, Tahoma, Geneva, sans-serif;color:#929292;text-align:center;font-size: 14pt;}.subtextOne{margin : 35px 0 15px;font-family: Roboto, Tahoma, Geneva, sans-serif;color:#929292;text-align:center;font-size: 14pt;}@media screen and (max-width: 480px) {#wrapper {max-width:100%!important;}}</style><body><div id="wrapper"><div id = "imgtext" style=" margin-left:1%; margin-bottom: 5px;"><img src="https://www.citruspay.com/resources/pg/images/logo_citrus.png"/></div><p class="maintext">Quick <span class="textRedirect">Redirection</span></p><p class="subtext"><span>We are processing your payment..</span></p><p class="subtextOne"><span>IT MIGHT TAKE A WHILE</span></p></div></body></html>');
-        winRef.document.write('<html><head> <meta name="viewport" content="width=device-width"/> <meta http-equiv="Cache-control" content="public"/> <title>Redirecting to Bank</title></head><style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body> <div id="wrapper"> <div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><img src="https://context.citruspay.com/static/kiwi/images/logo.png"/> </div><div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><img src="https://context.citruspay.com/static/kiwi/images/puff_orange.svg"/></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body></html>');
+       winRef.document.write('<html><head> <meta name="viewport" content="width=device-width"/> <meta http-equiv="Cache-control" content="public"/> <title>Redirecting to Bank</title></head><style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body> <div id="wrapper"> <div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><img src="https://context.citruspay.com/static/kiwi/images/logo.png"/> </div><div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><img src="https://context.citruspay.com/static/kiwi/images/puff_orange.svg"/></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body></html>');
     }
     if (getConfig().page === 'ICP') {
 
@@ -57,18 +61,23 @@ const NBAPIFunc = (confObj, apiUrl) => {
         }).then(function (resp) {
             if (resp.data.redirectUrl) {
                 if (mode === "dropout") {
-                    window.location = resp.data.redirectUrl;
+                    singleHopDropOutFunction(resp.data.redirectUrl);
                 }
                 else {
-                    winRef = openPopupWindow("");
-                    setTimeout(function () {
-                        winRef.location.replace(resp.data.redirectUrl);
-                        if (!isIE()) {
-                            workFlowForModernBrowsers(winRef)
-                        } else {
-                            workFlowForIE(winRef);
-                        }
-                    }, 1000);
+                    singleHopDropInFunction(resp.data.redirectUrl).then(function(response){
+                        setTimeout(function () {
+                            var el = winRef.document.createElement('html');
+                            el.innerHTML = response;
+                            var form = el.getElementsByTagName('form');
+                            form.submitForm.submit();
+                            // winRef.document.replace(resp.data.redirectUrl);
+                            if (!isIE()) {
+                                workFlowForModernBrowsers(winRef)
+                            } else {
+                                workFlowForIE(winRef);
+                            }
+                        }, 1000);
+                    });
                 }
             } else {
                 winRef.close();
@@ -110,7 +119,6 @@ const isIE = () => {
 };
 
 const workFlowForModernBrowsers = (winRef) => {
-
     var intervalId = setInterval(function () {
         if (transactionCompleted) {
             return clearInterval(intervalId);
@@ -118,10 +126,17 @@ const workFlowForModernBrowsers = (winRef) => {
         if (winRef) {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
-                if (getConfig().responded === true) {
-                } else {
-                    window.responseHandler(cancelApiResp);
-                }
+                let form = new FormData();
+                form.append("merchantAccessKey", `${getConfig().merchantAccessKey}`);
+                form.append("transactionId", cancelApiResp.TxId);
+                return  custFetch(`${getConfig().adminUrl}/api/v1/txn/enquiry`, {
+                    method: 'post',
+                    mode: 'cors',
+                    body: form
+                }).then(function(resp){
+                    console.log(resp);
+                    handlersMap['transactionHandler'](resp.data.enquiry);
+                });
             }
         } else {
             clearInterval(intervalId);
@@ -138,23 +153,20 @@ const workFlowForIE = (winRef) => {
         if (winRef) {
             if (winRef.closed) {
                 clearInterval(intervalId);
-                if (getConfig().responded === true) {
-                } else {
-                    window.responseHandler(cancelApiResp);
-                }
+                let form = new FormData();
+                form.append("merchantAccessKey", `${getConfig().merchantAccessKey}`);
+                form.append("transactionId", cancelApiResp.TxId);
+                return  custFetch(`${getConfig().adminUrl}/api/v1/txn/enquiry`, {
+                    method: 'post',
+                    mode: 'cors',
+                    body: form
+                }).then(function(resp){
+                    console.log(resp);
+                    handlersMap['transactionHandler'](resp.data.enquiry);
+                });
             }
         }
     }, 500);
-};
-
-window.notifyTransactionToGoodBrowsers = function (data) {
-    transactionCompleted = true;
-    data = JSON.parse(data);
-    handlersMap['transactionHandler'](data);
-
-    setTimeout(function () {
-        parent.postMessage('closeWallet', '*');
-    }, 6000);
 };
 
 window.responseHandler = function (response) {
