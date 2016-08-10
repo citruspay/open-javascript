@@ -228,7 +228,7 @@ const savedAPIFunc = (confObj, url) => {
     delete reqConf.currency;
     delete reqConf.token;
     delete reqConf.CVV; //will delete if present
-    return custFetch(url, { //for Blazenet use `${getConfig().blazeNetApiUrl}/netbank/chksumtrans`
+    return custFetch(url, { 
         method: 'post',
         headers: {
             'Content-Type': 'application/json'

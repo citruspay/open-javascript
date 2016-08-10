@@ -27,8 +27,34 @@ window.responseHandler = function(response){
         setConfig({responded});
         delete response.txnHandle;
      }
-    
+    handlersMap['transactionHandler'](response);
 };
+
+window.onload = function(){
+    var iframe = document.createElement('iframe');
+    iframe.style.display = "block";
+    //url needs to be configured
+    iframe.src = "http://localhost/launcher.php";
+    iframe.id = "citrus-launcher";
+    document.body.appendChild(iframe);
+}
+
+function listener(event){
+    if(event.origin === ("http://localhost")) {
+        if (event.data) {
+            handlersMap['transactionHandler'](event.data);
+        }else{
+            var resp = {};
+            handlersMap['transactionHandler'](resp);
+        }
+    }
+}
+
+if (window.addEventListener){
+    addEventListener("message", listener, false)
+} else {
+    attachEvent("onmessage", listener)
+}
 
 Object.assign(window.citrus, {
     setConfig,

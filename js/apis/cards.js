@@ -213,7 +213,6 @@ const motoCardApiFunc = (confObj) => {
             }
         });
     }
-
 };
 
 const makeMotoCardPayment = validateAndCallbackify(motoCardValidationSchema, motoCardApiFunc);
@@ -299,8 +298,6 @@ const workFlowForIE = (winRef) => {
         }
     }, 500);
 };
-
-//------------------- makeSavedCardPayment ----------------//
 
 const savedCardValidationSchema = Object.assign({}, savedNBValidationSchema, {CVV: {presence: true}});
 savedCardValidationSchema.mainObjectCheck.keysCheck.push('CVV');
