@@ -16,6 +16,7 @@ import {applyDynamicPricing,makeDPCardPayment} from './apis/card-dp';
 import {applyNbDynamicPricing} from './apis/net-banking-dp';
 import {makePayment} from './apis/payment';
 import {singleHopDropInFunction} from './apis/singleHop';
+import {applyWallletDynamicPricing} from './apis/wallet-dp';
 
 
 init(); //initializes custom validators
@@ -97,7 +98,8 @@ Object.assign(window.citrus, {
     },
     features: {
         applyDynamicPricing,
-        singleHopDropInFunction
+        singleHopDropInFunction,
+        applyWallletDynamicPricing
         //makeWallletPayment
     },
     payment:{

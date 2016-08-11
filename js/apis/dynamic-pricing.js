@@ -1,6 +1,8 @@
 import {custFetch} from '../interceptor';
 import {getConfig, setConfig} from '../config';
 
+
+
 const dynamicPricingFunction = (confObj) => {
 
     let dpAction;

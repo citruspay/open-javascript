@@ -1,16 +1,15 @@
 import cloneDeep from 'lodash/cloneDeep';
 import {motoCardValidationSchema, motoCardApiFunc} from './cards';
 import {dynamicPricingFunction} from './dynamic-pricing';
-import {validateAndCallbackify, schemeFromNumber} from './../utils';
+import {validateAndCallbackify} from './../utils';
 import {getConfig} from '../config';
-import {validateScheme} from '../validation/custom-validations'
 
 const dynamicPricingSchema = {
     email: { presence : true, email : true },
     phone : { length: { maximum : 10 } },
     originalAmount: { presence : true },
     currency: { presence : true },
-    cardNo: { presence : true },
+    token: { presence : true },
     signature : { presence : true }
 };
 
@@ -21,8 +20,7 @@ const dpSchema = () => {
 };
 const dpCardSchema = cloneDeep(motoCardValidationSchema);
 
-
-const applyDynamicPricing = validateAndCallbackify(dynamicPricingSchema, (confObj) => {
+const applyWallletDynamicPricing = validateAndCallbackify(dynamicPricingSchema, (confObj) => {
     const reqConf = Object.assign({}, confObj, {
         originalAmount: {
             value: confObj.originalAmount, currency : confObj.currency
@@ -32,16 +30,15 @@ const applyDynamicPricing = validateAndCallbackify(dynamicPricingSchema, (confOb
         },
         paymentInfo : {
             cardNo : confObj.cardNo,
-            issuerId : confObj.issuerId,
+            issuerId : confObj.bankCode,
             paymentMode : confObj.paymentMode,
-            paymentToken : confObj.paymentToken
+            paymentToken : confObj.token
         },
         extraParams : {
             deviceType : `${getConfig().deviceType}`
         }
     });
-    reqConf.paymentInfo.cardType = validateScheme(schemeFromNumber(confObj.cardNo));
-    delete reqConf.cardNo;
+    delete reqConf.token;
     delete reqConf.currency;
     delete reqConf.paymentMode;
     return dynamicPricingFunction(reqConf);
@@ -51,4 +48,4 @@ const makeDPCardPayment = validateAndCallbackify(dpCardSchema, (confObj) => {
     return motoCardApiFunc(confObj);
 });
 
-export {applyDynamicPricing, makeDPCardPayment}
+export {applyWallletDynamicPricing, makeDPCardPayment}

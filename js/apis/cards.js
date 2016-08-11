@@ -194,11 +194,9 @@ const motoCardApiFunc = (confObj) => {
                             var el = winRef.document.createElement('html');
                             el.innerHTML = response;
                             var form = el.getElementsByTagName('form');
-                            console.log(form);
                             form.submitForm.submit();
-                           // winRef.document.replace(resp.data.redirectUrl);
                             if (!isIE()) {
-                                workFlowForModernBrowsers(winRef)
+                                workFlowForModernBrowsers(winRef);
                             } else {
                                 workFlowForIE(winRef);
                             }
@@ -228,7 +226,6 @@ const openPopupWindow = (url) => {
         var h = 600;
         var left = ((width - w) / 2);
         var top = height/10;
-        console.log('url to open :', url);
         winRef = window.open(url,'PromoteFirefoxWindowName', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left + 'visible=none;');
     } else {
         winRef.focus();
@@ -258,8 +255,6 @@ const workFlowForModernBrowsers = (winRef) => {
                 form.append("merchantAccessKey", `${getConfig().merchantAccessKey}`);
                 form.append("transactionId", cancelApiResp.TxId);
                 const url = `${getConfig().adminUrl}/api/v1/txn/enquiry`;
-                // const url = 'https://admin.citruspay.com/api/v1/txn/enquiry';
-                console.log(url);
                 return  custFetch(url, {
                     method: 'post',
                     mode: 'cors',
@@ -286,7 +281,6 @@ const workFlowForIE = (winRef) => {
                 form.append("merchantAccessKey", `${getConfig().merchantAccessKey}`);
                 form.append("transactionId", cancelApiResp.TxId);
                 const url = `${getConfig().adminUrl}/api/v1/txn/enquiry`;
-                console.log(url);
                 return  custFetch(url, {
                     method: 'post',
                     mode: 'cors',
