@@ -15,6 +15,7 @@ import {schemeFromNumber} from './utils';
 import {applyDynamicPricing,makeDPCardPayment} from './apis/card-dp';
 import {applyNbDynamicPricing} from './apis/net-banking-dp';
 import {makePayment} from './apis/payment';
+import {singleHopDropInFunction} from './apis/singleHop';
 
 
 init(); //initializes custom validators
@@ -32,7 +33,7 @@ window.responseHandler = function(response){
 
 window.onload = function(){
     var iframe = document.createElement('iframe');
-    iframe.style.display = "block";
+    iframe.style.display = "none";
     //url needs to be configured
     iframe.src = "http://localhost/launcher.php";
     iframe.id = "citrus-launcher";
@@ -95,7 +96,8 @@ Object.assign(window.citrus, {
         //makeWallletPayment
     },
     features: {
-        applyDynamicPricing
+        applyDynamicPricing,
+        singleHopDropInFunction
         //makeWallletPayment
     },
     payment:{
