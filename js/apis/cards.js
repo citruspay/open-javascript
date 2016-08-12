@@ -161,8 +161,9 @@ const motoCardApiFunc = (confObj) => {
     if (mode === 'dropout' || getConfig().page === 'ICP') {
     } else {
         reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
-        winRef = openPopupWindow("");
-        winRef.document.write('<html><head> <meta name="viewport" content="width=device-width"/> <meta http-equiv="Cache-control" content="public"/> <title>Redirecting to Bank</title></head><style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body> <div id="wrapper"> <div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><img src="https://context.citruspay.com/kiwi/images/logo.png"/> </div><div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><img src="https://context.citruspay.com/kiwi/images/puff_orange.svg"/></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body></html>');
+       winRef = openPopupWindow("");
+        //winRef.document.write('<form method="post" action="https://dropit.3dsecure.net/PIT/ACS" name="submitForm"><input value="eJxVUttygjAU/BWG95KgeJ1DHG8dnbYWrdXpYwop0oGEJqFqv74JYi+8cDYns3t2T2B0KnLnk0mVCR66voddh/FYJBlPQ/d5e3vTd0cEtgfJ2OyJxZVkBB6YUjRlTpaE7unlKHLcLZL13fPtYXvcLKb3812JB4N56BKIxhv2QaARIIbfawG6QsMk4wPlmgCNPybLFQna7VYvANRAKJhczsibUs6f72aAMW4FHQzo0gdOC0ammZaVciJ6LhjXzpPIK21UlAOo7kMsKq7lmbQ7XUBXAJXMyUHrUg0RUrXDMtVMac+ocqa9WHgZR2V6pGeUUs3snyZJPbr3rkpAlgHQr5eospUyiqcsIUyvHndcFPOoGn+94s/9Mc8i3t+390EIyN6AxNCSFva7uO/7Du4NO71hYFKoz4EWdlSyUSY9Y7mBUFqV8QX4tvH3AIwPaRZ5NXtFwE6l4CYeYtbwUwP6HXm6sMuItYlVbNNV/LYQ+UM3yeV6ORO7iVyHoV1PfcGyZSZDM/qFzgJAlgI1m0fNYzHVv0f0DXN801k=" name="PaReq" type="hidden"/><input value="2815681571962240" name="MD" type="hidden"/><input value="https://sandbox.citruspay.com/nagama2/OTQ0MjU5/hdfc3d_acs_response" name="TermUrl" type="hidden"/><noscript><input id="multipage-continue-button" value="Click here to continue" name="pymntFormSubmitButton" type="submit"/></noscript></form><script>window.onload = function() { document.submitForm.submit()};</script>');
+       winRef.document.write('<html><head> <meta name="viewport" content="width=device-width"/> <meta http-equiv="Cache-control" content="public"/> <title>Redirecting to Bank</title></head><style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body> <div id="wrapper"> <div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><!--<img src="https://context.citruspay.com/kiwi/images/logo.png"/>--> </div><div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><!---<img src="https://context.citruspay.com/kiwi/images/puff_orange.svg"/>--></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body></html>');
     }
     if (getConfig().page === 'ICP') {
         return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
@@ -191,10 +192,39 @@ const motoCardApiFunc = (confObj) => {
                     else {
                         singleHopDropInFunction(resp.data.redirectUrl).then(function(response){
                         setTimeout(function () {
-                            var el = winRef.document.createElement('html');
+
+                            //arindam logic
+                             /*var newDoc = winRef.document.open("text/html", "replace");
+                             newDoc.write(response);
+                             newDoc.close();*/
+                            //arindam logic end
+                            response = response.replace('BODY { line-height:1; text-align:left; color:#333333; background:#eeeeee; }', "");
+                            response = response.replace('<div id="page-wrapper"><div id="page-client-logo"> </div><div class="h-space">  </div><div version="2.0"><div style="text-align:center;"><br/><br/><br/><br/><br/><br/><img alt="Citrus" height="32" width="81" src="/resources/pg/images/logo_citrus-med.png"/><br/><br/><span style="font-size:18px;">Redirecting to Payment site, please do not refresh this page</span></div>','<style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body><div id="wrapper"><div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><!--<img src="https://context.citruspay.com/kiwi/images/logo.png"/>--> </div> <div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><!---<img src="https://context.citruspay.com/kiwi/images/puff_orange.svg"/>--></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body>');
+                            console.log(response);
+                           // response = response.replace(/<\/?img[^>]*>/g,"");
+                            var newDoc = winRef.document.open("text/html", "replace");
+                            newDoc.write(response);
+                            newDoc.close();
+                            //winRef.documentElement.style.display = "none";
+                            //newDoc.close();
+                           /* let el = winRef.document.createElement('html');
+                             console.log("before innerhtml", el);
                             el.innerHTML = response;
-                            var form = el.getElementsByTagName('form');
-                            form.submitForm.submit();
+                             console.log("after innerhtml", el);*/
+                           //  //winRef = openPopupWindow(resp.data.redirectUrl);
+                           //  //winRef.document.write(response);
+                           /*var form = el.getElementsByTagName('form');
+                           console.log(form);*/
+                           //  //winRef.onload();
+                           // // form.submitForm.setAttribute("target", "CitrusOverlay");
+                            //winRef.document.body.appendChild(form.submitForm);
+                            //console.log(winRef.document);
+                           //winRef.document.close();
+                            /*newDoc.write('<form>'+form.innerHTML+'</form>');
+                            newDoc.write('<script type="text/javascript">if(submitPaymentForm) {window.onload = function() { insertHistoryRecordIfRequired(); document.submitForm.submit()};}</script>');
+                            */
+                            
+
                             if (!isIE()) {
                                 workFlowForModernBrowsers(winRef);
                             } else {
@@ -226,7 +256,7 @@ const openPopupWindow = (url) => {
         var h = 600;
         var left = ((width - w) / 2);
         var top = height/10;
-        winRef = window.open(url,'PromoteFirefoxWindowName', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left + 'visible=none;');
+        winRef = window.open(url,'CitrusOverlay', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left + 'visible=none;');
     } else {
         winRef.focus();
     }
