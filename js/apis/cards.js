@@ -7,7 +7,7 @@ import {validateCardType, validateScheme, cardDate, validateCvv} from "../valida
 import {custFetch} from "../interceptor";
 import {urlReEx} from "../constants";
 import {getCancelResponse, refineMotoResponse} from "./response";
-import {singleHopDropOutFunction,singleHopDropInFunction} from "./singleHop";
+import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
 //import $ from 'jquery';
 
 const regExMap = {
@@ -161,9 +161,8 @@ const motoCardApiFunc = (confObj) => {
     if (mode === 'dropout' || getConfig().page === 'ICP') {
     } else {
         reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
-       winRef = openPopupWindow("");
-        //winRef.document.write('<form method="post" action="https://dropit.3dsecure.net/PIT/ACS" name="submitForm"><input value="eJxVUttygjAU/BWG95KgeJ1DHG8dnbYWrdXpYwop0oGEJqFqv74JYi+8cDYns3t2T2B0KnLnk0mVCR66voddh/FYJBlPQ/d5e3vTd0cEtgfJ2OyJxZVkBB6YUjRlTpaE7unlKHLcLZL13fPtYXvcLKb3812JB4N56BKIxhv2QaARIIbfawG6QsMk4wPlmgCNPybLFQna7VYvANRAKJhczsibUs6f72aAMW4FHQzo0gdOC0ammZaVciJ6LhjXzpPIK21UlAOo7kMsKq7lmbQ7XUBXAJXMyUHrUg0RUrXDMtVMac+ocqa9WHgZR2V6pGeUUs3snyZJPbr3rkpAlgHQr5eospUyiqcsIUyvHndcFPOoGn+94s/9Mc8i3t+390EIyN6AxNCSFva7uO/7Du4NO71hYFKoz4EWdlSyUSY9Y7mBUFqV8QX4tvH3AIwPaRZ5NXtFwE6l4CYeYtbwUwP6HXm6sMuItYlVbNNV/LYQ+UM3yeV6ORO7iVyHoV1PfcGyZSZDM/qFzgJAlgI1m0fNYzHVv0f0DXN801k=" name="PaReq" type="hidden"/><input value="2815681571962240" name="MD" type="hidden"/><input value="https://sandbox.citruspay.com/nagama2/OTQ0MjU5/hdfc3d_acs_response" name="TermUrl" type="hidden"/><noscript><input id="multipage-continue-button" value="Click here to continue" name="pymntFormSubmitButton" type="submit"/></noscript></form><script>window.onload = function() { document.submitForm.submit()};</script>');
-       winRef.document.write('<html><head> <meta name="viewport" content="width=device-width"/> <meta http-equiv="Cache-control" content="public"/> <title>Redirecting to Bank</title></head><style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body> <div id="wrapper"> <div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><!--<img src="https://context.citruspay.com/kiwi/images/logo.png"/>--> </div><div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><!---<img src="https://context.citruspay.com/kiwi/images/puff_orange.svg"/>--></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body></html>');
+        winRef = openPopupWindow("");
+        winRef.document.write('<html><head> <meta name="viewport" content="width=device-width"/> <meta http-equiv="Cache-control" content="public"/> <title>Redirecting to Bank</title></head><style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body> <div id="wrapper"> <div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><!--<img src="https://context.citruspay.com/kiwi/images/logo.png"/>--> </div><div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><!---<img src="https://context.citruspay.com/kiwi/images/puff_orange.svg"/>--></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body></html>');
     }
     if (getConfig().page === 'ICP') {
         return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
@@ -190,20 +189,20 @@ const motoCardApiFunc = (confObj) => {
                         singleHopDropOutFunction(resp.data.redirectUrl);
                     }
                     else {
-                        singleHopDropInFunction(resp.data.redirectUrl).then(function(response){
+                        singleHopDropInFunction(resp.data.redirectUrl).then(function (response) {
                             let el = document.createElement('body');
                             el.innerHTML = response;
                             let form = el.getElementsByTagName('form');
-                            try{
+                            try {
                                 let paymentForm = document.createElement('form');
                                 paymentForm.setAttribute("action", form.submitForm.action),
-                                paymentForm.setAttribute("method", form.submitForm.method),
-                                paymentForm.setAttribute("target", winRef.name),
-                                paymentForm.innerHTML = form.submitForm.innerHTML,
-                                document.documentElement.appendChild(paymentForm),
-                                paymentForm.submit(),
-                                document.documentElement.removeChild(paymentForm);
-                            }catch(e){
+                                    paymentForm.setAttribute("method", form.submitForm.method),
+                                    paymentForm.setAttribute("target", winRef.name),
+                                    paymentForm.innerHTML = form.submitForm.innerHTML,
+                                    document.documentElement.appendChild(paymentForm),
+                                    paymentForm.submit(),
+                                    document.documentElement.removeChild(paymentForm);
+                            } catch (e) {
                                 console.log(e);
                                 let paymentForm = document.createElement('form');
                                 paymentForm.setAttribute("action", form.returnForm.action);
@@ -222,8 +221,9 @@ const motoCardApiFunc = (confObj) => {
                         });
                     }
                 } else {
-                    if (winRef)
-                    {winRef.close();}
+                    if (winRef) {
+                        winRef.close();
+                    }
                     const response = refineMotoResponse(resp.data);
                     handlersMap['serverErrorHandler'](response);
                 }
@@ -238,14 +238,14 @@ let winRef = null;
 let transactionCompleted = false;
 
 const openPopupWindow = (url) => {
-    if(winRef == null || winRef.closed) {
+    if (winRef == null || winRef.closed) {
         var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
         var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
         var w = 800;
         var h = 600;
         var left = ((width - w) / 2);
-        var top = height/10;
-        winRef = window.open(url,'CitrusOverlay', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left + 'visible=none;');
+        var top = height / 10;
+        winRef = window.open(url, 'CitrusOverlay', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left + 'visible=none;');
     } else {
         winRef.focus();
     }
@@ -274,11 +274,11 @@ const workFlowForModernBrowsers = (winRef) => {
                 form.append("merchantAccessKey", `${getConfig().merchantAccessKey}`);
                 form.append("transactionId", cancelApiResp.TxId);
                 const url = `${getConfig().adminUrl}/api/v1/txn/enquiry`;
-                return  custFetch(url, {
+                return custFetch(url, {
                     method: 'post',
                     mode: 'cors',
                     body: form
-                }).then(function(resp){
+                }).then(function (resp) {
                     handlersMap['transactionHandler'](resp.data.enquiry);
                 });
             }
@@ -300,11 +300,11 @@ const workFlowForIE = (winRef) => {
                 form.append("merchantAccessKey", `${getConfig().merchantAccessKey}`);
                 form.append("transactionId", cancelApiResp.TxId);
                 const url = `${getConfig().adminUrl}/api/v1/txn/enquiry`;
-                return  custFetch(url, {
+                return custFetch(url, {
                     method: 'post',
                     mode: 'cors',
                     body: form
-                }).then(function(resp){
+                }).then(function (resp) {
                     handlersMap['transactionHandler'](resp.data.enquiry);
                 });
             }

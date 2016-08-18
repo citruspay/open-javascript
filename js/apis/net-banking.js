@@ -36,9 +36,9 @@ const NBAPIFunc = (confObj, apiUrl) => {
     if (mode === 'dropout' || getConfig().page === 'ICP') {
     } else {
         reqConf.returnUrl = "http://localhost/return.php";//window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
-       winRef = openPopupWindow("");
+        winRef = openPopupWindow("");
         //winRef.document.write('<html><head><meta name="viewport" content="width=device-width" /><meta http-equiv="Cache-control" content="public" /><title>Redirecting to Bank</title></head><style>body {background:#fafafa;}#wrapper {position: fixed;position: absolute;top: 20%;left: 0;right:0;margin: 0 auto;font-family: Tahoma, Geneva, sans-serif; color:#000;text-align:center;font-size: 14px;padding: 20px;max-width: 500px;width:70%;}.maintext {font-family: Roboto, Tahoma, Geneva, sans-serif;color:#f6931e;margin-bottom: 0;text-align:center;font-size: 21pt;font-weight: 400;}.textRedirect {color:#675f58;}.subtext{margin : 15px 0 15px;font-family: Roboto, Tahoma, Geneva, sans-serif;color:#929292;text-align:center;font-size: 14pt;}.subtextOne{margin : 35px 0 15px;font-family: Roboto, Tahoma, Geneva, sans-serif;color:#929292;text-align:center;font-size: 14pt;}@media screen and (max-width: 480px) {#wrapper {max-width:100%!important;}}</style><body><div id="wrapper"><div id = "imgtext" style=" margin-left:1%; margin-bottom: 5px;"><img src="https://www.citruspay.com/resources/pg/images/logo_citrus.png"/></div><p class="maintext">Quick <span class="textRedirect">Redirection</span></p><p class="subtext"><span>We are processing your payment..</span></p><p class="subtextOne"><span>IT MIGHT TAKE A WHILE</span></p></div></body></html>');
-       winRef.document.write('<html><head> <meta name="viewport" content="width=device-width"/> <meta http-equiv="Cache-control" content="public"/> <title>Redirecting to Bank</title></head><style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body> <div id="wrapper"> <div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><!--<img src="https://context.citruspay.com/static/kiwi/images/logo.png"/>--> </div><div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><!--<img src="https://context.citruspay.com/static/kiwi/images/puff_orange.svg"/>--></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body></html>');
+        winRef.document.write('<html><head> <meta name="viewport" content="width=device-width"/> <meta http-equiv="Cache-control" content="public"/> <title>Redirecting to Bank</title></head><style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body> <div id="wrapper"> <div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><!--<img src="https://context.citruspay.com/static/kiwi/images/logo.png"/>--> </div><div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><!--<img src="https://context.citruspay.com/static/kiwi/images/puff_orange.svg"/>--></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body></html>');
     }
     if (getConfig().page === 'ICP') {
 
@@ -64,11 +64,11 @@ const NBAPIFunc = (confObj, apiUrl) => {
                     singleHopDropOutFunction(resp.data.redirectUrl);
                 }
                 else {
-                    singleHopDropInFunction(resp.data.redirectUrl).then(function(response){
+                    singleHopDropInFunction(resp.data.redirectUrl).then(function (response) {
                         let el = document.createElement('body');
                         el.innerHTML = response;
                         let form = el.getElementsByTagName('form');
-                        try{
+                        try {
                             let paymentForm = document.createElement('form');
                             paymentForm.setAttribute("action", form.submitForm.action),
                                 paymentForm.setAttribute("method", form.submitForm.method),
@@ -77,7 +77,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
                                 document.documentElement.appendChild(paymentForm),
                                 paymentForm.submit(),
                                 document.documentElement.removeChild(paymentForm);
-                        }catch(e){
+                        } catch (e) {
                             console.log(e);
                             let paymentForm = document.createElement('form');
                             paymentForm.setAttribute("action", form.returnForm.action);
@@ -109,15 +109,15 @@ let transactionCompleted = false;
 
 const openPopupWindow = (url) => {
 
-    if(winRef == null || winRef.closed) {
+    if (winRef == null || winRef.closed) {
         var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
         var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
         var w = 800;
         var h = 600;
         var left = ((width - w) / 2);
-        var top = height/10;
+        var top = height / 10;
         console.log('url to open :', url);
-        winRef = window.open(url,'PromoteFirefoxWindowName', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left + 'visible=none;');
+        winRef = window.open(url, 'PromoteFirefoxWindowName', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left + 'visible=none;');
 
     } else {
         winRef.focus();
@@ -145,11 +145,11 @@ const workFlowForModernBrowsers = (winRef) => {
                 let form = new FormData();
                 form.append("merchantAccessKey", `${getConfig().merchantAccessKey}`);
                 form.append("transactionId", cancelApiResp.TxId);
-                return  custFetch(`${getConfig().adminUrl}/api/v1/txn/enquiry`, {
+                return custFetch(`${getConfig().adminUrl}/api/v1/txn/enquiry`, {
                     method: 'post',
                     mode: 'cors',
                     body: form
-                }).then(function(resp){
+                }).then(function (resp) {
                     console.log(resp);
                     handlersMap['transactionHandler'](resp.data.enquiry);
                 });
@@ -172,11 +172,11 @@ const workFlowForIE = (winRef) => {
                 let form = new FormData();
                 form.append("merchantAccessKey", `${getConfig().merchantAccessKey}`);
                 form.append("transactionId", cancelApiResp.TxId);
-                return  custFetch(`${getConfig().adminUrl}/api/v1/txn/enquiry`, {
+                return custFetch(`${getConfig().adminUrl}/api/v1/txn/enquiry`, {
                     method: 'post',
                     mode: 'cors',
                     body: form
-                }).then(function(resp){
+                }).then(function (resp) {
                     console.log(resp);
                     handlersMap['transactionHandler'](resp.data.enquiry);
                 });
@@ -244,14 +244,61 @@ const savedAPIFunc = (confObj, url) => {
     delete reqConf.currency;
     delete reqConf.token;
     delete reqConf.CVV; //will delete if present
-    return custFetch(url, { 
+    return custFetch(url, {
         method: 'post',
         headers: {
             'Content-Type': 'application/json'
         },
         //mode: 'cors',
         body: JSON.stringify(reqConf)
-    })
+    }).then(function (resp) {
+
+        if (getConfig().page !== 'ICP') {
+            if (resp.data.redirectUrl) {
+                if (mode === "dropout") {
+                    singleHopDropOutFunction(resp.data.redirectUrl);
+                }
+                else {
+                    singleHopDropInFunction(resp.data.redirectUrl).then(function (response) {
+                        let el = document.createElement('body');
+                        el.innerHTML = response;
+                        let form = el.getElementsByTagName('form');
+                        try {
+                            let paymentForm = document.createElement('form');
+                            paymentForm.setAttribute("action", form.submitForm.action),
+                                paymentForm.setAttribute("method", form.submitForm.method),
+                                paymentForm.setAttribute("target", winRef.name),
+                                paymentForm.innerHTML = form.submitForm.innerHTML,
+                                document.documentElement.appendChild(paymentForm),
+                                paymentForm.submit(),
+                                document.documentElement.removeChild(paymentForm);
+                        } catch (e) {
+                            console.log(e);
+                            let paymentForm = document.createElement('form');
+                            paymentForm.setAttribute("action", form.returnForm.action);
+                            paymentForm.setAttribute("method", form.returnForm.method);
+                            paymentForm.setAttribute("target", winRef.name);
+                            paymentForm.innerHTML = form.returnForm.innerHTML;
+                            document.body.appendChild(paymentForm);
+                            paymentForm.submit();
+                            document.body.removeChild(paymentForm);
+                        }
+                        if (!isIE()) {
+                            workFlowForModernBrowsers(winRef);
+                        } else {
+                            workFlowForIE(winRef);
+                        }
+                    });
+                }
+            } else {
+                if (winRef) {
+                    winRef.close();
+                }
+                const response = refineMotoResponse(resp.data);
+                handlersMap['serverErrorHandler'](response);
+            }
+        }
+    });
 };
 
 const makeSavedNBPayment = validateAndCallbackify(savedNBValidationSchema, (confObj)=> {
@@ -259,4 +306,11 @@ const makeSavedNBPayment = validateAndCallbackify(savedNBValidationSchema, (conf
     return savedAPIFunc(confObj, apiUrl);
 });
 
-export {makeNetBankingPayment, makeSavedNBPayment, makeBlazeNBPayment, savedAPIFunc, savedNBValidationSchema, netbanking}
+export {
+    makeNetBankingPayment,
+    makeSavedNBPayment,
+    makeBlazeNBPayment,
+    savedAPIFunc,
+    savedNBValidationSchema,
+    netbanking
+}
