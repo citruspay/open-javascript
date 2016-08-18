@@ -191,50 +191,39 @@ const motoCardApiFunc = (confObj) => {
                     }
                     else {
                         singleHopDropInFunction(resp.data.redirectUrl).then(function(response){
-                        setTimeout(function () {
-
-                            //arindam logic
-                             /*var newDoc = winRef.document.open("text/html", "replace");
-                             newDoc.write(response);
-                             newDoc.close();*/
-                            //arindam logic end
-                            response = response.replace('BODY { line-height:1; text-align:left; color:#333333; background:#eeeeee; }', "");
-                            response = response.replace('<div id="page-wrapper"><div id="page-client-logo"> </div><div class="h-space">  </div><div version="2.0"><div style="text-align:center;"><br/><br/><br/><br/><br/><br/><img alt="Citrus" height="32" width="81" src="/resources/pg/images/logo_citrus-med.png"/><br/><br/><span style="font-size:18px;">Redirecting to Payment site, please do not refresh this page</span></div>','<style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body><div id="wrapper"><div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><!--<img src="https://context.citruspay.com/kiwi/images/logo.png"/>--> </div> <div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><!---<img src="https://context.citruspay.com/kiwi/images/puff_orange.svg"/>--></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body>');
-                            console.log(response);
-                           // response = response.replace(/<\/?img[^>]*>/g,"");
-                            var newDoc = winRef.document.open("text/html", "replace");
-                            newDoc.write(response);
-                            newDoc.close();
-                            //winRef.documentElement.style.display = "none";
-                            //newDoc.close();
-                           /* let el = winRef.document.createElement('html');
-                             console.log("before innerhtml", el);
+                            let el = document.createElement('body');
                             el.innerHTML = response;
-                             console.log("after innerhtml", el);*/
-                           //  //winRef = openPopupWindow(resp.data.redirectUrl);
-                           //  //winRef.document.write(response);
-                           /*var form = el.getElementsByTagName('form');
-                           console.log(form);*/
-                           //  //winRef.onload();
-                           // // form.submitForm.setAttribute("target", "CitrusOverlay");
-                            //winRef.document.body.appendChild(form.submitForm);
-                            //console.log(winRef.document);
-                           //winRef.document.close();
-                            /*newDoc.write('<form>'+form.innerHTML+'</form>');
-                            newDoc.write('<script type="text/javascript">if(submitPaymentForm) {window.onload = function() { insertHistoryRecordIfRequired(); document.submitForm.submit()};}</script>');
-                            */
-                            
-
+                            let form = el.getElementsByTagName('form');
+                            try{
+                                let paymentForm = document.createElement('form');
+                                paymentForm.setAttribute("action", form.submitForm.action),
+                                paymentForm.setAttribute("method", form.submitForm.method),
+                                paymentForm.setAttribute("target", winRef.name),
+                                paymentForm.innerHTML = form.submitForm.innerHTML,
+                                document.documentElement.appendChild(paymentForm),
+                                paymentForm.submit(),
+                                document.documentElement.removeChild(paymentForm);
+                            }catch(e){
+                                console.log(e);
+                                let paymentForm = document.createElement('form');
+                                paymentForm.setAttribute("action", form.returnForm.action);
+                                paymentForm.setAttribute("method", form.returnForm.method);
+                                paymentForm.setAttribute("target", winRef.name);
+                                paymentForm.innerHTML = form.returnForm.innerHTML;
+                                document.body.appendChild(paymentForm);
+                                paymentForm.submit();
+                                document.body.removeChild(paymentForm);
+                            }
                             if (!isIE()) {
                                 workFlowForModernBrowsers(winRef);
                             } else {
                                 workFlowForIE(winRef);
                             }
-                        }, 1000);
                         });
                     }
                 } else {
-                    winRef.close();
+                    if (winRef)
+                    {winRef.close();}
                     const response = refineMotoResponse(resp.data);
                     handlersMap['serverErrorHandler'](response);
                 }
