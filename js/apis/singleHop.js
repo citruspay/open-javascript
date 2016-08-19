@@ -17,7 +17,6 @@ const singleHopDropOutFunction = (url) => {
                 case "[object NodeList]" :
                     paymentForm.setAttribute("action", form[0].action),
                         paymentForm.setAttribute("method", form[0].method),
-                        paymentForm.setAttribute("target", winRef.name),
                         paymentForm.innerHTML = form[0].innerHTML,
                         document.documentElement.appendChild(paymentForm),
                         paymentForm.submit(),
@@ -26,7 +25,6 @@ const singleHopDropOutFunction = (url) => {
                 case "[object HTMLCollection]" :
                     paymentForm.setAttribute("action", form.submitForm.action),
                         paymentForm.setAttribute("method", form.submitForm.method),
-                        paymentForm.setAttribute("target", winRef.name),
                         paymentForm.innerHTML = form.submitForm.innerHTML,
                         document.documentElement.appendChild(paymentForm),
                         paymentForm.submit(),
