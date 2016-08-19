@@ -197,10 +197,10 @@ const motoCardApiFunc = (confObj) => {
                                 let paymentForm = document.createElement('form');
                                 switch(Object.prototype.toString.call( form )){
                                     case "[object NodeList]" :
-                                        paymentForm.setAttribute("action", form.action),
-                                            paymentForm.setAttribute("method", form.method),
+                                        paymentForm.setAttribute("action", form[0].action),
+                                            paymentForm.setAttribute("method", form[0].method),
                                             paymentForm.setAttribute("target", winRef.name),
-                                            paymentForm.innerHTML = form.innerHTML,
+                                            paymentForm.innerHTML = form[0].innerHTML,
                                             document.documentElement.appendChild(paymentForm),
                                             paymentForm.submit(),
                                             document.documentElement.removeChild(paymentForm);
