@@ -70,13 +70,26 @@ const NBAPIFunc = (confObj, apiUrl) => {
                         let form = el.getElementsByTagName('form');
                         try {
                             let paymentForm = document.createElement('form');
-                            paymentForm.setAttribute("action", form.submitForm.action),
-                                paymentForm.setAttribute("method", form.submitForm.method),
-                                paymentForm.setAttribute("target", winRef.name),
-                                paymentForm.innerHTML = form.submitForm.innerHTML,
-                                document.documentElement.appendChild(paymentForm),
-                                paymentForm.submit(),
-                                document.documentElement.removeChild(paymentForm);
+                            switch(Object.prototype.toString.call( form )){
+                                case "[object NodeList]" :
+                                    paymentForm.setAttribute("action", form.action),
+                                        paymentForm.setAttribute("method", form.method),
+                                        paymentForm.setAttribute("target", winRef.name),
+                                        paymentForm.innerHTML = form.innerHTML,
+                                        document.documentElement.appendChild(paymentForm),
+                                        paymentForm.submit(),
+                                        document.documentElement.removeChild(paymentForm);
+                                    break;
+                                case "[object HTMLCollection]" :
+                                    paymentForm.setAttribute("action", form.submitForm.action),
+                                        paymentForm.setAttribute("method", form.submitForm.method),
+                                        paymentForm.setAttribute("target", winRef.name),
+                                        paymentForm.innerHTML = form.submitForm.innerHTML,
+                                        document.documentElement.appendChild(paymentForm),
+                                        paymentForm.submit(),
+                                        document.documentElement.removeChild(paymentForm);
+                                    break;
+                            }
                         } catch (e) {
                             console.log(e);
                             let paymentForm = document.createElement('form');
@@ -243,7 +256,9 @@ const savedAPIFunc = (confObj, url) => {
 
     delete reqConf.currency;
     delete reqConf.token;
-    delete reqConf.CVV; //will delete if present
+    delete reqConf.CVV;
+    const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
+    delete reqConf.mode;
     return custFetch(url, {
         method: 'post',
         headers: {
@@ -265,22 +280,35 @@ const savedAPIFunc = (confObj, url) => {
                         let form = el.getElementsByTagName('form');
                         try {
                             let paymentForm = document.createElement('form');
-                            paymentForm.setAttribute("action", form.submitForm.action),
-                                paymentForm.setAttribute("method", form.submitForm.method),
-                                paymentForm.setAttribute("target", winRef.name),
-                                paymentForm.innerHTML = form.submitForm.innerHTML,
-                                document.documentElement.appendChild(paymentForm),
-                                paymentForm.submit(),
-                                document.documentElement.removeChild(paymentForm);
+                            switch(Object.prototype.toString.call( form )){
+                                case "[object NodeList]" :
+                                    paymentForm.setAttribute("action", form.action),
+                                        paymentForm.setAttribute("method", form.method),
+                                        paymentForm.setAttribute("target", winRef.name),
+                                        paymentForm.innerHTML = form.innerHTML,
+                                        document.documentElement.appendChild(paymentForm),
+                                        paymentForm.submit(),
+                                        document.documentElement.removeChild(paymentForm);
+                                    break;
+                                case "[object HTMLCollection]" :
+                                    paymentForm.setAttribute("action", form.submitForm.action),
+                                        paymentForm.setAttribute("method", form.submitForm.method),
+                                        paymentForm.setAttribute("target", winRef.name),
+                                        paymentForm.innerHTML = form.submitForm.innerHTML,
+                                        document.documentElement.appendChild(paymentForm),
+                                        paymentForm.submit(),
+                                        document.documentElement.removeChild(paymentForm);
+                                    break;
+                            }
                         } catch (e) {
                             console.log(e);
                             let paymentForm = document.createElement('form');
-                            paymentForm.setAttribute("action", form.returnForm.action);
-                            paymentForm.setAttribute("method", form.returnForm.method);
-                            paymentForm.setAttribute("target", winRef.name);
-                            paymentForm.innerHTML = form.returnForm.innerHTML;
-                            document.body.appendChild(paymentForm);
-                            paymentForm.submit();
+                            paymentForm.setAttribute("action", form.returnForm.action),
+                            paymentForm.setAttribute("method", form.returnForm.method),
+                            paymentForm.setAttribute("target", winRef.name),
+                            paymentForm.innerHTML = form.returnForm.innerHTML,
+                            document.body.appendChild(paymentForm),
+                            paymentForm.submit(),
                             document.body.removeChild(paymentForm);
                         }
                         if (!isIE()) {

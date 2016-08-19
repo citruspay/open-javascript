@@ -195,13 +195,26 @@ const motoCardApiFunc = (confObj) => {
                             let form = el.getElementsByTagName('form');
                             try {
                                 let paymentForm = document.createElement('form');
-                                paymentForm.setAttribute("action", form.submitForm.action),
-                                    paymentForm.setAttribute("method", form.submitForm.method),
-                                    paymentForm.setAttribute("target", winRef.name),
-                                    paymentForm.innerHTML = form.submitForm.innerHTML,
-                                    document.documentElement.appendChild(paymentForm),
-                                    paymentForm.submit(),
-                                    document.documentElement.removeChild(paymentForm);
+                                switch(Object.prototype.toString.call( form )){
+                                    case "[object NodeList]" :
+                                        paymentForm.setAttribute("action", form.action),
+                                            paymentForm.setAttribute("method", form.method),
+                                            paymentForm.setAttribute("target", winRef.name),
+                                            paymentForm.innerHTML = form.innerHTML,
+                                            document.documentElement.appendChild(paymentForm),
+                                            paymentForm.submit(),
+                                            document.documentElement.removeChild(paymentForm);
+                                        break;
+                                    case "[object HTMLCollection]" :
+                                        paymentForm.setAttribute("action", form.submitForm.action),
+                                            paymentForm.setAttribute("method", form.submitForm.method),
+                                            paymentForm.setAttribute("target", winRef.name),
+                                            paymentForm.innerHTML = form.submitForm.innerHTML,
+                                            document.documentElement.appendChild(paymentForm),
+                                            paymentForm.submit(),
+                                            document.documentElement.removeChild(paymentForm);
+                                        break;
+                                }
                             } catch (e) {
                                 console.log(e);
                                 let paymentForm = document.createElement('form');
