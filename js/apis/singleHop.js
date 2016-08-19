@@ -13,12 +13,26 @@ const singleHopDropOutFunction = (url) => {
         console.log(form.innerHTML);
         try{
             let paymentForm = document.createElement('form');
-            paymentForm.setAttribute("action", form.submitForm.action);
-            paymentForm.setAttribute("method", form.submitForm.method);
-            paymentForm.innerHTML = form.submitForm.innerHTML;
-            document.body.appendChild(paymentForm);
-            paymentForm.submit();
-            document.body.removeChild(paymentForm);
+            switch(Object.prototype.toString.call( form )){
+                case "[object NodeList]" :
+                    paymentForm.setAttribute("action", form[0].action),
+                        paymentForm.setAttribute("method", form[0].method),
+                        paymentForm.setAttribute("target", winRef.name),
+                        paymentForm.innerHTML = form[0].innerHTML,
+                        document.documentElement.appendChild(paymentForm),
+                        paymentForm.submit(),
+                        document.documentElement.removeChild(paymentForm);
+                    break;
+                case "[object HTMLCollection]" :
+                    paymentForm.setAttribute("action", form.submitForm.action),
+                        paymentForm.setAttribute("method", form.submitForm.method),
+                        paymentForm.setAttribute("target", winRef.name),
+                        paymentForm.innerHTML = form.submitForm.innerHTML,
+                        document.documentElement.appendChild(paymentForm),
+                        paymentForm.submit(),
+                        document.documentElement.removeChild(paymentForm);
+                    break;
+            }
         }catch(e){
             console.log(e);
             let paymentForm = document.createElement('form');
