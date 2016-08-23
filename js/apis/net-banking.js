@@ -259,74 +259,83 @@ const savedAPIFunc = (confObj, url) => {
     delete reqConf.CVV;
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
-    return custFetch(url, {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        //mode: 'cors',
-        body: JSON.stringify(reqConf)
-    }).then(function (resp) {
-
-        if (getConfig().page !== 'ICP') {
-            if (resp.data.redirectUrl) {
-                if (mode === "dropout") {
-                    singleHopDropOutFunction(resp.data.redirectUrl);
-                }
-                else {
-                    singleHopDropInFunction(resp.data.redirectUrl).then(function (response) {
-                        let el = document.createElement('body');
-                        el.innerHTML = response;
-                        let form = el.getElementsByTagName('form');
-                        try {
-                            let paymentForm = document.createElement('form');
-                            switch(Object.prototype.toString.call( form )){
-                                case "[object NodeList]" :
-                                    paymentForm.setAttribute("action", form[0].action),
-                                        paymentForm.setAttribute("method", form[0].method),
-                                        paymentForm.setAttribute("target", winRef.name),
-                                        paymentForm.innerHTML = form[0].innerHTML,
-                                        document.documentElement.appendChild(paymentForm),
-                                        paymentForm.submit(),
-                                        document.documentElement.removeChild(paymentForm);
-                                    break;
-                                case "[object HTMLCollection]" :
-                                    paymentForm.setAttribute("action", form.submitForm.action),
-                                        paymentForm.setAttribute("method", form.submitForm.method),
-                                        paymentForm.setAttribute("target", winRef.name),
-                                        paymentForm.innerHTML = form.submitForm.innerHTML,
-                                        document.documentElement.appendChild(paymentForm),
-                                        paymentForm.submit(),
-                                        document.documentElement.removeChild(paymentForm);
-                                    break;
+    if (getConfig().page === 'ICP') {
+        return custFetch(apiUrl, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(reqConf)
+        });
+    }
+    else {
+        return custFetch(url, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(reqConf)
+        }).then(function (resp) {
+            if (getConfig().page !== 'ICP') {
+                if (resp.data.redirectUrl) {
+                    if (mode === "dropout") {
+                        singleHopDropOutFunction(resp.data.redirectUrl);
+                    }
+                    else {
+                        singleHopDropInFunction(resp.data.redirectUrl).then(function (response) {
+                            let el = document.createElement('body');
+                            el.innerHTML = response;
+                            let form = el.getElementsByTagName('form');
+                            try {
+                                let paymentForm = document.createElement('form');
+                                switch (Object.prototype.toString.call(form)) {
+                                    case "[object NodeList]" :
+                                        paymentForm.setAttribute("action", form[0].action),
+                                            paymentForm.setAttribute("method", form[0].method),
+                                            paymentForm.setAttribute("target", winRef.name),
+                                            paymentForm.innerHTML = form[0].innerHTML,
+                                            document.documentElement.appendChild(paymentForm),
+                                            paymentForm.submit(),
+                                            document.documentElement.removeChild(paymentForm);
+                                        break;
+                                    case "[object HTMLCollection]" :
+                                        paymentForm.setAttribute("action", form.submitForm.action),
+                                            paymentForm.setAttribute("method", form.submitForm.method),
+                                            paymentForm.setAttribute("target", winRef.name),
+                                            paymentForm.innerHTML = form.submitForm.innerHTML,
+                                            document.documentElement.appendChild(paymentForm),
+                                            paymentForm.submit(),
+                                            document.documentElement.removeChild(paymentForm);
+                                        break;
+                                }
+                            } catch (e) {
+                                console.log(e);
+                                let paymentForm = document.createElement('form');
+                                paymentForm.setAttribute("action", form.returnForm.action),
+                                    paymentForm.setAttribute("method", form.returnForm.method),
+                                    paymentForm.setAttribute("target", winRef.name),
+                                    paymentForm.innerHTML = form.returnForm.innerHTML,
+                                    document.body.appendChild(paymentForm),
+                                    paymentForm.submit(),
+                                    document.body.removeChild(paymentForm);
                             }
-                        } catch (e) {
-                            console.log(e);
-                            let paymentForm = document.createElement('form');
-                            paymentForm.setAttribute("action", form.returnForm.action),
-                            paymentForm.setAttribute("method", form.returnForm.method),
-                            paymentForm.setAttribute("target", winRef.name),
-                            paymentForm.innerHTML = form.returnForm.innerHTML,
-                            document.body.appendChild(paymentForm),
-                            paymentForm.submit(),
-                            document.body.removeChild(paymentForm);
-                        }
-                        if (!isIE()) {
-                            workFlowForModernBrowsers(winRef);
-                        } else {
-                            workFlowForIE(winRef);
-                        }
-                    });
+                            if (!isIE()) {
+                                workFlowForModernBrowsers(winRef);
+                            } else {
+                                workFlowForIE(winRef);
+                            }
+                        });
+                    }
+                } else {
+                    if (winRef) {
+                        winRef.close();
+                    }
+                    const response = refineMotoResponse(resp.data);
+                    handlersMap['serverErrorHandler'](response);
                 }
-            } else {
-                if (winRef) {
-                    winRef.close();
-                }
-                const response = refineMotoResponse(resp.data);
-                handlersMap['serverErrorHandler'](response);
             }
-        }
-    });
+        });
+    }
 };
 
 const makeSavedNBPayment = validateAndCallbackify(savedNBValidationSchema, (confObj)=> {
