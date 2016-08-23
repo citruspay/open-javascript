@@ -260,7 +260,7 @@ const savedAPIFunc = (confObj, url) => {
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
     if (getConfig().page === 'ICP') {
-        return custFetch(apiUrl, {
+        return custFetch(url, {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json'
