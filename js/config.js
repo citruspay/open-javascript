@@ -16,7 +16,7 @@ const apiConfMap = {
         motoApiUrl: 'https://admin.citruspay.com/service',
         adminUrl : 'https://admin.citruspay.com',
         MCPAPIUrl: 'https://mercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
-        dpApiUrl: 'https://mars.citruspay.com/dynamic-pricing/dynamicpricing'
+        dpApiUrl: 'https://mars.citruspay.com/dynamicpricing/dynamicpricing'
     },
     stagingConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
