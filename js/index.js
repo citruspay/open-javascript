@@ -33,12 +33,12 @@ window.responseHandler = function(response){
 };
 
 window.onload = function(){
-    var iframe = document.createElement('iframe');
-    iframe.style.display = "none";
+    //var iframe = document.createElement('iframe');
+    //iframe.style.display = "block";
     //url needs to be configured
-    iframe.src = "http://localhost/launcher.php";
-    iframe.id = "citrus-launcher";
-    document.body.appendChild(iframe);
+    //iframe.src = "http://localhost/cards.php";
+    //iframe.id = "citruspay";
+    //document.body.appendChild(iframe);
 }
 
 function listener(event){
