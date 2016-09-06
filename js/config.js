@@ -24,7 +24,7 @@ const apiConfMap = {
         motoApiUrl: 'https://stgadmin2.citruspay.com/service',
         adminUrl : 'https://stgadmin2.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
-        dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing'
+        dpApiUrl: 'https://stgadmin2.citruspay.com/dynamic-pricing/dynamicpricing'
     },
     localConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
@@ -46,10 +46,10 @@ const handlersMap = {
         }
     },
     serverErrorHandler: (error) => {
-        console.error("Error from server. handled in default server error handler", JSON.stringify(error));
+        console.error("Error thrown from citrus.js sdk:", JSON.stringify(error));
     },
-    transactionHandler:(error) => {
-        console.log("Transaction status :", error);
+    transactionHandler:(response) => {
+        console.log("Transaction status :", response);
     }
 };
 
@@ -68,7 +68,8 @@ const configMap = {
 };
 
 const setConfig = (configObj) => {
-    configObj.env && (env = configObj.env);    Object.assign(configMap, {
+    configObj.env && (env = configObj.env);
+    Object.assign(configMap, {
         blazeCardApiUrl: apiConfMap[env+'Conf'].blazeCardApiUrl,
         blazeNetApiUrl: apiConfMap[env+'Conf'].blazeNetApiUrl,
         motoApiUrl : apiConfMap[env+'Conf'].motoApiUrl,
