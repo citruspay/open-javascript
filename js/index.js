@@ -14,9 +14,10 @@ import {makeMCPCardPayment, getCardCurrencyInfo} from './apis/mcp';
 import {schemeFromNumber} from './utils';
 import {applyDynamicPricing,makeDPCardPayment} from './apis/card-dp';
 import {applyNbDynamicPricing} from './apis/net-banking-dp';
-import {makePayment} from './apis/payment';
+import {makePayment, listener} from './apis/payment';
 import {singleHopDropInFunction} from './apis/singleHop';
 import {applyWallletDynamicPricing} from './apis/wallet-dp';
+import {setAppData} from './utils';
 
 
 init(); //initializes custom validators
@@ -33,24 +34,13 @@ window.responseHandler = function(response){
 };
 
 window.onload = function(){
-    //var iframe = document.createElement('iframe');
-    //iframe.style.display = "block";
-    //url needs to be configured
-    //iframe.src = "http://localhost/cards.php";
-    //iframe.id = "citruspay";
-    //document.body.appendChild(iframe);
-}
-
-function listener(event){
-    if(event.origin === ("http://localhost")) {
-        if (event.data) {
-            handlersMap['transactionHandler'](event.data);
-        }else{
-            var resp = {};
-            handlersMap['transactionHandler'](resp);
-        }
-    }
-}
+    var iframe = document.createElement('iframe');
+    iframe.style.display = "block";
+    //todo: url needs to be configured
+    iframe.src = "http://localhost/cards.php";
+     iframe.id = "citruspay";
+    document.getElementById("citrusCardDetails").appendChild(iframe);
+};
 
 if (window.addEventListener){
     addEventListener("message", listener, false)
@@ -103,6 +93,7 @@ Object.assign(window.citrus, {
         //makeWallletPayment
     },
     payment:{
-        makePayment
+        makePayment,
+        setAppData   //to be exposed for cards.php only
     }
 });

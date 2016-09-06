@@ -160,9 +160,9 @@ const motoCardApiFunc = (confObj) => {
     cancelApiResp = getCancelResponse(reqConf);
     if (mode === 'dropout' || getConfig().page === 'ICP') {
     } else {
-        reqConf.returnUrl = window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
-        winRef = openPopupWindow("");
-        winRef.document.write('<html><head> <meta name="viewport" content="width=device-width"/> <meta http-equiv="Cache-control" content="public"/> <title>Redirecting to Bank</title></head><style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body> <div id="wrapper"> <div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><!--<img src="https://context.citruspay.com/kiwi/images/logo.png"/>--> </div><div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><!---<img src="https://context.citruspay.com/kiwi/images/puff_orange.svg"/>--></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body></html>');
+        reqConf.returnUrl = "http://localhost:8090/" + '/blade/returnUrl';//window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
+        // winRef = openPopupWindow("");
+        // winRef.document.write('<html><head> <meta name="viewport" content="width=device-width"/> <meta http-equiv="Cache-control" content="public"/> <title>Redirecting to Bank</title></head><style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body> <div id="wrapper"> <div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><!--<img src="https://context.citruspay.com/kiwi/images/logo.png"/>--> </div><div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><!---<img src="https://context.citruspay.com/kiwi/images/puff_orange.svg"/>--></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body></html>');
     }
     if (getConfig().page === 'ICP') {
         return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
@@ -183,6 +183,7 @@ const motoCardApiFunc = (confObj) => {
             mode: 'cors',
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
+            return resp;
             if (getConfig().page !== 'ICP') {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
@@ -218,12 +219,12 @@ const motoCardApiFunc = (confObj) => {
                             } catch (e) {
                                 console.log(e);
                                 let paymentForm = document.createElement('form');
-                                paymentForm.setAttribute("action", form.returnForm.action);
-                                paymentForm.setAttribute("method", form.returnForm.method);
-                                paymentForm.setAttribute("target", winRef.name);
-                                paymentForm.innerHTML = form.returnForm.innerHTML;
-                                document.body.appendChild(paymentForm);
-                                paymentForm.submit();
+                                paymentForm.setAttribute("action", form.returnForm.action),
+                                paymentForm.setAttribute("method", form.returnForm.method),
+                                paymentForm.setAttribute("target", winRef.name),
+                                paymentForm.innerHTML = form.returnForm.innerHTML,
+                                document.body.appendChild(paymentForm),
+                                paymentForm.submit(),
                                 document.body.removeChild(paymentForm);
                             }
                             if (!isIE()) {
@@ -249,31 +250,6 @@ const makeMotoCardPayment = validateAndCallbackify(motoCardValidationSchema, mot
 
 let winRef = null;
 let transactionCompleted = false;
-
-const openPopupWindow = (url) => {
-    if (winRef == null || winRef.closed) {
-        var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-        var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-        var w = 800;
-        var h = 600;
-        var left = ((width - w) / 2);
-        var top = height / 10;
-        winRef = window.open(url, 'CitrusOverlay', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left + 'visible=none;');
-    } else {
-        winRef.focus();
-    }
-    return winRef;
-};
-
-const isIE = () => {
-    const ua = window.navigator.userAgent;
-
-    const ie10orless = ua.indexOf('MSIE ');
-    const ie11 = ua.indexOf('Trident/');
-    const edge = ua.indexOf('Edge/');
-
-    return !!(ie10orless > -1 || ie11 > -1 || edge > -1);
-};
 
 const workFlowForModernBrowsers = (winRef) => {
     var intervalId = setInterval(function () {

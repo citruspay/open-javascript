@@ -6,11 +6,9 @@ const singleHopDropOutFunction = (url) => {
         method: 'get',
         mode: 'cors'
     }).then(function (response) {
-         let el = document.createElement('body');
-         el.innerHTML = response.data;
-         console.log(el);
-         let form = el.getElementsByTagName('form');
-        console.log(form.innerHTML);
+        let el = document.createElement('body');
+        el.innerHTML = response.data;
+        let form = el.getElementsByTagName('form');
         try{
             let paymentForm = document.createElement('form');
             switch(Object.prototype.toString.call( form )){

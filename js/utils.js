@@ -69,14 +69,14 @@ const getMerchantAccessKey = (optionsObj) => {
 //logic from jquery payment plugin
 
 const cards = [
-    // {
-    //     type: 'visaelectron',
-    //     patterns: [4026, 417500, 4405, 4508, 4844, 4913, 4917],
-    //     format: defaultFormat,
-    //     length: [16],
-    //     cvcLength: [3],
-    //     luhn: true
-    // },
+    {
+        type: 'rupay',
+        patterns: [60, 50, 65, 55, 69],
+        format: /^(508[5-9][0-9][0-9]|60698[5-9]|60699[0-9]|607[0-8][0-9][0-9]|607[9][0-7][0-9]|60798[0-4]|608[0-4][0-9][0-9]|608500|6521[5-9][0-9]|652[2-7][0-9][0-9]|6528[0-9][0-9]|6529[0-9][0-9]|6530[0-9][0-9]|6531[0-4][0-9])/,
+        length: [16],
+        cvcLength: [3],
+        luhn: true
+    },
     {
         type: 'maestro',
         patterns: [5018, 502, 503, 504, 545, 56, 58, 639, 6220, 67],
@@ -137,14 +137,6 @@ const cards = [
         type: 'jcb',
         patterns: [35],
         format: /^35/,
-        length: [16],
-        cvcLength: [3],
-        luhn: true
-    },
-    {
-        type: 'rupay',
-        patterns: [60, 50, 65, 55, 69],
-        format: /^(60|50|65|55|69)/,
         length: [16],
         cvcLength: [3],
         luhn: true
