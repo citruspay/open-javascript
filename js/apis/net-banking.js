@@ -59,60 +59,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
             },
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
-            if (resp.data.redirectUrl) {
-                if (mode === "dropout") {
-                    singleHopDropOutFunction(resp.data.redirectUrl);
-                }
-                else {
-                    singleHopDropInFunction(resp.data.redirectUrl).then(function (response) {
-                        let el = document.createElement('body');
-                        el.innerHTML = response;
-                        let form = el.getElementsByTagName('form');
-                        try {
-                            let paymentForm = document.createElement('form');
-                            switch(Object.prototype.toString.call( form )){
-                                case "[object NodeList]" :
-                                    paymentForm.setAttribute("action", form[0].action),
-                                        paymentForm.setAttribute("method", form[0].method),
-                                        paymentForm.setAttribute("target", winRef.name),
-                                        paymentForm.innerHTML = form[0].innerHTML,
-                                        document.documentElement.appendChild(paymentForm),
-                                        paymentForm.submit(),
-                                        document.documentElement.removeChild(paymentForm);
-                                    break;
-                                case "[object HTMLCollection]" :
-                                    paymentForm.setAttribute("action", form.submitForm.action),
-                                        paymentForm.setAttribute("method", form.submitForm.method),
-                                        paymentForm.setAttribute("target", winRef.name),
-                                        paymentForm.innerHTML = form.submitForm.innerHTML,
-                                        document.documentElement.appendChild(paymentForm),
-                                        paymentForm.submit(),
-                                        document.documentElement.removeChild(paymentForm);
-                                    break;
-                            }
-                        } catch (e) {
-                            console.log(e);
-                            let paymentForm = document.createElement('form');
-                            paymentForm.setAttribute("action", form.returnForm.action);
-                            paymentForm.setAttribute("method", form.returnForm.method);
-                            paymentForm.setAttribute("target", winRef.name);
-                            paymentForm.innerHTML = form.returnForm.innerHTML;
-                            document.body.appendChild(paymentForm);
-                            paymentForm.submit();
-                            document.body.removeChild(paymentForm);
-                        }
-                        if (!isIE()) {
-                            workFlowForModernBrowsers(winRef);
-                        } else {
-                            workFlowForIE(winRef);
-                        }
-                    });
-                }
-            } else {
-                winRef.close();
-                const response = refineMotoResponse(resp.data);
-                handlersMap['serverErrorHandler'](response);
-            }
+            handlePayment(resp,mode);
         });
     }
 };
@@ -277,66 +224,69 @@ const savedAPIFunc = (confObj, url) => {
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
             if (getConfig().page !== 'ICP') {
-                if (resp.data.redirectUrl) {
-                    if (mode === "dropout") {
-                        singleHopDropOutFunction(resp.data.redirectUrl);
-                    }
-                    else {
-                        singleHopDropInFunction(resp.data.redirectUrl).then(function (response) {
-                            let el = document.createElement('body');
-                            el.innerHTML = response;
-                            let form = el.getElementsByTagName('form');
-                            try {
-                                let paymentForm = document.createElement('form');
-                                switch (Object.prototype.toString.call(form)) {
-                                    case "[object NodeList]" :
-                                        paymentForm.setAttribute("action", form[0].action),
-                                            paymentForm.setAttribute("method", form[0].method),
-                                            paymentForm.setAttribute("target", winRef.name),
-                                            paymentForm.innerHTML = form[0].innerHTML,
-                                            document.documentElement.appendChild(paymentForm),
-                                            paymentForm.submit(),
-                                            document.documentElement.removeChild(paymentForm);
-                                        break;
-                                    case "[object HTMLCollection]" :
-                                        paymentForm.setAttribute("action", form.submitForm.action),
-                                            paymentForm.setAttribute("method", form.submitForm.method),
-                                            paymentForm.setAttribute("target", winRef.name),
-                                            paymentForm.innerHTML = form.submitForm.innerHTML,
-                                            document.documentElement.appendChild(paymentForm),
-                                            paymentForm.submit(),
-                                            document.documentElement.removeChild(paymentForm);
-                                        break;
-                                }
-                            } catch (e) {
-                                console.log(e);
-                                let paymentForm = document.createElement('form');
-                                paymentForm.setAttribute("action", form.returnForm.action),
-                                    paymentForm.setAttribute("method", form.returnForm.method),
-                                    paymentForm.setAttribute("target", winRef.name),
-                                    paymentForm.innerHTML = form.returnForm.innerHTML,
-                                    document.body.appendChild(paymentForm),
-                                    paymentForm.submit(),
-                                    document.body.removeChild(paymentForm);
-                            }
-                            if (!isIE()) {
-                                workFlowForModernBrowsers(winRef);
-                            } else {
-                                workFlowForIE(winRef);
-                            }
-                        });
-                    }
-                } else {
-                    if (winRef) {
-                        winRef.close();
-                    }
-                    const response = refineMotoResponse(resp.data);
-                    handlersMap['serverErrorHandler'](response);
-                }
+                handlePayment(resp,mode);
             }
         });
     }
 };
+
+const handlePayment = (resp,mode)=>{
+    if (resp.data.redirectUrl) {
+        if (mode === "dropout") {
+            singleHopDropOutFunction(resp.data.redirectUrl);
+                }
+                else {
+                    singleHopDropInFunction(resp.data.redirectUrl).then(function (response) {
+                        let el = document.createElement('body');
+                        el.innerHTML = response;
+                        console.log(winRef,winRef.closed,'test');
+                        let form = el.getElementsByTagName('form');
+                        try {
+                            if(winRef && winRef.closed)
+                            {
+                                handlersMap["serverErrorHandler"](cancelApiResp);
+                                return;
+                            }
+                            let paymentForm = document.createElement('form');
+                            switch(Object.prototype.toString.call( form )){
+                                case "[object NodeList]" :
+                                    submitForm(form[0],winRef);
+                                    break;
+                                case "[object HTMLCollection]" :
+                                    submitForm(form.submitForm,winRef);
+                                    break;
+                            }
+                        } catch (e) {
+                            console.log(e);
+                            //the form was added to body before refactoring
+                            submitForm(form.returnForm,winRef);
+                        }
+                        if (!isIE()) {
+                            workFlowForModernBrowsers(winRef);
+                        } else {
+                            workFlowForIE(winRef);
+                        }
+                    });
+                }
+    } else {
+        if (winRef) {
+            winRef.close();
+        }
+        const response = refineMotoResponse(resp.data);
+        handlersMap['serverErrorHandler'](response);
+    }
+};
+
+const submitForm=(form,winRef)=>{
+    let paymentForm = document.createElement('form');
+    paymentForm.setAttribute("action", form.action);
+    paymentForm.setAttribute("method", form.method);
+    paymentForm.setAttribute("target", winRef.name);
+    paymentForm.innerHTML = form.innerHTML;
+    document.documentElement.appendChild(paymentForm);
+    paymentForm.submit();
+    document.documentElement.removeChild(paymentForm);
+}
 
 const makeSavedNBPayment = validateAndCallbackify(savedNBValidationSchema, (confObj)=> {
     const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;
