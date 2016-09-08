@@ -183,7 +183,7 @@ const motoCardApiFunc = (confObj) => {
             mode: 'cors',
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
-            return resp;
+            if(reqConf.requestOrigin === "CJSG") return resp;
             if (getConfig().page !== 'ICP') {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
