@@ -21,7 +21,7 @@ import {setAppData} from './utils';
 
 
 init(); //initializes custom validators
-
+console.log("sdjgfkj---->>>");
 window.citrus = window.citrus || {};
 
 window.responseHandler = function(response){
@@ -31,15 +31,6 @@ window.responseHandler = function(response){
         delete response.txnHandle;
      }
     handlersMap['transactionHandler'](response);
-};
-
-window.onload = function(){
-    var iframe = document.createElement('iframe');
-    iframe.style.display = "block";
-    //todo: url needs to be configured
-    iframe.src = "http://localhost/cards.php";
-     iframe.id = "citruspay";
-    document.getElementById("citrusCardDetails").appendChild(iframe);
 };
 
 if (window.addEventListener){

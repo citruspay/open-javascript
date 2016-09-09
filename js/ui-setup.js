@@ -23,7 +23,7 @@ const createField=(identifier,type)=>{
         document.getElementById(identifierName).appendChild(iframe);
     else if(identifier.indexOf('.')==0)
         document.getElementsByClassName(identifierName)[0].appendChild(iframe);
-    else throw new Error('invalid idenifier for field type '+type);
+    else throw new Error('invalid identifier for field type '+type);
 }
 
 export {uiSetup};

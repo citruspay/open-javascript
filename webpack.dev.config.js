@@ -10,17 +10,21 @@ var dir_html = path.resolve(__dirname, 'html');
 var dir_build = path.resolve(__dirname, 'build');
 
 module.exports = {
-    entry: [
+   /* entry: [
         'webpack-dev-server/client?http://localhost:8090',
         'webpack/hot/dev-server',
         path.resolve(dir_js, 'index.js')
-    ],
+    ],*/
+    entry:{
+        citrus:path.resolve(dir_js,'index.js'),
+        cardIndex:path.resolve(dir_js,'cardIndex.js')
+    },
 
     output: {
         path: dir_build,
         //publicPath: '/release',
         publicPath: '/jsv2/release',
-        filename: 'bundle.js'
+        filename: '[name].js'
     },
     devServer: {
         //contentBase: dir_build,

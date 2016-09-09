@@ -29,6 +29,9 @@ motoCardValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 
 const makePayment = (paymentObj) => {
     console.log(paymentObj);
+    
+    
+    
     txnId = paymentObj.merchantTxnId;
     const paymentMode = paymentObj.paymentDetails.paymentMode.toLowerCase().replace(/\s+/g, '');
     const win = document.getElementById("citruspay").contentWindow;
@@ -46,9 +49,7 @@ const makePayment = (paymentObj) => {
     };
 
 const listener = (event) => {
-    console.log(event.data);
     const motoResponse = JSON.parse(event.data);
-    console.log(motoResponse.redirectUrl);
     const paymentObj = getAppData('paymentObj');
     if(event.origin === ("http://localhost") && motoResponse.redirectUrl) { //url check has to configured, currently its hardcoded
         if (paymentObj.mode.toLowerCase() === "dropout") {
@@ -105,7 +106,7 @@ const listener = (event) => {
             if (winRef) {
                 winRef.close();
             }
-            const response = refineMotoResponse(motoResponse.data);
+            const response = refineMotoResponse(motoResponse);
             handlersMap['serverErrorHandler'](response);
     }
 }
