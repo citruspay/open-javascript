@@ -190,11 +190,21 @@ const motoCardApiFunc = (confObj) => {
                         singleHopDropOutFunction(resp.data.redirectUrl);
                     }
                     else {
+                        if(winRef && winRef.closed)
+                        {
+                            handlersMap["serverErrorHandler"](cancelApiResp);
+                            return;
+                        }
                         singleHopDropInFunction(resp.data.redirectUrl).then(function (response) {
                             let el = document.createElement('body');
                             el.innerHTML = response;
                             let form = el.getElementsByTagName('form');
                             try {
+                                if(winRef && winRef.closed)
+                                {
+                                    handlersMap["serverErrorHandler"](cancelApiResp);
+                                    return;
+                                }
                                 let paymentForm = document.createElement('form');
                                 switch(Object.prototype.toString.call( form )){
                                     case "[object NodeList]" :
