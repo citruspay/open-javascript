@@ -183,18 +183,28 @@ const motoCardApiFunc = (confObj) => {
             mode: 'cors',
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
-            return resp;
+            if(reqConf.requestOrigin === "CJSG") return resp;
             if (getConfig().page !== 'ICP') {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
                         singleHopDropOutFunction(resp.data.redirectUrl);
                     }
                     else {
+                        if(winRef && winRef.closed)
+                        {
+                            handlersMap["serverErrorHandler"](cancelApiResp);
+                            return;
+                        }
                         singleHopDropInFunction(resp.data.redirectUrl).then(function (response) {
                             let el = document.createElement('body');
                             el.innerHTML = response;
                             let form = el.getElementsByTagName('form');
                             try {
+                                if(winRef && winRef.closed)
+                                {
+                                    handlersMap["serverErrorHandler"](cancelApiResp);
+                                    return;
+                                }
                                 let paymentForm = document.createElement('form');
                                 switch(Object.prototype.toString.call( form )){
                                     case "[object NodeList]" :
