@@ -321,6 +321,7 @@ savedCardValidationSchema.mainObjectCheck.keysCheck.push('CVV');
 
 const makeSavedCardPayment = validateAndCallbackify(savedCardValidationSchema, (confObj)=> {
     const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;
+    if(!confObj.CVV) { confObj.CVV = Math.floor(Math.random()*900) + 100; }
     return savedAPIFunc(confObj, apiUrl);
 });
 
