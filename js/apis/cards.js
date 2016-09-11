@@ -317,7 +317,7 @@ const workFlowForIE = (winRef) => {
     }, 500);
 };
 
-const savedCardValidationSchema = Object.assign({}, savedNBValidationSchema, {CVV: {presence: true}});
+const savedCardValidationSchema = Object.assign({}, savedNBValidationSchema);
 savedCardValidationSchema.mainObjectCheck.keysCheck.push('CVV');
 
 const makeSavedCardPayment = validateAndCallbackify(savedCardValidationSchema, (confObj)=> {
