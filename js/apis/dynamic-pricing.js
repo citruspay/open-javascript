@@ -1,10 +1,8 @@
 import {custFetch} from '../interceptor';
-import {getConfig, setConfig} from '../config';
-
-
+import {getConfig} from '../config';
+import  {setAppData} from './../utils';
 
 const dynamicPricingFunction = (confObj) => {
-
     let dpAction;
     if (!confObj.ruleName && !confObj.alteredAmount.value) {
         dpAction = '/searchAndApplyRuleForPayment';
@@ -26,7 +24,7 @@ const dynamicPricingFunction = (confObj) => {
     }).then(function (resp) {
         if (resp.data.offerToken) {
             let dpOfferToken = resp.data.offerToken;
-            setConfig({dpOfferToken});
+            setAppData(confObj.paymentMode.toLowerCase(), { 'offerToken' : dpOfferToken });
         }
         return resp.data;
     });

@@ -34,15 +34,6 @@ window.responseHandler = function(response){
     handlersMap['transactionHandler'](response);
 };
 
-window.onload = function(){
-    var iframe = document.createElement('iframe');
-    iframe.style.display = "block";
-    //todo: url needs to be configured
-    iframe.src = "http://localhost/cards.php";
-     iframe.id = "citruspay";
-    document.getElementById("citrusCardDetails").appendChild(iframe);
-};
-
 if (window.addEventListener){
     addEventListener("message", listener, false)
 } else {

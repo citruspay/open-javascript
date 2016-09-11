@@ -1,4 +1,4 @@
-import {validateAndCallbackify, getMerchantAccessKey} from "./../utils";
+import {validateAndCallbackify, getMerchantAccessKey, getAppData} from "./../utils";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {handlersMap, getConfig, setConfig} from "../config";
@@ -8,6 +8,7 @@ import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
 let cancelApiResp;
 
 const NBAPIFunc = (confObj, apiUrl) => {
+    if(getAppData('net_banking')) confObj.offerToken = getAppData('net_banking')['offerToken'];
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: 'INR',
@@ -23,7 +24,6 @@ const NBAPIFunc = (confObj, apiUrl) => {
         merchantAccessKey: getMerchantAccessKey(confObj),
         requestOrigin: confObj.requestOrigin || "CJSG"
     });
-    reqConf.offerToken = getConfig().dpOfferToken;
     delete reqConf.bankCode;
     delete reqConf.currency;
     delete reqConf.paymentDetails;
@@ -186,6 +186,7 @@ const savedNBValidationSchema = Object.assign(cloneDeep(baseSchema), {
 savedNBValidationSchema.mainObjectCheck.keysCheck.push('token');
 
 const savedAPIFunc = (confObj, url) => {
+    if(getAppData('citrus_wallet')) confObj.offerToken = getAppData('citrus_wallet')['offerToken'];
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: confObj.currency,
@@ -244,7 +245,6 @@ const handlePayment = (resp,mode)=>{
                     singleHopDropInFunction(resp.data.redirectUrl).then(function (response) {
                         let el = document.createElement('body');
                         el.innerHTML = response;
-                        console.log(winRef,winRef.closed,'test');
                         let form = el.getElementsByTagName('form');
                         try {
                             if(winRef && winRef.closed)
