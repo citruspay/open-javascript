@@ -132,15 +132,16 @@ const motoCardApiFunc = (confObj) => {
             cvv: validateCvv(confObj.paymentDetails.cvv, cardScheme)
         });
     }
-
-    var d = confObj.paymentDetails.expiry.slice(3);
-    if (d.length == 2) {
-        var today = new Date();
-        var year = today.getFullYear().toString().slice(0, 2);
-        confObj.paymentDetails.expiry = confObj.paymentDetails.expiry.toString().slice(0, 3) + year + d;
+    if (confObj.paymentDetails.expiry) {
+        var d = confObj.paymentDetails.expiry.slice(3);
+        if (d.length == 2) {
+            var today = new Date();
+            var year = today.getFullYear().toString().slice(0, 2);
+            confObj.paymentDetails.expiry = confObj.paymentDetails.expiry.toString().slice(0, 3) + year + d;
+        }
     }
-    if(getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "credit") confObj.offerToken = getAppData('credit_card')['offerToken'] ;
-    if(getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "debit") confObj.offerToken = getAppData('debit_card')['offerToken'] ;
+    if (getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "credit") confObj.offerToken = getAppData('credit_card')['offerToken'];
+    if (getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "debit") confObj.offerToken = getAppData('debit_card')['offerToken'];
 
     const reqConf = Object.assign({}, confObj, {
         amount: {
@@ -155,7 +156,7 @@ const motoCardApiFunc = (confObj) => {
         requestOrigin: confObj.requestOrigin || "CJSG"
     });
     reqConf.paymentToken.paymentMode.expiry = confObj.paymentDetails.expiry;
-   // reqConf.offerToken = getAppData().dpOfferToken;
+    // reqConf.offerToken = getAppData().dpOfferToken;
     delete reqConf.paymentDetails;
     delete reqConf.currency;
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
@@ -163,7 +164,7 @@ const motoCardApiFunc = (confObj) => {
     cancelApiResp = getCancelResponse(reqConf);
     if (mode === 'dropout' || getConfig().page === 'ICP') {
     } else {
-        if(reqConf.requestOrigin === "CJSG") {
+        if (reqConf.requestOrigin === "CJSG") {
             reqConf.returnUrl = "http://localhost:8090/" + '/blade/returnUrl';
             //window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
             // winRef = openPopupWindow("");
@@ -189,15 +190,14 @@ const motoCardApiFunc = (confObj) => {
             mode: 'cors',
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
-            if(reqConf.requestOrigin === "CJSG") return resp;
+            if (reqConf.requestOrigin === "CJSG") return resp;
             if (getConfig().page !== 'ICP') {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
                         singleHopDropOutFunction(resp.data.redirectUrl);
                     }
                     else {
-                        if(winRef && winRef.closed)
-                        {
+                        if (winRef && winRef.closed) {
                             handlersMap["serverErrorHandler"](cancelApiResp);
                             return;
                         }
@@ -206,13 +206,12 @@ const motoCardApiFunc = (confObj) => {
                             el.innerHTML = response;
                             let form = el.getElementsByTagName('form');
                             try {
-                                if(winRef && winRef.closed)
-                                {
+                                if (winRef && winRef.closed) {
                                     handlersMap["serverErrorHandler"](cancelApiResp);
                                     return;
                                 }
                                 let paymentForm = document.createElement('form');
-                                switch(Object.prototype.toString.call( form )){
+                                switch (Object.prototype.toString.call(form)) {
                                     case "[object NodeList]" :
                                         paymentForm.setAttribute("action", form[0].action),
                                             paymentForm.setAttribute("method", form[0].method),
@@ -236,12 +235,12 @@ const motoCardApiFunc = (confObj) => {
                                 console.log(e);
                                 let paymentForm = document.createElement('form');
                                 paymentForm.setAttribute("action", form.returnForm.action),
-                                paymentForm.setAttribute("method", form.returnForm.method),
-                                paymentForm.setAttribute("target", winRef.name),
-                                paymentForm.innerHTML = form.returnForm.innerHTML,
-                                document.body.appendChild(paymentForm),
-                                paymentForm.submit(),
-                                document.body.removeChild(paymentForm);
+                                    paymentForm.setAttribute("method", form.returnForm.method),
+                                    paymentForm.setAttribute("target", winRef.name),
+                                    paymentForm.innerHTML = form.returnForm.innerHTML,
+                                    document.body.appendChild(paymentForm),
+                                    paymentForm.submit(),
+                                    document.body.removeChild(paymentForm);
                             }
                             if (!isIE()) {
                                 workFlowForModernBrowsers(winRef);
