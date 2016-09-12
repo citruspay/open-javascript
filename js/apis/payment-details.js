@@ -67,9 +67,7 @@ const pgSettingsAPIFunc = (config) =>{
                     if(!aliasedScheme){
                         throw 'scheme mapping not found!';
                     }
-
                     pgData.creditCard.concat(pgData.debitCard).some(function(el){
-
                         if(el === aliasedScheme){
                             MCPData.calculatedMCPSchemes.push(aliasedScheme);
                             return true;

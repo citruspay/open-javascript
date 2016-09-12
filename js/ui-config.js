@@ -3,5 +3,5 @@ const getConfigValue = (key) =>{
     "use strict";
     return CREDIT_CARD_GENERATOR_URL;
 }
-const validHostedFieldTypes = ["cvv","expiry","cardNumber"];
+const validHostedFieldTypes = ["cvv","expiry","number"];
 export {getConfigValue,validHostedFieldTypes};
