@@ -24,7 +24,7 @@ const dynamicPricingFunction = (confObj) => {
     }).then(function (resp) {
         if (resp.data.offerToken) {
             let dpOfferToken = resp.data.offerToken;
-            setAppData(confObj.paymentMode.toLowerCase(), { 'offerToken' : dpOfferToken });
+            setAppData(confObj.paymentInfo.paymentMode.toLowerCase(), { 'offerToken' : dpOfferToken });
         }
         return resp.data;
     });
