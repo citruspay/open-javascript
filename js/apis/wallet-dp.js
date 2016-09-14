@@ -5,8 +5,8 @@ import {validateAndCallbackify} from './../utils';
 import {getConfig} from '../config';
 
 const dynamicPricingSchema = {
-    email: { presence : true, email : true },
-    phone : { length: { maximum : 10 } },
+    email: { presence : false, email : true },
+    phone : {presence:false, length: { maximum : 10 } },
     originalAmount: { presence : true },
     currency: { presence : true },
     token: { presence : true },
