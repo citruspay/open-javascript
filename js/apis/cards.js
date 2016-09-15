@@ -141,7 +141,7 @@ const motoCardApiFunc = (confObj) => {
         }
     }
     if (getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "credit") confObj.offerToken = getAppData('credit_card')['offerToken'];
-    if (getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "debit") confObj.offerToken = getAppData('debit_card')['offerToken'];
+    if (getAppData('debit_card') && confObj.paymentDetails.type.toLowerCase() === "debit") confObj.offerToken = getAppData('debit_card')['offerToken'];
     let toOpenWindow = { "responseType" : "validation", "isValidRequest" : "true"};
     if (confObj.requestOrigin === "CJSG") parent.postMessage(toOpenWindow , "*");
     const reqConf = Object.assign({}, confObj, {
