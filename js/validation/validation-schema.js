@@ -33,7 +33,8 @@ export const baseSchema = {
         presence: true,
         keysCheck: ['email', 'firstName', 'lastName', 'address', 'mobileNo']
     },
-    'userDetails.email': { presence: true, email: true },
+    'userDetails.email': { //presence: true,
+                           email: true },
     'userDetails.address': {
         keysCheck: ['street1', 'street2', 'city', 'state', 'country', 'zip']
     },
