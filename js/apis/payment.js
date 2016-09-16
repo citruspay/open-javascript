@@ -53,8 +53,13 @@ const listener = (event) => {
                 singleHopDropOutFunction(motoResponse.redirectUrl);
             }
             else {
+                // if(winRef && winRef.closed)
+                // {
+                //     //handlersMap["serverErrorHandler"](response);
+                //     return;
+                // }
                 singleHopDropInFunction(motoResponse.redirectUrl).then(function (response) {
-                    if (winRef.closed !== true) {
+                    if (winRef && winRef.closed !== true) {
                         let el = document.createElement('body');
                         el.innerHTML = response;
                         let form = el.getElementsByTagName('form');

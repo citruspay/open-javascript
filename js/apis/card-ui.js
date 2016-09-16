@@ -22,7 +22,8 @@ const focusOutFunction = () => {
     //Send value of the field to the cardnumber iframe
    let cardData = {};
     cardData[field[1]] = paymentField.value;
-    parent.window.frames[1].postMessage(cardData, "*");
+    //parent.window.frames[1].postMessage(cardData, "*");
+    parent.window.frames.postMessage(cardData,"*")
 };
 
 export {cardFieldHandler}

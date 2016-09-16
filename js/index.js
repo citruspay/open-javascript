@@ -86,7 +86,6 @@ Object.assign(window.citrus, {
         //makeWallletPayment
     },
     payment:{
-        makePayment,
-        setAppData   //to be exposed for cards.php only
+        makePayment
     }
 });
