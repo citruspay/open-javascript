@@ -21,7 +21,7 @@ if (window.addEventListener) {
     attachEvent("onmessage", listener)
 }
 
-let paymentDetails = {"type": "credit","holder": "test"};
+let paymentDetails = {};
 
 function listener(event) {
     if(event.origin === "http://localhost"){
@@ -33,8 +33,8 @@ function listener(event) {
     citrus.setConfig(data.config);
     delete data.pgSettingsData;
     delete data.config;
-    data.paymentDetails = paymentDetails;
-
+    Object.assign(data.paymentDetails,paymentDetails);
+    delete data.paymentDetails.paymentMode;
     citrus.cards.makeMotoCardPayment(data).then(function (response) {
         response.responseType = "serverResponse";
         delete response.isValidRequest;
