@@ -8,7 +8,6 @@ import {cardFieldHandler} from './apis/card-ui';
 import {validateExpiryDate, validateScheme, validateCreditCard} from './validation/custom-validations';
 import {schemeFromNumber} from './utils';
 import {makeMotoCardPayment} from './apis/cards';
-//require('./index');
 import {init,setConfig,handlersMap} from './config';
 
 init(); //initializes custom validators
@@ -21,10 +20,13 @@ if (window.addEventListener) {
     attachEvent("onmessage", listener)
 }
 
-let paymentDetails = {};
+let paymentDetails = {"type" : "credit", "holder" : "test"};
 
 function listener(event) {
     if(event.origin === "http://localhost"){
+       let keys = Object.keys(event.data);
+       //var val = event.data[keys[0]];
+       event.data[keys[0]] = event.data[keys[0]].replace(/\s+/g, '');
        Object.assign(paymentDetails, event.data);
         return;
     }

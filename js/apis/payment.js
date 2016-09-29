@@ -30,7 +30,7 @@ const makePayment = (paymentObj) => {
 
     txnId = paymentObj.merchantTxnId;
     const paymentMode = paymentObj.paymentDetails.paymentMode.toLowerCase().replace(/\s+/g, '');
-    const win = document.getElementById("citrusexpiry").contentWindow;
+    const win = document.getElementById("citrusnumber").contentWindow;
     paymentObj.pgSettingsData = getAppData('pgSettingsData');
     paymentObj.config = getConfig();
 
