@@ -5,6 +5,7 @@ import 'core-js/fn/object/assign';
 import {setAppData} from './utils';
 import {makePayment} from './apis/payment';
 import {cardFieldHandler} from './apis/card-ui';
+import {getConfigValue} from './ui-config';
 import {validateExpiryDate, validateScheme, validateCreditCard} from './validation/custom-validations';
 import {schemeFromNumber} from './utils';
 import {makeMotoCardPayment} from './apis/cards';
@@ -27,7 +28,7 @@ let fieldType = field[1].split("-");
 function listener(event) {
     if(!(event.data.cardType === fieldType[1] || event.data.cardType === "card"|| event.data.paymentDetails ))
         return;
-    if(event.origin === "http://localhost"){
+    if(event.origin === getConfigValue('hostedFieldDomain')){
        let keys = Object.keys(event.data);
        //var val = event.data[keys[0]];
        event.data[keys[0]] = event.data[keys[0]].replace(/\s+/g, '');
@@ -45,6 +46,7 @@ function listener(event) {
     citrus.cards.makeMotoCardPayment(data).then(function (response) {
         response.responseType = "serverResponse";
         delete response.isValidRequest;
+        //todo:remove * from here
         parent.postMessage(response.data, "*");
     });
 }
@@ -77,6 +79,7 @@ citrus.registerHandlers("errorHandler", function (error) {
     let response = {};
     response.type = "errorHandler";
     response.error = error;
+    //todo: remove * from here
     parent.postMessage(response, "*");
 });
 
@@ -84,6 +87,7 @@ citrus.registerHandlers("serverErrorHandler", function (error) {
     let response = {};
     response.type = "serverErrorHandler";
     response.error = error;
+    //todo: remove * from here
     parent.postMessage(response, "*");
 });
 
