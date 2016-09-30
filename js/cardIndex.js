@@ -20,9 +20,13 @@ if (window.addEventListener) {
     attachEvent("onmessage", listener)
 }
 
-let paymentDetails = {"type" : "credit", "holder" : "test"};
+let paymentDetails = {};
+let field = document.location.href.split("#");
+let fieldType = field[1].split("-");
 
 function listener(event) {
+    if(!(event.data.cardType === fieldType[1] || event.data.cardType === "card"|| event.data.paymentDetails ))
+        return;
     if(event.origin === "http://localhost"){
        let keys = Object.keys(event.data);
        //var val = event.data[keys[0]];
@@ -37,6 +41,7 @@ function listener(event) {
     delete data.config;
     Object.assign(data.paymentDetails,paymentDetails);
     delete data.paymentDetails.paymentMode;
+    delete data.paymentDetails.cardType;
     citrus.cards.makeMotoCardPayment(data).then(function (response) {
         response.responseType = "serverResponse";
         delete response.isValidRequest;

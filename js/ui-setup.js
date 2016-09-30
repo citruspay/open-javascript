@@ -1,11 +1,13 @@
-import {getConfigValue,validHostedFieldTypes} from './ui-config'
+import {getConfigValue,validHostedFieldTypes, validCardTypes} from './ui-config'
 const uiSetup = (setUpConfig)=>{
     "use strict";
-    let {hostedFields} = setUpConfig;
+    let {hostedFields,cardType} = setUpConfig;
+    if(validCardTypes.indexOf(cardType) ===-1)
+        throw new Error( `invalid cardType "${cardType}", cardType should have one of these values `+validCardTypes);
     for(var i=0,length=hostedFields.length;i<length;++i){
         let {fieldType,identifier} = hostedFields[i];
         if(validHostedFieldTypes.indexOf(fieldType)!==-1){
-            appendIframe(identifier,fieldType);
+            appendIframe(identifier,fieldType,cardType.toLowerCase());
         }
         else{
             throw new Error( `invalid fieldType "${fieldType}", fieldType should have one of these values `+validHostedFieldTypes);
@@ -14,7 +16,7 @@ const uiSetup = (setUpConfig)=>{
 };
 
 
-const appendIframe=(identifier,type)=>{
+const appendIframe=(identifier,type,cardType)=>{
     "use strict";
     const invalidIdentifierMessage = `invalid identifier for field type "${type}", it should be of the form of #id or .cssClass`;
     const iframe = document.createElement('iframe');
@@ -39,8 +41,8 @@ const appendIframe=(identifier,type)=>{
     iframe.setAttribute('scrolling','no');
    Object.assign(iframe.style,defaultStyle);
     //todo: url needs to be configured
-    iframe.src = getConfigValue()+'#'+type;
-    iframe.id = "citrus"+type;
+    iframe.src = getConfigValue()+'#'+type+'-'+ cardType;
+    iframe.id = "citrus"+type+ "-" + cardType;
     if(!identifier||identifier.length<=1)
         throw new Error(invalidIdentifierMessage);
     const identifierName = identifier.slice(1);

@@ -170,10 +170,8 @@ const schemeFromNumber = (num) => {
 const cardFromNumber = (num) => {
     var card, _i, _len, _ref;
     num = (num + '').replace(/\D/g, '');
-    console.log(cards,num);
     for (_i = 0, _len = cards.length; _i < _len; _i++) {
         card = cards[_i];
-        console.log(card);
         //_ref = card.patterns;
         if(card.format.test(num))
         {

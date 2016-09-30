@@ -6,12 +6,13 @@ let paymentField;
 let field;
 let cvvLen = 4;
 const cardFieldHandler = () => {
-    field = document.location.href.split("#");
+    let fieldType = document.location.href.split("#");
+    field = fieldType[1].split("-");
     paymentField = document.createElement("input");
-    paymentField.setAttribute("id", field[1] + "citrusInput");
+    paymentField.setAttribute("id", field[0] + "citrusInput");
     document.body.appendChild(paymentField);
     var placeHolder = "";
-    switch (field[1]) {
+    switch (field[0]) {
         case "cvv":
             placeHolder = "cvv";
             break;
@@ -39,13 +40,15 @@ const postPaymentData = () => {
     //Send value of the field to the cardnumber iframe
     let cardData = {};
     console.log("here in post payment data");
-    cardData[field[1]] = paymentField.value;
+    cardData[field[0]] = paymentField.value;
+    cardData.cardType = field[1];
     //todo:IMPORTANT, change * to citrus server url,
     //also if possible use name instead of index as index will be unreliable
     //if there are other iframes on merchant's page
-    parent.window.frames[0].postMessage(cardData, "*");
-    parent.window.frames[1].postMessage(cardData, "*");
-    parent.window.frames[2].postMessage(cardData, "*");
+    for(var i=0;i<parent.window.frames.length;i++)
+    {parent.window.frames[i].postMessage(cardData, "http://localhost");}
+    // parent.window.frames[1].postMessage(cardData, "*");
+    // parent.window.frames[2].postMessage(cardData, "*");
 };
 
 const eventListenerAdder = () => {
@@ -54,7 +57,7 @@ const eventListenerAdder = () => {
         paymentField.addEventListener("blur", postPaymentData, false);
         //paymentField.formatCardNumber();
         //paymentField.addEventListener('keypress', formatCardNumber, false);
-        switch (field[1]) {
+        switch (field[0]) {
             case "number" :
                 paymentField.addEventListener("blur", setCvvLength, false);
                 paymentField.addEventListener('keypress', restrictNumeric, false);
@@ -81,7 +84,7 @@ const eventListenerAdder = () => {
     } else {
         paymentField.attachEvent("blur", postPaymentData);
         // paymentField.attachEvent('onkeypress', formatCardNumber);
-        switch (field[1]) {
+        switch (field[0]) {
             case "number" :
                 paymentField.attachEvent("blur", setCvvLength);
                 paymentField.attachEvent('onkeypress', restrictNumeric);
