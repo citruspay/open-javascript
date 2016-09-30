@@ -42,6 +42,7 @@ const makePayment = (paymentObj) => {
     }
     setAppData('paymentObj', paymentObj);
     //todo : change the star value to citruspay domain string
+    paymentObj.parentUrl = window.location.protocol + '//' + window.location.host;
     win.postMessage(paymentObj, "*");
 };
 

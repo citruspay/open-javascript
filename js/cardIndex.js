@@ -23,6 +23,7 @@ if (window.addEventListener) {
 let paymentDetails = {};
 let field = document.location.href.split("#");
 let fieldType = field[1].split("-");
+let parentUrl;
 
 function listener(event) {
     if(!(event.data.cardType === fieldType[1] || event.data.cardType === "card"|| event.data.paymentDetails ))
@@ -42,10 +43,12 @@ function listener(event) {
     Object.assign(data.paymentDetails,paymentDetails);
     delete data.paymentDetails.paymentMode;
     delete data.paymentDetails.cardType;
+    parentUrl = event.data.parentUrl;
+    delete data.parentUrl;
     citrus.cards.makeMotoCardPayment(data).then(function (response) {
         response.responseType = "serverResponse";
         delete response.isValidRequest;
-        parent.postMessage(response.data, "*");
+        parent.postMessage(response.data, parentUrl);
     });
 }
 Object.assign(window.citrus,{
@@ -77,13 +80,13 @@ citrus.registerHandlers("errorHandler", function (error) {
     let response = {};
     response.type = "errorHandler";
     response.error = error;
-    parent.postMessage(response, "*");
+    parent.postMessage(response, parentUrl);
 });
 
 citrus.registerHandlers("serverErrorHandler", function (error) {
     let response = {};
     response.type = "serverErrorHandler";
     response.error = error;
-    parent.postMessage(response, "*");
+    parent.postMessage(response, parentUrl);
 });
 

@@ -52,5 +52,4 @@ const appendIframe=(identifier,type,cardType)=>{
         document.getElementsByClassName(identifierName)[0].appendChild(iframe);
     else throw new Error(invalidIdentifierMessage);
 }
-
 export {uiSetup};
