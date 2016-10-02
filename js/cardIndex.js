@@ -1,7 +1,10 @@
 /**
  * Created by nagamai on 9/8/2016.
  */
+//import 'babel-polyfill';
 import 'core-js/fn/object/assign';
+import 'core-js/fn/promise';
+import 'core-js/fn/string/includes';
 import {setAppData} from './utils';
 import {makePayment} from './apis/payment';
 import {cardFieldHandler} from './apis/card-ui';
