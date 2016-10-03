@@ -41,7 +41,7 @@ const appendIframe=(identifier,type,cardType)=>{
     iframe.setAttribute('scrolling','no');
    Object.assign(iframe.style,defaultStyle);
     //todo: url needs to be configured
-    iframe.src = getConfigValue()+'#'+type+'-'+ cardType;
+    iframe.src = getConfigValue('hostedFieldUrl')+'#'+type+'-'+ cardType;
     iframe.id = "citrus"+type+ "-" + cardType;
     if(!identifier||identifier.length<=1)
         throw new Error(invalidIdentifierMessage);
@@ -52,5 +52,4 @@ const appendIframe=(identifier,type,cardType)=>{
         document.getElementsByClassName(identifierName)[0].appendChild(iframe);
     else throw new Error(invalidIdentifierMessage);
 }
-
 export {uiSetup};
