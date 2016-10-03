@@ -1,5 +1,5 @@
 const HOSTED_FIELD_DOMAIN = 'http://localhost'
-const CREDIT_CARD_GENERATOR_URL =  HOSTED_FIELD_DOMAIN + '/cards.html';
+const CREDIT_CARD_GENERATOR_URL =  HOSTED_FIELD_DOMAIN + '/cards.php';
 const getConfigValue = (key) =>{
     "use strict";
     switch(key){
