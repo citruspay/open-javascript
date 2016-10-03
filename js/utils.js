@@ -166,7 +166,6 @@ const schemeFromNumber = (num) => {
     }
 };
 
-
 const cardFromNumber = (num) => {
     var card, _i, _len, _ref;
     num = (num + '').replace(/\D/g, '');
@@ -179,7 +178,6 @@ const cardFromNumber = (num) => {
         }
     }
 };
-
 
 const appDataStore = {};
 

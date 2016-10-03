@@ -53,7 +53,7 @@ const makePayment = (paymentObj) => {
 
 const listener = (event) => {
     try {
-        if (!event.data.isValidRequest) {
+        // if (!event.data.isValidRequest) {
             const motoResponse = event.data;
             const paymentObj = getAppData('paymentObj');
             if (event.origin === ("http://localhost") && motoResponse.redirectUrl) { //url check has to configured, currently its hardcoded
@@ -119,9 +119,9 @@ const listener = (event) => {
                 const response = refineMotoResponse(motoResponse);
                 handlersMap['serverErrorHandler'](response);
             }
-        } else if (event.data.isValidRequest && getAppData('paymentObj')['mode'].toLowerCase() === 'dropin') {
-
-        }
+        // } else if (event.data.isValidRequest && getAppData('paymentObj')['mode'].toLowerCase() === 'dropin') {
+        //
+        // }
         if (event.data.responseType === "errorHandler") handlersMap['errorHandler'](event.data.error);
         if (event.data.responseType === "serverErrorHandler") handlersMap['serverErrorHandler'](event.data.error);
     }

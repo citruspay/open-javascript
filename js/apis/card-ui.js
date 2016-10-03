@@ -1,7 +1,9 @@
 /**
  * Created by nagamai on 9/9/2016.
  */
-import {cardFromNumber,schemeFromNumber} from "./../utils";
+import {cardFromNumber,schemeFromNumber,setAppData} from "./../utils";
+import {validateExpiryDate, validateScheme, validateCreditCard} from './../validation/custom-validations';
+
 let paymentField;
 let field;
 let cvvLen = 4;
@@ -59,7 +61,7 @@ const eventListenerAdder = () => {
         //paymentField.addEventListener('keypress', formatCardNumber, false);
         switch (field[0]) {
             case "number" :
-                paymentField.addEventListener("blur", setCvvLength, false);
+                paymentField.addEventListener("blur", validateCard, false);
                 paymentField.addEventListener('keypress', restrictNumeric, false);
                 paymentField.addEventListener('keypress', restrictCardNumber, false);
                 paymentField.addEventListener('keypress', formatCardNumber, false);
@@ -91,7 +93,7 @@ const eventListenerAdder = () => {
         // paymentField.attachEvent('onkeypress', formatCardNumber);
         switch (field[0]) {
             case "number" :
-                paymentField.attachEvent("blur", setCvvLength);
+                paymentField.attachEvent("blur", validateCard);
                 paymentField.attachEvent('onkeypress', restrictNumeric);
                 paymentField.attachEvent('onkeypress', restrictCardNumber);
                 paymentField.attachEvent('onkeypress', formatCardNumber);
@@ -118,7 +120,6 @@ const eventListenerAdder = () => {
                 break;
         }
     }
-    return;
 };
 
 const formatCardNumber = () => {
@@ -154,13 +155,11 @@ const hasTextSelected = (target) => {
     if ((target.selectionStart != null) && target.selectionStart !== target.selectionEnd) {
         return true;
     }
-    if (typeof document !== "undefined" && document !== null ? ( _ref = document.selection) != null ? typeof _ref.createRange === "function" ? _ref.createRange().text :
-            void 0 :
-            void 0 :
-            void 0) {
-        return true;
-    }
-    return false;
+    return !!(typeof document !== "undefined" && document !== null ? ( _ref = document.selection) != null ? typeof _ref.createRange === "function" ? _ref.createRange().text :
+        void 0 :
+        void 0 :
+        void 0);
+
 };
 
 const formatExpiry = () => {
@@ -281,5 +280,13 @@ const restrictCardNumber = function(e) {
 //         return $target.val("" + val + " / ");
 //     }
 // };
+
+const validateCard = () => {
+    const num = paymentField.value.replace(/\s+/g, '');
+    const scheme = schemeFromNumber(num);
+    //todo : add check for maestro and rupay
+    const isValidCard = validateCreditCard(num,scheme);
+    parent.postMessage({"isValidCard" : isValidCard});
+};
 
 export {cardFieldHandler, formatExpiry}
