@@ -1,5 +1,5 @@
-const HOSTED_FIELD_DOMAIN = 'http://localhost:8080'
-const CREDIT_CARD_GENERATOR_URL =  HOSTED_FIELD_DOMAIN + '/cards.php';
+const HOSTED_FIELD_DOMAIN = 'http://localhost:8089'
+const CREDIT_CARD_GENERATOR_URL =  HOSTED_FIELD_DOMAIN + '/cards.html';
 const getConfigValue = (key) =>{
     "use strict";
     switch(key){
@@ -10,5 +10,6 @@ const getConfigValue = (key) =>{
     }
 }
 const validHostedFieldTypes = ["cvv","expiry","number"];
-const validCardTypes = ["credit", "debit", "card"];
-export {getConfigValue,validHostedFieldTypes,validCardTypes};
+const validPaymentTypes = ["credit","debit"];
+const validCardSetupTypes = validPaymentTypes.concat(["card"]);
+export {getConfigValue,validHostedFieldTypes,validCardSetupTypes,validPaymentTypes};

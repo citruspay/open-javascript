@@ -2,6 +2,7 @@
  * Created by nagamai on 9/9/2016.
  */
 import {cardFromNumber,schemeFromNumber} from "./../utils";
+import {getConfigValue} from '../ui-config';
 let paymentField;
 let field;
 let cvvLen = 4;
@@ -46,7 +47,7 @@ const postPaymentData = () => {
     //also if possible use name instead of index as index will be unreliable
     //if there are other iframes on merchant's page
     for(var i=0;i<parent.window.frames.length;i++)
-    {parent.window.frames[i].postMessage(cardData, "http://localhost");}
+    {parent.window.frames[i].postMessage(cardData, getConfigValue('hostedFieldDomain'));}
     // parent.window.frames[1].postMessage(cardData, "*");
     // parent.window.frames[2].postMessage(cardData, "*");
 };
