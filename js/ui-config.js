@@ -1,4 +1,4 @@
-const HOSTED_FIELD_DOMAIN = 'http://localhost:8089'
+const HOSTED_FIELD_DOMAIN = 'http://localhost'
 const CREDIT_CARD_GENERATOR_URL =  HOSTED_FIELD_DOMAIN + '/cards.html';
 const getConfigValue = (key) =>{
     "use strict";
