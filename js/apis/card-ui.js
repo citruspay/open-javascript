@@ -286,7 +286,9 @@ const validateCard = () => {
     const scheme = schemeFromNumber(num);
     //todo : add check for maestro and rupay
     const isValidCard = validateCreditCard(num,scheme);
-    parent.postMessage({"isValidCard" : isValidCard});
+    parent.postMessage({"cardValidationResult" : {"isValidCard" : isValidCard}});
 };
+
+
 
 export {cardFieldHandler, formatExpiry}
