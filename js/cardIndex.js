@@ -8,6 +8,7 @@ import 'core-js/fn/string/includes';
 import {setAppData} from './utils';
 import {makePayment} from './apis/payment';
 import {cardFieldHandler} from './apis/card-ui';
+import {getConfigValue} from './ui-config';
 import {validateExpiryDate, validateScheme, validateCreditCard} from './validation/custom-validations';
 import {schemeFromNumber} from './utils';
 import {makeMotoCardPayment} from './apis/cards';
@@ -31,7 +32,7 @@ let parentUrl;
 function listener(event) {
     if(!(event.data.cardType === fieldType[1] || event.data.cardType === "card"|| event.data.paymentDetails ))
         return;
-    if(event.origin === "http://localhost"){
+    if(event.origin === getConfigValue('hostedFieldDomain')){
        let keys = Object.keys(event.data);
        //var val = event.data[keys[0]];
        event.data[keys[0]] = event.data[keys[0]].replace(/\s+/g, '');

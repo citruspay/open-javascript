@@ -6,7 +6,10 @@ import {getAppData, setAppData, isIE} from "./../utils";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
 import {refineMotoResponse} from "./response";
 import {custFetch} from "../interceptor";
+import {validPaymentTypes,getConfigValue} from "../ui-config";
 
+//this file is hosted fields specific
+//todo:change the file name later
 let winRef = null;
 let cancelApiResp;
 const regExMap = {
@@ -33,9 +36,13 @@ const makePayment = (paymentObj) => {
 
     txnId = paymentObj.merchantTxnId;
     const paymentMode = paymentObj.paymentDetails.paymentMode.toLowerCase().replace(/\s+/g, '');
-    let element = document.getElementById("citrusnumber-" + paymentObj.paymentDetails.type.toLowerCase());
-    if (typeof(element) === 'undefined' || element === null)
+    let paymentDetailsType = paymentObj.paymentDetails.type?paymentObj.paymentDetails.type.toLowerCase():'';
+    let element = document.getElementById("citrusnumber-" + paymentDetailsType );
+    if (!element)
         element = document.getElementById("citrusnumber-card");
+    if(!element)
+        throw new Error(`Either invalid paymentDetails type "${paymentDetailsType}", it should be either of these values `+validPaymentTypes+
+        ' or there was some problem in setting up hosted fields');
     const win = element.contentWindow;
     paymentObj.pgSettingsData = getAppData('pgSettingsData');
     paymentObj.config = getConfig();
@@ -47,18 +54,15 @@ const makePayment = (paymentObj) => {
     setAppData('paymentObj', paymentObj);
     //todo : change the star value to citruspay domain string
     paymentObj.parentUrl = window.location.protocol + '//' + window.location.host;
-
-    win.postMessage(paymentObj, "*");
+    win.postMessage(paymentObj, getConfigValue('hostedFieldDomain'));
 };
 
 const listener = (event) => {
     try {
-        // if (!event.data.isValidRequest) {
-        if(event.data.cardValidationResult)
-        {setAppData("cardValidationResult", event.data.cardValidationResult ); return;}
+        if (!event.data.isValidRequest) {
             const motoResponse = event.data;
             const paymentObj = getAppData('paymentObj');
-            if (event.origin === ("http://localhost") && motoResponse.redirectUrl) { //url check has to configured, currently its hardcoded
+            if (event.origin === getConfigValue('hostedFieldDomain') && motoResponse.redirectUrl) { //url check has to configured, currently its hardcoded
                 if (paymentObj.mode.toLowerCase() === "dropout") {
                     singleHopDropOutFunction(motoResponse.redirectUrl);
                 }

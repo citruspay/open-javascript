@@ -1,6 +1,8 @@
 /**
  * Created by nagamai on 9/9/2016.
  */
+import {cardFromNumber,schemeFromNumber} from "./../utils";
+import {getConfigValue} from '../ui-config';
 import {cardFromNumber,schemeFromNumber,setAppData} from "./../utils";
 import {validateExpiryDate, validateScheme, validateCreditCard} from './../validation/custom-validations';
 
@@ -73,13 +75,8 @@ const eventListenerAdder = () => {
                 // paymentField.addEventListener('input', setCardType, false);
                 break;
             case "expiry" :
-                paymentField.addEventListener('keypress',restrictNumeric, false);
-                // paymentField.addEventListener('keypress', restrictExpiry, false);
+                paymentField.addEventListener('keypress', restrictNumeric, false);
                 paymentField.addEventListener('keypress', formatExpiry, false);
-                // paymentField.addEventListener('keypress', formatForwardSlashAndSpace, false);
-                // paymentField.addEventListener('keypress', formatForwardExpiry, false);
-                // paymentField.addEventListener('keydown', formatBackExpiry, false);
-                // paymentField.addEventListener('change', reFormatExpiry, false);
                 paymentField.addEventListener('input', reformatExpiry, false);
                 break;
             case "cvv"    :
@@ -105,13 +102,8 @@ const eventListenerAdder = () => {
                 // paymentField.attachEvent('oninput', setCardType);
                 break;
             case "expiry" :
-                paymentField.attachEvent('onkeypress',restrictNumeric);
-                // paymentField.attachEvent('onkeypress', restrictExpiry);
+                paymentField.attachEvent('onkeypress', restrictNumeric);
                 paymentField.attachEvent('onkeypress', formatExpiry);
-                // paymentField.attachEvent('onkeypress', formatForwardSlashAndSpace);
-                // paymentField.attachEvent('onkeypress', formatForwardExpiry);
-                // paymentField.attachEvent('onkeydown', formatBackExpiry);
-                // paymentField.attachEvent('onchange', reFormatExpiry);
                 paymentField.attachEvent('oninput', reformatExpiry);
                 break;
             case "cvv" :
@@ -120,6 +112,7 @@ const eventListenerAdder = () => {
                 break;
         }
     }
+    return;
 };
 
 const formatCardNumber = () => {
@@ -184,7 +177,7 @@ const formatExpiry = () => {
         sep = ' / ';
     }
     paymentField.value = mon + sep + year;
-    //return;
+    return;
 };
 
 
@@ -265,30 +258,5 @@ const restrictCardNumber = function(e) {
         if(value.length > 16) e.preventDefault();
     }
 };
-
-// const formatForwardExpiry = (e) => {
-//     var $target,
-//         digit,
-//         val;
-//     digit = String.fromCharCode(e.which);
-//     if (!/^\d+$/.test(digit)) {
-//         return;
-//     }
-//     $target = $(e.currentTarget);
-//     val = $target.val();
-//     if (/^\d\d$/.test(val)) {
-//         return $target.val("" + val + " / ");
-//     }
-// };
-
-const validateCard = () => {
-    const num = paymentField.value.replace(/\s+/g, '');
-    const scheme = schemeFromNumber(num);
-    //todo : add check for maestro and rupay
-    const isValidCard = validateCreditCard(num,scheme);
-    parent.postMessage({"cardValidationResult" : {"isValidCard" : isValidCard}});
-};
-
-
 
 export {cardFieldHandler, formatExpiry}
