@@ -10,6 +10,7 @@ import {validateExpiryDate, validateScheme, validateCreditCard} from './validati
 import {schemeFromNumber} from './utils';
 import {makeMotoCardPayment} from './apis/cards';
 import {init,setConfig,handlersMap} from './config';
+import {applyStyle} from './ui-setup';
 
 init(); //initializes custom validators
 
@@ -27,6 +28,14 @@ let fieldType = field[1].split("-");
 let parentUrl;
 
 function listener(event) {
+    //console.log(event.data);
+    if(!event.data)
+        return;
+    if(event.data.messageType==="style")
+    {
+        applyStyle(event.data);
+        return;
+    }
     if(!(event.data.cardType === fieldType[1] || event.data.cardType === "card"|| event.data.paymentDetails ))
         return;
     if(event.origin === getConfigValue('hostedFieldDomain')){
