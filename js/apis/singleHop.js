@@ -4,8 +4,9 @@ const singleHopDropOutFunction = (url) => {
 
     return custFetch(url, {
         method: 'get',
-        mode: 'cors'
+        mode: 'cors',
     }).then(function (response) {
+
         let el = document.createElement('body');
         el.innerHTML = response.data;
         let form = el.getElementsByTagName('form');

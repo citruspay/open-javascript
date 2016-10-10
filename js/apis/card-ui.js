@@ -1,14 +1,14 @@
 /**
  * Created by nagamai on 9/9/2016.
  */
-import {cardFromNumber,schemeFromNumber} from "./../utils";
+import {cardFromNumber,schemeFromNumber,getAppData} from "./../utils";
 import {getConfigValue} from '../ui-config';
-import {cardFromNumber,schemeFromNumber,setAppData} from "./../utils";
-import {validateExpiryDate, validateScheme, validateCreditCard} from './../validation/custom-validations';
+import {validateExpiryDate, validateCreditCard} from './../validation/custom-validations';
 
 let paymentField;
 let field;
 let cvvLen = 4;
+let parentUrl = getAppData('parentUrl');
 const cardFieldHandler = () => {
     let fieldType = document.location.href.split("#");
     field = fieldType[1].split("-");
@@ -37,7 +37,6 @@ const cardFieldHandler = () => {
     paymentField.setAttribute('placeholder', placeHolder);
     Object.assign(paymentField.style, defaultStyle);
     eventListenerAdder();
-
 };
 
 const postPaymentData = () => {
@@ -50,7 +49,7 @@ const postPaymentData = () => {
     //also if possible use name instead of index as index will be unreliable
     //if there are other iframes on merchant's page
     for(var i=0;i<parent.window.frames.length;i++)
-    {parent.window.frames[i].postMessage(cardData, "http://localhost");}
+    {parent.window.frames[i].postMessage(cardData, getConfigValue('hostedFieldDomain'));}
     // parent.window.frames[1].postMessage(cardData, "*");
     // parent.window.frames[2].postMessage(cardData, "*");
 };
@@ -75,11 +74,13 @@ const eventListenerAdder = () => {
                 // paymentField.addEventListener('input', setCardType, false);
                 break;
             case "expiry" :
+                paymentField.addEventListener("blur", validateExpiry, false);
                 paymentField.addEventListener('keypress', restrictNumeric, false);
                 paymentField.addEventListener('keypress', formatExpiry, false);
                 paymentField.addEventListener('input', reformatExpiry, false);
                 break;
             case "cvv"    :
+                //paymentField.addEventListener('blur', validateCvv, false);
                 paymentField.setAttribute("type", "password");
                 paymentField.addEventListener('keypress', restrictNumeric, false);
                 paymentField.addEventListener('keypress', restrictCVC, false);
@@ -102,17 +103,20 @@ const eventListenerAdder = () => {
                 // paymentField.attachEvent('oninput', setCardType);
                 break;
             case "expiry" :
+                paymentField.attachEvent("blur", validateExpiry);
                 paymentField.attachEvent('onkeypress', restrictNumeric);
                 paymentField.attachEvent('onkeypress', formatExpiry);
                 paymentField.attachEvent('oninput', reformatExpiry);
                 break;
             case "cvv" :
+                //paymentField.attachEvent('blur', validateCvv);
+                paymentField.setAttribute("type", "password");
                 paymentField.attachEvent('onkeypress', restrictNumeric);
                 paymentField.attachEvent('onkeypress', restrictCVC);
                 break;
         }
     }
-    return;
+    //return;
 };
 
 const formatCardNumber = () => {
@@ -139,7 +143,7 @@ const formatCardNumber = () => {
             return n;
         });
         paymentField.value = groups.join(' ');
-        return;
+        //return;
     }
 };
 
@@ -177,7 +181,7 @@ const formatExpiry = () => {
         sep = ' / ';
     }
     paymentField.value = mon + sep + year;
-    return;
+    //return;
 };
 
 
@@ -217,27 +221,22 @@ const reformatExpiry = () => {
     });
 };
 
-const restrictCVC = (e) => {
-    var digit,
-        keyCode;
-    //$target = $(e.currentTarget);
-    keyCode = e.which || e.keyCode;
-    digit = String.fromCharCode(keyCode);
-    if (!/^\d+$/.test(digit)) {
-        e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-        return;
-    }
-    if (hasTextSelected(paymentField)) {
-        return;
-    }
-    e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-    paymentField.value.length < cvvLen ? paymentField.value = paymentField.value + digit : (e.returnValue = false);
-};
-
-const setCvvLength = () => {
-    let scheme = schemeFromNumber(paymentField.value);
-    (scheme !== 'amex') ? cvvLen = 3 : cvvLen = 4 ;
-};
+// const restrictCVC = (e) => {
+//     var digit,
+//         keyCode;
+//     //$target = $(e.currentTarget);
+//     keyCode = e.which || e.keyCode;
+//     digit = String.fromCharCode(keyCode);
+//     if (!/^\d+$/.test(digit)) {
+//         e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+//         return;
+//     }
+//     if (hasTextSelected(paymentField)) {
+//         return;
+//     }
+//     e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+//     paymentField.value.length < cvvLen ? paymentField.value = paymentField.value + digit : (e.returnValue = false);
+// };
 
 const restrictCardNumber = function(e) {
     let card,
@@ -257,6 +256,55 @@ const restrictCardNumber = function(e) {
     } else {
         if(value.length > 16) e.preventDefault();
     }
+};
+
+// const formatForwardExpiry = (e) => {
+//     var $target,
+//         digit,
+//         val;
+//     digit = String.fromCharCode(e.which);
+//     if (!/^\d+$/.test(digit)) {
+//         return;
+//     }
+//     $target = $(e.currentTarget);
+//     val = $target.val();
+//     if (/^\d\d$/.test(val)) {
+//         return $target.val("" + val + " / ");
+//     }
+// };
+
+const validateCard = () => {
+    const num = paymentField.value.replace(/\s+/g, '');
+    const scheme = schemeFromNumber(num);
+    //todo : add check for maestro and rupay
+    const isValidCard = validateCreditCard(num, scheme);
+    let txMsg = "";
+    if(!isValidCard) txMsg = "Invalid card number";
+    let validationResult = {"cardValidationResult": {"isValidCard": isValidCard, "txMsg": txMsg}};
+    parentUrl = getAppData('parentUrl');
+    parent.postMessage(validationResult, parentUrl);
+};
+const validateExpiry = () => {
+    const exp = paymentField.value.replace(/\s+/g, '');
+    const isValidExpiryDate = validateExpiryDate(exp);
+    let txMsg = "";
+    if(!isValidExpiryDate) txMsg = "Invalid expiry date";
+    let validationResult = {"cardValidationResult" : {"isValidExpiry" : isValidExpiryDate, "txMsg": txMsg}};
+    parentUrl = getAppData('parentUrl');
+    parent.postMessage(validationResult, parentUrl);
+};
+
+const restrictCVC = (e) => {
+    var digit, val;
+    digit = String.fromCharCode(e.which);
+    if (!/^\d+$/.test(digit)) {
+        return;
+    }
+    if (hasTextSelected(paymentField)) {
+        return;
+    }
+    val = paymentField.value + digit;
+    val.length > 4 ? e.preventDefault() : paymentField.value = val;
 };
 
 export {cardFieldHandler, formatExpiry}

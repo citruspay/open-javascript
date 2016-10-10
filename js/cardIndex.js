@@ -5,7 +5,7 @@
 import 'core-js/fn/object/assign';
 import 'core-js/fn/promise';
 import 'core-js/fn/string/includes';
-import {setAppData} from './utils';
+import {setAppData,getAppData} from './utils';
 import {makePayment} from './apis/payment';
 import {cardFieldHandler} from './apis/card-ui';
 import {getConfigValue} from './ui-config';
@@ -47,8 +47,7 @@ function listener(event) {
     Object.assign(data.paymentDetails,paymentDetails);
     delete data.paymentDetails.paymentMode;
     delete data.paymentDetails.cardType;
-    parentUrl = event.data.parentUrl;
-    delete data.parentUrl;
+    parentUrl = getAppData('parentUrl');
     citrus.cards.makeMotoCardPayment(data).then(function (response) {
         response.responseType = "serverResponse";
         delete response.isValidRequest;
@@ -93,4 +92,3 @@ citrus.registerHandlers("serverErrorHandler", function (error) {
     response.error = error;
     parent.postMessage(response, parentUrl);
 });
-

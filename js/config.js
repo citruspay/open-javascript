@@ -1,5 +1,6 @@
 import {validate} from 'validate.js';
 import {keysCheck, cardDate, custFormat, cardCheck, blazeCardCheck} from './validation/custom-validations';
+import {setAppData} from './utils';
 
 const apiConfMap = {
     sandboxConf : {
@@ -8,7 +9,8 @@ const apiConfMap = {
         motoApiUrl: 'https://sandboxadmin.citruspay.com/service',
         adminUrl : 'https://sandboxadmin.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
-        dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing'
+        dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing',
+        pgUrl : 'https://stgpg2.citruspay.com'
     },
     prodConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
@@ -16,7 +18,8 @@ const apiConfMap = {
         motoApiUrl: 'https://admin.citruspay.com/service',
         adminUrl : 'https://admin.citruspay.com',
         MCPAPIUrl: 'https://mercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
-        dpApiUrl: 'https://mars.citruspay.com/dynamicpricing/dynamicpricing'
+        dpApiUrl: 'https://mars.citruspay.com/dynamicpricing/dynamicpricing',
+        pgUrl : 'https://stgpg2.citruspay.com'
     },
     stagingConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
@@ -24,7 +27,8 @@ const apiConfMap = {
         motoApiUrl: 'https://stgadmin2.citruspay.com/service',
         adminUrl : 'https://stgadmin2.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
-        dpApiUrl: 'https://stgadmin2.citruspay.com/dynamic-pricing/dynamicpricing'
+        dpApiUrl: 'https://stgadmin2.citruspay.com/dynamic-pricing/dynamicpricing',
+        pgUrl : 'https://stgpg2.citruspay.com'
     },
     localConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
@@ -32,7 +36,8 @@ const apiConfMap = {
         motoApiUrl: 'http://localhost:8080/admin-site/service',
         adminUrl : 'http://localhost:8080/admin-site',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
-        dpApiUrl: 'http://localhost:8080/dynamic-pricing/dynamicpricing'
+        dpApiUrl: 'http://localhost:8080/dynamic-pricing/dynamicpricing',
+        pgUrl : 'https://stgpg2.citruspay.com'
     }
 };
 
@@ -64,7 +69,7 @@ const configMap = Object.assign({
 
 const setConfig = (configObj) => {
     configObj.env && (env = configObj.env);
-    Object.assign(configMap,apiConfMap[env+'Conf'] , configObj)
+    Object.assign(configMap,apiConfMap[env+'Conf'] , configObj);
     return Object.assign({}, configMap);
 };
 
@@ -106,13 +111,17 @@ const init = () => {
     validate.validators.custFormat = custFormat;
     let deviceType = getDeviceType();
     setConfig({deviceType});
-    let responded = false;
-    setConfig({responded});
     let page = "CJS";
     setConfig({page});
+    let url = (window.location !== window.parent.location)
+        ? document.referrer
+        : document.location;
+    setAppData('parentUrl', url);
+    setAppData('isValidCard', {"isValidCard": false, "txMsg": "Invalid card number"});
+    setAppData('isValidExpiry', {"isValidExpiry" : false, "txMsg": "Invalid expiry date"});
+    setAppData('isValidCvv', {"isValidCvv" : false, "txMsg": "Invalid cvv"});
 
     //for back button cancellation scenario
-
     if (history && history.pushState) {
         if (getParameterByName('fromBank') === 'yes') {
             //console.log('for cancellation API ==> from bank! ', localStorage.getItem('blazeCardcancelRequestObj'));
@@ -125,6 +134,7 @@ const init = () => {
         //console.log('for cancellation API ==> not from bank!');
         }
     }
+
 };
 
 export {init, handlersMap, configMap, setConfig, getConfig};
