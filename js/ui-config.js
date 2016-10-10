@@ -12,4 +12,11 @@ const getConfigValue = (key) =>{
 const validHostedFieldTypes = ["cvv","expiry","number"];
 const validPaymentTypes = ["credit","debit"];
 const validCardSetupTypes = validPaymentTypes.concat(["card"]);
-export {getConfigValue,validHostedFieldTypes,validCardSetupTypes,validPaymentTypes};
+const supportedStyleKeys = [
+    "color","font-family","font-size-adjust","font-size","font-stretch","font-style", 
+    "font-variant-alternates","font-variant-caps","font-variant-east-asian","font-variant-ligatures",
+    "font-variant-numeric","font-variant","font-weight","font","line-height","opacity",
+    "outline text-shadow","transition","-moz-osx-font-smoothing","-moz-tap-highlight-color",
+    "-moz-transition","-webkit-font-smoothing","-webkit-tap-highlight-color","-webkit-transition"
+];
+export {getConfigValue,validHostedFieldTypes,validCardSetupTypes,validPaymentTypes,supportedStyleKeys};
