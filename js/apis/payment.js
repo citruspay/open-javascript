@@ -122,7 +122,6 @@ const listener = (event) => {
                 handlersMap['serverErrorHandler'](response);
             }
         } else if (event.data.cardValidationResult) {
-            console.log(event.data);
             let keys = Object.keys(event.data.cardValidationResult);
             setAppData([keys[0]], event.data.cardValidationResult);
         }

@@ -304,7 +304,7 @@ const restrictCVC = (e) => {
         return;
     }
     val = paymentField.value + digit;
-    val.length > 4 ? e.preventDefault() : paymentField.value = val;
+    if(val.length > 4)  e.preventDefault();
 };
 
 export {cardFieldHandler, formatExpiry}
