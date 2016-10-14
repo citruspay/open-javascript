@@ -60,7 +60,7 @@ const appendIframe = (hostedField, cardType, style) => {
     iframe.id = getCitrusFrameId(fieldType, cardType);
     iframe.onload = () => {
         console.log('inside iframe onload');
-        setStyle(style, hostedField, cardType); 
+        passAttributesToHostedField(style, hostedField, cardType); 
     };
     iframe.onfocus = ()=>{
         console.log('inside iframe onfocus');
@@ -78,30 +78,28 @@ const appendIframe = (hostedField, cardType, style) => {
     else throw new Error(invalidIdentifierMessage);
 }
 //todo:rename to setStyle and other attributes
-const setStyle = (style, hostedField, cardType) => {
-    let hostedFrames = [];
-    //for(var i=0;i<hostedFields.length;++i)
-    //{
+const passAttributesToHostedField = (attributes, hostedField, cardType) => {
+   
     let hostedFrameAttributes = {
         messageType: 'style'
     };
     let {identifier,fieldType} = hostedField;
-    if(style)
+    if(attributes)
     {
-    if (style[identifier]) {
-        hostedFrameAttributes.specificStyle = style[identifier];
+    if (attributes[identifier]) {
+        hostedFrameAttributes.specificStyle = attributes[identifier];
     }
-    if (style['input']) {
-        hostedFrameAttributes.commonStyle = style['input'];
+    if (attributes['input']) {
+        hostedFrameAttributes.commonStyle = attributes['input'];
     }
     }
     hostedFrameAttributes.hostedField = hostedField;
     postMessageToChild(fieldType, cardType, hostedFrameAttributes, true);
-    //}
+
 }
 
-const applyStyle = (style) => {
-    if (!style)
+const applyAttributes = (attributes) => {
+    if (!attributes)
         return;
     let applicableStyle = {};
 
@@ -118,12 +116,12 @@ const applyStyle = (style) => {
             }
         }
     }
-    createSytleObject(style.commonStyle);
-    createSytleObject(style.specificStyle);
+    createSytleObject(attributes.commonStyle);
+    createSytleObject(attributes.specificStyle);
     var inputElement = document.getElementsByTagName('input')[0];
-    if(style.hostedField&&style.hostedField.placeHolder)
+    if(attributes.hostedField&&attributes.hostedField.placeHolder)
     {
-        inputElement.setAttribute('placeholder',style.hostedField.placeHolder);
+        inputElement.setAttribute('placeholder',attributes.hostedField.placeHolder);
     }
     Object.assign(inputElement.style, applicableStyle);
 
@@ -165,5 +163,5 @@ const getCitrusFrameId = (fieldType, cardType) => {
 
 export {
     uiSetup,
-    applyStyle
+    applyAttributes
 };
