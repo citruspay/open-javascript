@@ -32,7 +32,8 @@ const cardFieldHandler = () => {
         display: 'inline-block',
         width: '78%',
         padding: "10px 0",
-        fontSize: '13px'
+        fontSize: '13px',
+        border:0
     };
     paymentField.setAttribute('placeholder', placeHolder);
     Object.assign(paymentField.style, defaultStyle);

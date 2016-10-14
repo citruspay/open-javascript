@@ -13,7 +13,7 @@ import {validateExpiryDate, validateScheme, validateCreditCard} from './validati
 import {schemeFromNumber} from './utils';
 import {makeMotoCardPayment} from './apis/cards';
 import {init,setConfig,handlersMap} from './config';
-import {applyStyle} from './ui-setup';
+import {applyAttributes} from './ui-setup';
 
 init(); //initializes custom validators
 
@@ -36,7 +36,7 @@ function listener(event) {
         return;
     if(event.data.messageType==="style")
     {
-        applyStyle(event.data);
+        applyAttributes(event.data);
         return;
     }
     if(!(event.data.cardType === fieldType[1] || event.data.cardType === "card"|| event.data.paymentDetails ))
