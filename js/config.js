@@ -6,7 +6,7 @@ const apiConfMap = {
     sandboxConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
-        motoApiUrl: 'https://sandboxadmin.citruspay.com/service',
+        motoApiUrl: 'https://sandboxadmin.citruspay.com/service/moto/authorize/struct',
         adminUrl : 'https://sandboxadmin.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing',
@@ -15,7 +15,7 @@ const apiConfMap = {
     prodConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl : 'https://sboxblaze.citruspay.com',
-        motoApiUrl: 'https://admin.citruspay.com/service',
+        motoApiUrl: 'https://admin.citruspay.com/service/moto/authorize/struct',
         adminUrl : 'https://admin.citruspay.com',
         MCPAPIUrl: 'https://mercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://mars.citruspay.com/dynamicpricing/dynamicpricing',
@@ -24,8 +24,17 @@ const apiConfMap = {
     stagingConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
-        motoApiUrl: 'https://stgadmin2.citruspay.com/service',
-        adminUrl : 'https://stgadmin2.citruspay.com',
+        motoApiUrl: 'https://stgpay.citruspay.com/service/moto/authorize/struct',
+        adminUrl : 'https://sandboxadmin.citruspay.com',
+        MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
+        dpApiUrl: 'https://stgadmin2.citruspay.com/dynamic-pricing/dynamicpricing',
+        pgUrl : 'https://stgpg2.citruspay.com'
+    },
+    olStagingConf : {
+        blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
+        blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
+        motoApiUrl: 'https://stgpay.citruspay.com/service/moto/authorize/struct',
+        adminUrl : 'https://sandboxadmin.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://stgadmin2.citruspay.com/dynamic-pricing/dynamicpricing',
         pgUrl : 'https://stgpg2.citruspay.com'
@@ -33,7 +42,7 @@ const apiConfMap = {
     localConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
-        motoApiUrl: 'http://localhost:8080/admin-site/service',
+        motoApiUrl: 'http://localhost:8080/admin-site/service/moto/authorize/struct',
         adminUrl : 'http://localhost:8080/admin-site',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'http://localhost:8080/dynamic-pricing/dynamicpricing',

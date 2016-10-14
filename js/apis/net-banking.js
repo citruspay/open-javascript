@@ -6,9 +6,10 @@ import {custFetch} from "../interceptor";
 import {getCancelResponse, refineMotoResponse} from "./response";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
 let cancelApiResp;
-
+let txnId;
 const NBAPIFunc = (confObj, apiUrl) => {
     if(getAppData('net_banking')) confObj.offerToken = getAppData('net_banking')['offerToken'];
+    txnId = confObj.merchantTxnId;
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: 'INR',
@@ -103,16 +104,17 @@ const workFlowForModernBrowsers = (winRef) => {
         if (winRef) {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
-                let form = new FormData();
-                form.append("merchantAccessKey", `${getConfig().merchantAccessKey}`);
-                form.append("transactionId", cancelApiResp.TxId);
-                return custFetch(`${getConfig().adminUrl}/api/v1/txn/enquiry`, {
+                let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${txnId}`;
+                const url = `${getConfig().pgUrl}/service/v0/redis/api/getTxnModel`;
+                return custFetch(url, {
                     method: 'post',
                     mode: 'cors',
-                    body: form
+                    body: param,
+                    headers: {
+                        "content-type": "application/x-www-form-urlencoded"
+                    }
                 }).then(function (resp) {
-                    console.log(resp);
-                    handlersMap['transactionHandler'](resp.data.enquiry);
+                    handlersMap['transactionHandler'](resp.data);
                 });
             }
         } else {
@@ -130,16 +132,17 @@ const workFlowForIE = (winRef) => {
         if (winRef) {
             if (winRef.closed) {
                 clearInterval(intervalId);
-                let form = new FormData();
-                form.append("merchantAccessKey", `${getConfig().merchantAccessKey}`);
-                form.append("transactionId", cancelApiResp.TxId);
-                return custFetch(`${getConfig().adminUrl}/api/v1/txn/enquiry`, {
+                let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${txnId}`;
+                const url = `${getConfig().pgUrl}/service/v0/redis/api/getTxnModel`;
+                return custFetch(url, {
                     method: 'post',
                     mode: 'cors',
-                    body: form
+                    body: param,
+                    headers: {
+                        "content-type": "application/x-www-form-urlencoded"
+                    }
                 }).then(function (resp) {
-                    console.log(resp);
-                    handlersMap['transactionHandler'](resp.data.enquiry);
+                    handlersMap['transactionHandler'](resp.data);
                 });
             }
         }
@@ -162,12 +165,12 @@ netBankingValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 
 
 const makeNetBankingPayment = validateAndCallbackify(netBankingValidationSchema, (confObj) => {
-    const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;
+    const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
     return NBAPIFunc(confObj, apiUrl);
 });
 //wrapper function call
 const netbanking = validateAndCallbackify(netBankingValidationSchema, (confObj) => {
-    const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;
+    const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
     return NBAPIFunc(confObj, apiUrl);
 });
 
@@ -247,24 +250,20 @@ const handlePayment = (resp,mode)=>{
                         let el = document.createElement('body');
                         el.innerHTML = response;
                         let form = el.getElementsByTagName('form');
+                        console.log(form);
                         try {
                             if(winRef && winRef.closed)
                             {
                                 handlersMap["serverErrorHandler"](cancelApiResp);
                                 return;
                             }
-                            switch(Object.prototype.toString.call( form )){
-                                case "[object NodeList]" :
+                            /* OL integration logic to be uncommented later*/
+                            //winRef.document.write(response);
+                            /*End of OL integration logic*/
                                     submitForm(form[0],winRef);
-                                    break;
-                                case "[object HTMLCollection]" :
-                                    submitForm(form.submitForm,winRef);
-                                    break;
-                            }
                         } catch (e) {
                             console.log(e);
-                            //the form was added to body before refactoring
-                            submitForm(form.returnForm,winRef);
+                                    submitForm(form[0],winRef);
                         }
                         if (!isIE()) {
                             workFlowForModernBrowsers(winRef);
@@ -291,10 +290,10 @@ const submitForm=(form,winRef)=>{
     document.documentElement.appendChild(paymentForm);
     paymentForm.submit();
     document.documentElement.removeChild(paymentForm);
-}
+};
 
 const makeSavedNBPayment = validateAndCallbackify(savedNBValidationSchema, (confObj)=> {
-    const apiUrl = `${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`;
+    const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
     return savedAPIFunc(confObj, apiUrl);
 });
 
