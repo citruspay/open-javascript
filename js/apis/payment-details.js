@@ -34,7 +34,7 @@ const reducer = (arr) =>{
 
 const pgSettingsAPIFunc = (config) =>{
 
-    return custFetch(`${getConfig().adminUrl}/v1/merchant/pgsetting`, {
+    return custFetch(`${getConfig().adminUrl}/service/v1/merchant/pgsetting`, {
         method: 'post',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
