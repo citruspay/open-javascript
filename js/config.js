@@ -10,7 +10,7 @@ const apiConfMap = {
         adminUrl : 'https://sandboxadmin.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing',
-        pgUrl : 'https://stgpg2.citruspay.com'
+        pgUrl : 'https://sandbox.citruspay.com'
     },
     prodConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
@@ -19,7 +19,7 @@ const apiConfMap = {
         adminUrl : 'https://admin.citruspay.com',
         MCPAPIUrl: 'https://mercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://mars.citruspay.com/dynamicpricing/dynamicpricing',
-        pgUrl : 'https://stgpg2.citruspay.com'
+        pgUrl : 'https://www.citruspay.com'
     },
     stagingConf : {
         blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
