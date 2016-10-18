@@ -169,7 +169,6 @@ const validateCardType = (type) => {
     });
     return found ? type : false;
 };
-
 //cardCheck
 const validateCvv = (value,scheme) => {
 

@@ -1,6 +1,6 @@
-import {validateAndCallbackify, getMerchantAccessKey, setAppData} from './../utils';
+import {validateAndCallbackify, setAppData} from './../utils';
 import {getConfig} from '../config';
-import {validateCardType, validateScheme} from '../validation/custom-validations';
+import {validateScheme} from '../validation/custom-validations';
 import {custFetch} from '../interceptor';
 
 const paymentDetailsSchema = {
@@ -34,7 +34,7 @@ const reducer = (arr) =>{
 
 const pgSettingsAPIFunc = (config) =>{
 
-    return custFetch(`${getConfig().motoApiUrl}/v1/merchant/pgsetting`, {
+    return custFetch(`${getConfig().adminUrl}/service/v1/merchant/pgsetting`, {
         method: 'post',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'

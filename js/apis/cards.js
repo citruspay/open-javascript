@@ -164,6 +164,7 @@ const motoCardApiFunc = (confObj) => {
     delete reqConf.currency;
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
+    reqConf.deviceType = getConfig().deviceType;
     cancelApiResp = getCancelResponse(reqConf);
     if (mode === 'dropout' || getConfig().page === 'ICP') {
     } else {
@@ -175,7 +176,7 @@ const motoCardApiFunc = (confObj) => {
         }
     }
     if (getConfig().page === 'ICP') {
-        return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
+        return custFetch(`${getConfig().motoApiUrl}/${getConfig().vanityUrl}`, {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json'
@@ -185,7 +186,8 @@ const motoCardApiFunc = (confObj) => {
         })
     }
     else {
-        return custFetch(`${getConfig().motoApiUrl}/moto/authorize/struct/${getConfig().vanityUrl}`, {
+        return custFetch(`${getConfig().motoApiUrl}/${getConfig().vanityUrl}`, {
+        //     return custFetch(`${getConfig().motoApiUrl}/struct/${getConfig().vanityUrl}`, {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json'
