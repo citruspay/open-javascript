@@ -8,6 +8,7 @@ import {validateExpiryDate, validateCreditCard} from './../validation/custom-val
 let paymentField;
 let field;
 let cvvLen = 4;
+let digit;
 let parentUrl = getAppData('parentUrl');
 const cardFieldHandler = () => {
     let fieldType = document.location.href.split("#");
@@ -43,7 +44,6 @@ const cardFieldHandler = () => {
 const postPaymentData = () => {
     //Send value of the field to the cardnumber iframe
     let cardData = {};
-    console.log("here in post payment data");
     cardData[field[0]] = paymentField.value;
     cardData.cardType = field[1];
     //todo:IMPORTANT, change * to citrus server url,
@@ -160,7 +160,10 @@ const hasTextSelected = (target) => {
 
 };
 
-const formatExpiry = () => {
+const formatExpiry = (e) => {
+    console.log(e.which, "in format expiry");
+    let input = String.fromCharCode(e.which);
+    console.log();
     let expiry = paymentField.value;
     var mon,
         parts,
@@ -181,13 +184,18 @@ const formatExpiry = () => {
         mon = "0" + mon;
         sep = ' / ';
     }
+    //check added for backspace key
+    if(e.which<57) digit = e.which;
+    if (digit< 57 && mon.length === 2)
+    {
+         sep = ' / ';
+        digit = 60;
+    }
     paymentField.value = mon + sep + year;
     //return;
 };
 
-
 const restrictNumeric = (e) => {
-    console.log("here in restrict numeric");
     var input;
     if (e.metaKey || e.ctrlKey) {
         return true;
@@ -216,9 +224,12 @@ const reFormatCardNumber = () => {
 };
 //to avoid the acceptance of one extra digit in the field
 //and also formats the card number while pasting the number directly inside the field
-const reformatExpiry = () => {
+const reformatExpiry = (e) => {
+    console.log(e.which, "in reformat expiry");
     return setTimeout(function () {
-        formatExpiry(paymentField.value);
+        console.log(e.which, "in reformat expiry settime out function");
+        if(paymentField.value.length !== 4);
+        {formatExpiry(paymentField.value);}
     });
 };
 
