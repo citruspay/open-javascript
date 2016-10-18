@@ -2,7 +2,7 @@ import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {urlReEx} from "../constants";
 import {handlersMap, getConfig} from "../config";
-import {getAppData, setAppData, isIE} from "./../utils";
+import {getAppData, setAppData, isIE,getElement} from "./../utils";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
 import {refineMotoResponse} from "./response";
 import {custFetch} from "../interceptor";
@@ -52,79 +52,89 @@ const makePayment = (paymentObj) => {
     }
 };
 
+//parent listener
 const listener = (event) => {
     try {
-        if (!event.data.cardValidationResult) {
-            const motoResponse = event.data;
-            const paymentObj = getAppData('paymentObj');
-            if (event.origin === getConfigValue('hostedFieldDomain') && motoResponse.redirectUrl) { //url check has to configured, currently its hardcoded
-                if (paymentObj.mode.toLowerCase() === "dropout") {
-                    singleHopDropOutFunction(motoResponse.redirectUrl);
-                }
-                else {
-                    // if(winRef && winRef.closed)
-                    // {
-                    //     //handlersMap["serverErrorHandler"](response);
-                    //     return;
-                    // }
-                    singleHopDropInFunction(motoResponse.redirectUrl).then(function (response) {
-                        if (winRef && winRef.closed !== true) {
-                            let el = document.createElement('body');
-                            el.innerHTML = response;
-                            let form = el.getElementsByTagName('form');
-
-                            try {
-                                    let paymentForm = document.createElement('form');
-                                    switch (Object.prototype.toString.call(form)) {
-                                        case "[object NodeList]" :
-                                            paymentForm.setAttribute("action", form[0].action),
-                                                paymentForm.setAttribute("method", form[0].method),
-                                                paymentForm.setAttribute("target", winRef.name),
-                                                paymentForm.innerHTML = form[0].innerHTML,
-                                                document.documentElement.appendChild(paymentForm),
-                                                paymentForm.submit(),
-                                                document.documentElement.removeChild(paymentForm);
-                                            break;
-                                        case "[object HTMLCollection]" :
-                                            paymentForm.setAttribute("action", form.submitForm.action),
-                                                paymentForm.setAttribute("method", form.submitForm.method),
-                                                paymentForm.setAttribute("target", winRef.name),
-                                                paymentForm.innerHTML = form.submitForm.innerHTML,
-                                                document.documentElement.appendChild(paymentForm),
-                                                paymentForm.submit(),
-                                                document.documentElement.removeChild(paymentForm);
-                                            break;
-                                    }
-                            } catch (e) {
-                                console.log(e);
-                                let paymentForm = document.createElement('form');
-                                paymentForm.setAttribute("action", form.returnForm.action),
-                                    paymentForm.setAttribute("method", form.returnForm.method),
-                                    paymentForm.setAttribute("target", winRef.name),
-                                    paymentForm.innerHTML = form.returnForm.innerHTML,
-                                    document.body.appendChild(paymentForm),
-                                    paymentForm.submit(),
-                                    document.body.removeChild(paymentForm);
-                            }
-                        }
-                        if (!isIE()) {
-                            workFlowForModernBrowsers(winRef);
-                        } else {
-                            workFlowForIE(winRef);
-                        }
-                    });
-                }
-            } else {
-                if (winRef) {
-                    winRef.close();
-                }
-                const response = refineMotoResponse(motoResponse);
-                handlersMap['serverErrorHandler'](response);
-            }
-        } else if (event.data.cardValidationResult) {
-            console.log(event.data);
+        console.log('inside listener',event.data);
+        switch(event.data.messageType){
+            case 'focusReceived':
+            case 'focusLost':
+            handleFocus(event);
+            return;
+            case 'validation':
+            //todo:remove this code,
+            //keys[0] can change any time the object is being changed
+            //should use an explicit key
             let keys = Object.keys(event.data.cardValidationResult);
-            setAppData([keys[0]], event.data.cardValidationResult);
+            setAppData(event.data.hostedField.fieldType+'-'+event.data.cardType+'-validation', event.data.cardValidationResult);
+            handleValidationMessage(event);
+            return;
+        }
+        const motoResponse = event.data;
+        const paymentObj = getAppData('paymentObj');
+        if (event.origin === getConfigValue('hostedFieldDomain') && motoResponse.redirectUrl) { //url check has to configured, currently its hardcoded
+            if (paymentObj.mode.toLowerCase() === "dropout") {
+                singleHopDropOutFunction(motoResponse.redirectUrl);
+            }
+            else {
+                // if(winRef && winRef.closed)
+                // {
+                //     //handlersMap["serverErrorHandler"](response);
+                //     return;
+                // }
+                singleHopDropInFunction(motoResponse.redirectUrl).then(function (response) {
+                    if (winRef && winRef.closed !== true) {
+                        let el = document.createElement('body');
+                        el.innerHTML = response;
+                        let form = el.getElementsByTagName('form');
+
+                        try {
+                            let paymentForm = document.createElement('form');
+                            switch (Object.prototype.toString.call(form)) {
+                                case "[object NodeList]":
+                                    paymentForm.setAttribute("action", form[0].action),
+                                        paymentForm.setAttribute("method", form[0].method),
+                                        paymentForm.setAttribute("target", winRef.name),
+                                        paymentForm.innerHTML = form[0].innerHTML,
+                                        document.documentElement.appendChild(paymentForm),
+                                        paymentForm.submit(),
+                                        document.documentElement.removeChild(paymentForm);
+                                    break;
+                                case "[object HTMLCollection]":
+                                    paymentForm.setAttribute("action", form.submitForm.action),
+                                        paymentForm.setAttribute("method", form.submitForm.method),
+                                        paymentForm.setAttribute("target", winRef.name),
+                                        paymentForm.innerHTML = form.submitForm.innerHTML,
+                                        document.documentElement.appendChild(paymentForm),
+                                        paymentForm.submit(),
+                                        document.documentElement.removeChild(paymentForm);
+                                    break;
+                            }
+                        } catch (e) {
+                            console.log(e);
+                            let paymentForm = document.createElement('form');
+                            paymentForm.setAttribute("action", form.returnForm.action),
+                                paymentForm.setAttribute("method", form.returnForm.method),
+                                paymentForm.setAttribute("target", winRef.name),
+                                paymentForm.innerHTML = form.returnForm.innerHTML,
+                                document.body.appendChild(paymentForm),
+                                paymentForm.submit(),
+                                document.body.removeChild(paymentForm);
+                        }
+                    }
+                    if (!isIE()) {
+                        workFlowForModernBrowsers(winRef);
+                    } else {
+                        workFlowForIE(winRef);
+                    }
+                });
+            }
+        } else {
+            if (winRef) {
+                winRef.close();
+            }
+            const response = refineMotoResponse(motoResponse);
+            handlersMap['serverErrorHandler'](response);
         }
         if (event.data.responseType === "errorHandler") handlersMap['errorHandler'](event.data.error);
         if (event.data.responseType === "serverErrorHandler") handlersMap['serverErrorHandler'](event.data.error);
@@ -133,6 +143,30 @@ const listener = (event) => {
         console.log(e);
     }
 };
+
+const handleValidationMessage = (event)=>{
+    var hostedField = event.data.hostedField;
+    var element = getElement(hostedField.identifier);
+     element.className = element.className.replace('citrus-hosted-field-invalid', '').replace('citrus-hosted-field-valid', '');
+    if (event.data.messageType === "validation") {
+        if (event.data.cardValidationResult.isValid) {
+            element.className += ' citrus-hosted-field-valid';
+        }
+        else {
+            element.className += 'citrus-hosted-field-invalid';
+        }
+    }
+}
+const handleFocus = (event)=>{
+    var hostedField = event.data.hostedField;
+    var element = getElement(hostedField.identifier);
+    if(event.data.messageType==="focusReceived")
+    {
+        element.className = element.className +=' citrus-hosted-field-focused';
+    }else if(event.data.messageType==="focusLost"){
+        element.className = element.className.replace('citrus-hosted-field-focused','');
+    }
+}
 
 const openPopupWindow = (url) => {
     if (winRef == null || winRef.closed) {
@@ -207,9 +241,20 @@ const workFlowForIE = (winRef) => {
 
 const validateCardDetails = () => {
     let err = {type: "errorHandler"};
-    let validationResult = getAppData('isValidCard');
+    for(var i=0;i<validHostedFieldTypes.length;++i){
+        var validationResultKey = getAppData('hostedField').fieldType+'-'+getAppData('cardType')+'-validation';
+        var validationResult = getAppData(validationResultKey);
+        if(validationResult&&!validationResult.isValid)
+        {
+            err.error = validationResult.txMsg;
+            return false;
+        }
+    }
+    return true;
+   
+    /*
     //{"type":"errorHandler","error":{"amount":["can't be blank"]}}
-    if (("isValidCard" in validationResult) && !validationResult.isValidCard) {
+   if (("isValidCard" in validationResult) && !validationResult.isValidCard) {
         err.error = {"card number": [validationResult.txMsg]};
         handlersMap['errorHandler'](err);
         return false;
@@ -227,6 +272,6 @@ const validateCardDetails = () => {
         handlersMap['errorHandler'](err);
         return false;
     }
-    return true;
+    return true;*/
 }
 export {makePayment, listener};

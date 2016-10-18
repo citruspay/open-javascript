@@ -197,4 +197,25 @@ const  isIE = () => {
     return !!(ie10orless > -1 || ie11 > -1 || edge > -1);
 };
 
-export {validateAndCallbackify, getMerchantAccessKey, schemeFromNumber,  cardFromNumber, setAppData, getAppData, isIE};
+const addListener = (element,eventName,callback,options=false) =>{
+    if(window.addEventListener)
+    {
+        element.addEventListener(eventName,callback,options);
+    }
+    else if(window.attachEvent){
+        element.attachEvent('on'+eventName,callback,options);
+    }
+}
+
+const getElement=(identifier)=>{
+     if (!identifier || identifier.length <= 1)
+        throw new Error(`invalid identifier "${identifier}"`);
+    const identifierName = identifier.slice(1);
+     if (identifier.indexOf('#') === 0)
+        return document.getElementById(identifierName);
+    else if (identifier.indexOf('.') == 0)
+        return document.getElementsByClassName(identifierName)[0];
+}
+
+export {validateAndCallbackify, getMerchantAccessKey, schemeFromNumber,  cardFromNumber, setAppData, getAppData, isIE,
+    addListener,getElement};

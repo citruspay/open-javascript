@@ -29,9 +29,9 @@ let paymentDetails = {};
 let field = document.location.href.split("#");
 let fieldType = field[1].split("-");
 let parentUrl;
-
+//child(iframe) listener
 function listener(event) {
-    //console.log(event.data);
+    console.log(event.data);
     if(!event.data)
         return;
     if(event.data.messageType==="style")
@@ -88,6 +88,7 @@ Object.assign(window.citrus,{
     }
 });
 
+//todo:remove this handlers
 citrus.registerHandlers("errorHandler", function (error) {
     let response = {};
     response.type = "errorHandler";
