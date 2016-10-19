@@ -53,8 +53,6 @@ const postPaymentData = () => {
     //if there are other iframes on merchant's page
     for(var i=0;i<parent.window.frames.length;i++)
     {parent.window.frames[i].postMessage(cardData, getConfigValue('hostedFieldDomain'));}
-    // parent.window.frames[1].postMessage(cardData, "*");
-    // parent.window.frames[2].postMessage(cardData, "*");
 };
 
 const addEventListenersForHostedFields = () => {
@@ -252,7 +250,7 @@ const restrictCardNumber = function(e) {
 //         return $target.val("" + val + " / ");
 //     }
 // };
-//todo: chante the value of these two fields
+//todo: change the value of these two fields
 //if the card number does not require cvv or field;
 let isExpiryRequired = true;
 let isCvvRequired = true;
