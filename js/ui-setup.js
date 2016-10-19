@@ -61,11 +61,12 @@ const appendIframe = (hostedField, cardType, style) => {
     iframe.src = getConfigValue('hostedFieldUrl') + '#' + fieldType + '-' + cardType;
     iframe.id = getCitrusFrameId(fieldType, cardType);
     iframe.onload = () => {
-        console.log('inside iframe onload');
+        //console.log('inside iframe onload');
         passAttributesToHostedField(style, hostedField, cardType); 
     };
+    //todo:check is it really doing anything otherwise remove it.
     iframe.onfocus = ()=>{
-        console.log('inside iframe onfocus');
+        //console.log('inside iframe onfocus');
         var inputElements = document.getElementsByTagName('input');
         if(inputElements&&inputElements.length>0)
         inputElements[0].focus();

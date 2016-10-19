@@ -335,7 +335,7 @@ const getParentUrl = ()=>{
   let url =  (window.location != window.parent.location)
             ? document.referrer
             : document.location.protocol+'//'+document.location.host;//getAppData('parentUrl');
-            console.log(document.referrer,'test');
+            //console.log(document.referrer,'test');
   return url;
 }
 

@@ -31,7 +31,7 @@ let fieldType = field[1].split("-");
 let parentUrl;
 //child(iframe) listener
 function listener(event) {
-    console.log(event.data);
+    //console.log(event.data);
     if(!event.data)
         return;
     if(event.data.messageType==="style")

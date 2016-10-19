@@ -55,7 +55,7 @@ const makePayment = (paymentObj) => {
 //parent listener
 const listener = (event) => {
     try {
-        console.log('inside listener',event.data);
+        //console.log('inside listener',event.data);
         switch(event.data.messageType){
             case 'focusReceived':
             case 'focusLost':
