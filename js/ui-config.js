@@ -19,4 +19,5 @@ const supportedStyleKeys = [
     "outline text-shadow","transition","-moz-osx-font-smoothing","-moz-tap-highlight-color",
     "-moz-transition","-webkit-font-smoothing","-webkit-tap-highlight-color","-webkit-transition"
 ];
-export {getConfigValue,validHostedFieldTypes,validCardSetupTypes,validPaymentTypes,supportedStyleKeys};
+const specialStyleKeys = [':focus','.valid','.invalid'];
+export {getConfigValue,validHostedFieldTypes,validCardSetupTypes,validPaymentTypes,supportedStyleKeys,specialStyleKeys};

@@ -117,6 +117,7 @@ motoCardValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 const motoCardApiFunc = (confObj) => {
     const cardScheme = schemeFromNumber(confObj.paymentDetails.number);
     let paymentDetails;
+    //todo:refactor this if else later
     if (cardScheme === 'maestro') {
         paymentDetails = Object.assign({}, confObj.paymentDetails, {
             type: validateCardType(confObj.paymentDetails.type),

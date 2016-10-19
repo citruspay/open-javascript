@@ -2,8 +2,10 @@ import {
     getConfigValue,
     validHostedFieldTypes,
     validCardSetupTypes,
-    supportedStyleKeys
+    supportedStyleKeys,
+    specialStyleKeys
 } from './ui-config'
+import {setAppData,getAppData} from './utils';
 const citrusSelectorPrefix = 'citrus';
 const uiSetup = (setUpConfig) => {
     "use strict";
@@ -59,11 +61,12 @@ const appendIframe = (hostedField, cardType, style) => {
     iframe.src = getConfigValue('hostedFieldUrl') + '#' + fieldType + '-' + cardType;
     iframe.id = getCitrusFrameId(fieldType, cardType);
     iframe.onload = () => {
-        console.log('inside iframe onload');
+        //console.log('inside iframe onload');
         passAttributesToHostedField(style, hostedField, cardType); 
     };
+    //todo:check is it really doing anything otherwise remove it.
     iframe.onfocus = ()=>{
-        console.log('inside iframe onfocus');
+        //console.log('inside iframe onfocus');
         var inputElements = document.getElementsByTagName('input');
         if(inputElements&&inputElements.length>0)
         inputElements[0].focus();
@@ -92,8 +95,16 @@ const passAttributesToHostedField = (attributes, hostedField, cardType) => {
     if (attributes['input']) {
         hostedFrameAttributes.commonStyle = attributes['input'];
     }
+    for(var i=0;i<specialStyleKeys.length;++i)
+    {
+        var specialStyleKey = specialStyleKeys[i];
+        hostedFrameAttributes['input'+specialStyleKey] = attributes[specialStyleKey]||attributes['input'+specialStyleKey];
+        hostedFrameAttributes[identifier+specialStyleKey] = attributes[specialStyleKey]||attributes[identifier+specialStyleKey];
+    }
     }
     hostedFrameAttributes.hostedField = hostedField;
+    hostedFrameAttributes.cardType = cardType;
+    //Object.assign(hostedFrameAttributes,attributes);
     postMessageToChild(fieldType, cardType, hostedFrameAttributes, true);
 
 }
@@ -111,11 +122,17 @@ const applyAttributes = (attributes) => {
             let key = keys[i];
             if (supportedStyleKeys.indexOf(key) !== -1) {
                 applicableStyle[convertHyphenFormatToCamelCase(key)] = styleParam[key];
+            }else if(specialStyleKeys.indexOf(key)!==-1)
+            {
+                //todo:handle :focus,.valid,.invalid here
+
             } else {
                 console.warn(`${key} is not supported`);
             }
         }
     }
+    setAppData('hostedField',attributes.hostedField);
+    setAppData('cardType',attributes.cardType);
     createSytleObject(attributes.commonStyle);
     createSytleObject(attributes.specificStyle);
     var inputElement = document.getElementsByTagName('input')[0];
@@ -124,6 +141,86 @@ const applyAttributes = (attributes) => {
         inputElement.setAttribute('placeholder',attributes.hostedField.placeHolder);
     }
     Object.assign(inputElement.style, applicableStyle);
+    var cssText = '';
+      for(var i=0;i<specialStyleKeys.length;++i)
+    {
+        var specialStyleKey = specialStyleKeys[i];
+        if(attributes['input'+specialStyleKey]){
+            cssText += convertStyleToCssString('input'+specialStyleKey,attributes['input'+specialStyleKey]);
+        }
+        addStyleTag(cssText);
+        //if(attributes[])
+    }
+    /*if(attributes.style){
+        var selectors = Object.keys(attributes.style);
+        var cssText = '';
+        for(var i=0;i<selectors.length;++i){
+            var selector = selectors[i];
+
+            if(attributes.style[selector])
+            {
+               cssText += convertStyleToCssString(selector,attributes.style[selector]);
+            }
+        }
+        addStyleTag(cssText);
+    }*/
+
+}
+
+const isValidSelector=(selector,hostedField)=>{
+
+
+}
+const convertCustomSytleObjectToCssString = (style,selector)=>{
+
+}
+
+const convertStyleToCssString = (selector,style)=>{
+    if(!style)
+    return;
+    console.log(style);
+    var keys = Object.keys(style);
+    var cssText = selector +' {';
+    var specialStyles = [];
+    for (var i = 0; i < keys.length; ++i) {
+            let key = keys[i];
+            if (supportedStyleKeys.indexOf(key) !== -1) {
+                cssText += key+':'+style[key]+';'
+                //applicableStyle[convertHyphenFormatToCamelCase(key)] = styleParam[key];
+            } else {
+                console.warn(`${key} is not supported`);
+            }
+        }
+        cssText += '}';
+     return cssText;   
+}
+
+function addCSSRule(selector, rules,sheet, index) {
+    if(!sheet&&document.styleSheets.length>0)
+        sheet = document.styleSheets[document.styleSheets.length - 1];
+    else
+        addStyleTag()
+	if("insertRule" in sheet) {
+		sheet.insertRule(selector + "{" + rules + "}", index);
+	}
+	else if("addRule" in sheet) {
+		sheet.addRule(selector, rules, index);
+	}
+}
+const addStyleTag = (css)=>{
+    //var css = 'h1 { background: red; }',
+    var head = document.head || document.getElementsByTagName('head')[0],
+    style = document.createElement('style');
+
+style.type = 'text/css';
+if (style.styleSheet){
+  style.styleSheet.cssText = css;
+} else {
+  style.appendChild(document.createTextNode(css));
+}
+
+head.appendChild(style);
+
 
 }
 
