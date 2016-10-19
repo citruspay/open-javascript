@@ -20,7 +20,6 @@ const regExMap = {
 let cancelApiResp;
 
 const blazeCardValidationSchema = {
-
     mainObjectCheck: {
         /* keysCheck: ['cardNo', 'expiry', 'cvv', 'cardHolderName',
          'email', 'phone', 'amount', 'currency', 'returnUrl', 'notifyUrl', 'merchantTransactionId', 'merchantAccessKey',
@@ -143,9 +142,6 @@ const motoCardApiFunc = (confObj) => {
     }
     if (getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "credit") confObj.offerToken = getAppData('credit_card')['offerToken'];
     if (getAppData('debit_card') && confObj.paymentDetails.type.toLowerCase() === "debit") confObj.offerToken = getAppData('debit_card')['offerToken'];
-    //todo:once sure the below two lines are not being used, remove them.
-    //let toOpenWindow = { "responseType" : "validation", "isValidRequest" : "true"};
-    //if (confObj.requestOrigin === "CJSG") parent.postMessage(toOpenWindow , "*");
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: confObj.currency || 'INR',
@@ -225,14 +221,6 @@ const motoCardApiFunc = (confObj) => {
                                             document.documentElement.removeChild(paymentForm);
                             } catch (e) {
                                 console.log(e);
-                                let paymentForm = document.createElement('form');
-                                paymentForm.setAttribute("action", form.returnForm.action),
-                                    paymentForm.setAttribute("method", form.returnForm.method),
-                                    paymentForm.setAttribute("target", winRef.name),
-                                    paymentForm.innerHTML = form.returnForm.innerHTML,
-                                    document.body.appendChild(paymentForm),
-                                    paymentForm.submit(),
-                                    document.body.removeChild(paymentForm);
                             }
                             if (!isIE()) {
                                 workFlowForModernBrowsers(winRef);
