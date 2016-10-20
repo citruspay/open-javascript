@@ -8,7 +8,6 @@ import {validateExpiryDate, validateCreditCard} from './../validation/custom-val
 let paymentField;
 let field;
 let cvvLen = 4;
-let parentUrl = getAppData('parentUrl'); 
 //todo:change its name later
 let digit;
 let parentUrl = getAppData('parentUrl');
