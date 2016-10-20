@@ -6,7 +6,7 @@ import {getAppData, setAppData, isIE,getElement} from "./../utils";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
 import {refineMotoResponse} from "./response";
 import {custFetch} from "../interceptor";
-import {validPaymentTypes, getConfigValue} from "../ui-config";
+import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../ui-config";
 
 //this file is hosted fields specific
 //todo:change the file name later
@@ -82,18 +82,22 @@ const listener = (event) => {
                     //     //handlersMap["serverErrorHandler"](response);
                     //     return;
                     // }
+                    /* OL integration logic to be uncommented later*/
+                    // let htmlStr = motoResponse.redirectUrl.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"');
+                    // winRef.document.open("text/html", "replace");
+                    // winRef.document.write(htmlStr);
+                    // winRef.document.close();
+                    // return;
+                    /*End of OL integration logic*/
                     singleHopDropInFunction(motoResponse.redirectUrl).then(function (response) {
                         if (winRef && winRef.closed !== true) {
-
                            /*start of OL integration logic*/
                             // winRef.document.write(response);
                             // return;
                             /*end of OL integration logic*/
-
                             let el = document.createElement('body');
                             el.innerHTML = response;
                             let form = el.getElementsByTagName('form');
-
                             try {
                                     let paymentForm = document.createElement('form');                                 
                                             paymentForm.setAttribute("action", form[0].action),
@@ -105,14 +109,6 @@ const listener = (event) => {
                                                 document.documentElement.removeChild(paymentForm);                                 
                             } catch (e) {
                                 console.log(e);
-                                let paymentForm = document.createElement('form');
-                                paymentForm.setAttribute("action", form.returnForm.action),
-                                    paymentForm.setAttribute("method", form.returnForm.method),
-                                    paymentForm.setAttribute("target", winRef.name),
-                                    paymentForm.innerHTML = form.returnForm.innerHTML,
-                                    document.body.appendChild(paymentForm),
-                                    paymentForm.submit(),
-                                    document.body.removeChild(paymentForm);
                             }
 
                     }

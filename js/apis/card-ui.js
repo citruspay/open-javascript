@@ -10,6 +10,8 @@ let field;
 let cvvLen = 4;
 let parentUrl = getAppData('parentUrl'); 
 //todo:change its name later
+let digit;
+let parentUrl = getAppData('parentUrl');
 const cardFieldHandler = () => {
     let fieldType = document.location.href.split("#");
     field = fieldType[1].split("-");
@@ -44,7 +46,6 @@ const cardFieldHandler = () => {
 const postPaymentData = () => {
     //Send value of the field to the cardnumber iframe
     let cardData = {};
-    //console.log("here in post payment data");
     cardData[field[0]] = paymentField.value;
     cardData.cardType = field[1];
     //todo:IMPORTANT, change * to citrus server url,
@@ -52,29 +53,20 @@ const postPaymentData = () => {
     //if there are other iframes on merchant's page
     for(var i=0;i<parent.window.frames.length;i++)
     {parent.window.frames[i].postMessage(cardData, getConfigValue('hostedFieldDomain'));}
-    // parent.window.frames[1].postMessage(cardData, "*");
-    // parent.window.frames[2].postMessage(cardData, "*");
 };
 
 const addEventListenersForHostedFields = () => {
         //add the event listeners for ui validations of those fields.
         addListener(paymentField,"blur", postPaymentData, false);
         addListener(paymentField,"focus", addFocusAttributes, false);
-        addListener(paymentField,"blur", removeFocusAttributes, false);   
-        //paymentField.formatCardNumber();
-        //addListener(paymentField,'keypress', formatCardNumber, false);
+        addListener(paymentField,"blur", removeFocusAttributes, false);        
         switch (field[0]) {
             case "number" :
                 addListener(paymentField,"blur", validateCard, false);
                 addListener(paymentField,'keypress', restrictNumeric, false);
                 addListener(paymentField,'keypress', restrictCardNumber, false);
                 addListener(paymentField,'keypress', formatCardNumber, false);
-                // addListener(paymentField,'keydown', formatBackCardNumber, false);
-                // addListener(paymentField,'keyup', setCardType, false);
-                // addListener(paymentField,'paste', reFormatCardNumber, false);
-                // addListener(paymentField,'change', reFormatCardNumber, false);
                 addListener(paymentField,'input', reFormatCardNumber, false);
-                // addListener(paymentField,'input', setCardType, false);
                 break;
             case "expiry" :
                 addListener(paymentField,"blur", validateExpiry, false);
@@ -89,7 +81,6 @@ const addEventListenersForHostedFields = () => {
                 addListener(paymentField,'keypress', restrictCVC, false);
                 break;
         }
-    //return;
 };
 
 const addFocusAttributes=()=>{
@@ -117,7 +108,6 @@ const formatCardNumber = () => {
     num = num.slice(0, upperLength);
     if (card.groupingFormat.global) {
         paymentField.value = (_ref = num.match(card.groupingFormat)) != null ? _ref.join(' ') : void 0;
-        //return;
     } else {
         groups = card.groupingFormat.exec(num);
         if (groups == null) {
@@ -128,7 +118,6 @@ const formatCardNumber = () => {
             return n;
         });
         paymentField.value = groups.join(' ');
-        //return;
     }
 };
 
@@ -144,7 +133,7 @@ const hasTextSelected = (target) => {
 
 };
 
-const formatExpiry = () => {
+const formatExpiry = (e) => {
     let expiry = paymentField.value;
     var mon,
         parts,
@@ -165,13 +154,17 @@ const formatExpiry = () => {
         mon = "0" + mon;
         sep = ' / ';
     }
+    //check added for backspace key
+    if(e.which<57) digit = e.which;
+    if (digit< 57 && mon.length === 2)
+    {
+         sep = ' / ';
+        digit = 60;
+    }
     paymentField.value = mon + sep + year;
-    //return;
 };
 
-
 const restrictNumeric = (e) => {
-    console.log("here in restrict numeric");
     var input;
     if (e.metaKey || e.ctrlKey) {
         return true;
@@ -257,7 +250,7 @@ const restrictCardNumber = function(e) {
 //         return $target.val("" + val + " / ");
 //     }
 // };
-//todo: chante the value of these two fields
+//todo: change the value of these two fields
 //if the card number does not require cvv or field;
 let isExpiryRequired = true;
 let isCvvRequired = true;
@@ -354,8 +347,7 @@ const restrictCVC = (e) => {
 const getParentUrl = ()=>{
   let url =  (window.location != window.parent.location)
             ? document.referrer
-            : document.location.protocol+'//'+document.location.host;//getAppData('parentUrl');
-            //console.log(document.referrer,'test');
+            : document.location.protocol+'//'+document.location.host;//getAppData('parentUrl');     
   return url;
 }
 
