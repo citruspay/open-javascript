@@ -33,7 +33,10 @@ const keysCheck = (value, options, key, attributes) => {
  */
 
 const validateExpiryDate = (dateStr) => {
-
+    if(!dateStr)
+    {
+        return false;
+    }
    	var d = dateStr.slice(3);
         if(d.length==2){
             var today = new Date();
@@ -71,6 +74,10 @@ const cardDate = (value) => {
     if(validateExpiryDate(value)){
         return value;
     };
+    if(!value){
+        handlersMap['errorHandler']("Expiry date can not be blank.");
+        throw("Expiry date can not be blank.")
+    }
     handlersMap['errorHandler']("Expiry date is invalid");
     throw ("Expiry date is invalid");
 };
@@ -133,7 +140,7 @@ const schemeMap = {
  * @returns {false | String} returns either false or casted scheme as string
  */
 const validateScheme = (scheme, ignoreServerAlias) => {
-    scheme = scheme.toLowerCase().replace(/\s+/g, '');
+    scheme = scheme? scheme.toLowerCase().replace(/\s+/g, ''):scheme;
 
     const found = some(schemeMap, (config, cardType) => {
         if (
@@ -189,6 +196,9 @@ const cardCheck = (paymentDetails, options, key, attributes) => {
     const validatedCardType = validateCardType(paymentDetails.type);
 
     if(validatedCardType === 'credit' || validatedCardType === 'debit'){
+        if(!paymentDetails.number){
+            return ':card number can not be blank.'
+        }
         let scheme = validateScheme(schemeFromNumber(paymentDetails.number), true);//validateScheme(paymentDetails.scheme, true);
 
         if(!scheme) { return ' :invalid scheme type'}
