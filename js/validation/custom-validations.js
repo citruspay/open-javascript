@@ -178,14 +178,19 @@ const validateCardType = (type) => {
 };
 //cardCheck
 const validateCvv = (value,scheme) => {
-
-    if(scheme === 'amex' && value.length == 4)
+    if(scheme === 'amex' && value.length === 4)
     {
         return value;
-    }else if(value.length > 0 && value.length < 4){
+    }
+    if(!value)
+    {
+        handlersMap['errorHandler']("CVV can not be blank.");
+        throw ("CVV can not be blank.");   
+    }
+    if(value.length ===3 && scheme!=='amex'){
         return value;
     }
-
+    
     handlersMap['errorHandler']("CVV is invalid");
     throw ("CVV is invalid");
 
