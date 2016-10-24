@@ -55,11 +55,10 @@ const postPaymentData = () => {
 };
 
 const addEventListenersForHostedFields = () => {
+    //detect the ios user agent, since ios devices don't listen to blur events. ignore the microsoft user agent which also contains the ios keyword.
     let iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-     console.log(iOS);
     let eventStr;
     iOS ? eventStr = "input" : eventStr = "blur";
-    console.log(eventStr);
         //add the event listeners for ui validations of those fields.
         addListener(paymentField,eventStr, postPaymentData, false);
         addListener(paymentField,"focus", addFocusAttributes, false);
@@ -97,7 +96,6 @@ const removeFocusAttributes =()=>{
     let focusLostMessage = {messageType:'focusLost',fieldType:field[0],hostedField};
     parent.postMessage(focusLostMessage,getParentUrl());
 }
-
 const formatCardNumber = () => {
     let num = paymentField.value;
 
