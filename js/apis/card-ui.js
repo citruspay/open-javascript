@@ -55,26 +55,30 @@ const postPaymentData = () => {
 };
 
 const addEventListenersForHostedFields = () => {
+    //detect the ios user agent, since ios devices don't listen to blur events. ignore the microsoft user agent which also contains the ios keyword.
+    let iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    let eventStr;
+    iOS ? eventStr = "input" : eventStr = "blur";
         //add the event listeners for ui validations of those fields.
-        addListener(paymentField,"blur", postPaymentData, false);
+        addListener(paymentField,eventStr, postPaymentData, false);
         addListener(paymentField,"focus", addFocusAttributes, false);
         addListener(paymentField,"blur", removeFocusAttributes, false);        
         switch (field[0]) {
             case "number" :
-                addListener(paymentField,"blur", validateCard, false);
+                addListener(paymentField,eventStr, validateCard, false);
                 addListener(paymentField,'keypress', restrictNumeric, false);
                 addListener(paymentField,'keypress', restrictCardNumber, false);
                 addListener(paymentField,'keypress', formatCardNumber, false);
                 addListener(paymentField,'input', reFormatCardNumber, false);
                 break;
             case "expiry" :
-                addListener(paymentField,"blur", validateExpiry, false);
+                addListener(paymentField,eventStr, validateExpiry, false);
                 addListener(paymentField,'keypress', restrictNumeric, false);
                 addListener(paymentField,'keypress', formatExpiry, false);
                 addListener(paymentField,'input', reformatExpiry, false);
                 break;
             case "cvv"    :
-                addListener(paymentField,'blur', validateCvv, false);
+                addListener(paymentField,eventStr, validateCvv, false);
                 paymentField.setAttribute("type", "password");
                 addListener(paymentField,'keypress', restrictNumeric, false);
                 addListener(paymentField,'keypress', restrictCVC, false);
@@ -87,13 +91,11 @@ const addFocusAttributes=()=>{
     let focusReceivedMessage = {messageType:'focusReceived',fieldType:field[0],hostedField};
     parent.postMessage(focusReceivedMessage,getParentUrl());
 }
-
 const removeFocusAttributes =()=>{
      var hostedField = getAppData('hostedField');
     let focusLostMessage = {messageType:'focusLost',fieldType:field[0],hostedField};
     parent.postMessage(focusLostMessage,getParentUrl());
 }
-
 const formatCardNumber = () => {
     let num = paymentField.value;
 
