@@ -196,7 +196,7 @@ const cardCheck = (paymentDetails, options, key, attributes) => {
 
         if(scheme !== 'Maestro'){
             if (!isCardValid(paymentDetails.number, scheme)){
-                return ' :invalid credit card number';
+                return ' :invalid card number';
             }
         }
 
