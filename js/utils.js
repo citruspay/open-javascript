@@ -154,6 +154,8 @@ const cards = [
 ];
 
 const schemeFromNumber = (num) => {
+    if(!num)
+    throw new Error('Card number can not be blank.');
     var card, _i, _len, _ref;
     num = (num + '').replace(/\D/g, '');
     for (_i = 0, _len = cards.length; _i < _len; _i++) {

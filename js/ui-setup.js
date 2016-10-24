@@ -178,7 +178,7 @@ const convertCustomSytleObjectToCssString = (style,selector)=>{
 const convertStyleToCssString = (selector,style)=>{
     if(!style)
     return;
-    console.log(style);
+    //console.log(style);
     var keys = Object.keys(style);
     var cssText = selector +' {';
     var specialStyles = [];

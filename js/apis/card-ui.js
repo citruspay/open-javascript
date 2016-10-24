@@ -264,6 +264,7 @@ const validateCard = () => {
     let validationResult = {fieldType:'number',messageType:'validation',hostedField,cardType};
     if(!num){
         validationResult.cardValidationResult = {"isValidCard": false, "txMsg": 'Card nubmer can not be empty.',isValid:false};
+        toggleValidity(false);
         parent.postMessage(validationResult,getParentUrl());
         return;
     }
@@ -274,6 +275,7 @@ const validateCard = () => {
     if(!isValidCard) txMsg = "Invalid card number";
     validationResult.cardValidationResult = {"isValidCard": isValidCard, "txMsg": txMsg,isValid:isValidCard};
     parentUrl = getAppData('parentUrl');
+    toggleValidity(isValidCard);
     parent.postMessage(validationResult, parentUrl);
 };
 const validateExpiry = () => {
@@ -284,16 +286,32 @@ const validateExpiry = () => {
     if(!exp)
     {
         validationResult.cardValidationResult = {"isValidExpiry": false, "txMsg": 'Expiry date can not be empty.',isValid:false};
+        toggleValidity(false);
         parent.postMessage(validationResult,getParentUrl());
         return;
     }
     const isValidExpiryDate = validateExpiryDate(exp);
     let txMsg = "";
-    if(!isValidExpiryDate) txMsg = "Invalid expiry date";
+    if(!isValidExpiryDate) {
+        txMsg = "Invalid expiry date";
+    }
     validationResult.cardValidationResult={"isValidExpiry" : isValidExpiryDate, "txMsg": txMsg,isValid:isValidExpiryDate};
     parentUrl = getAppData('parentUrl');
+    toggleValidity(isValidExpiryDate);
     parent.postMessage(validationResult, parentUrl);
 };
+
+const toggleValidity = (isValid)=>{
+    let classNameToAdd = ' invalid',classNameToRemove = ' valid';
+    if(isValid)
+    {
+        classNameToAdd=' valid';
+        classNameToRemove = ' invalid';
+    }
+    paymentField.className = paymentField.className.replace(classNameToRemove,'');
+    if(paymentField.className.indexOf(classNameToAdd)===-1)
+        paymentField.className += classNameToAdd;
+}
 
 const validateCvv = () =>{
     var hostedField = getAppData('hostedField');
@@ -303,12 +321,14 @@ const validateCvv = () =>{
     if(!cvv)
     {
         validationResult.cardValidationResult = {"isValidCvv": false, "txMsg": 'Cvv can not be empty.',isValid:false};
+        toggleValidity(false);
         parent.postMessage(validationResult,getParentUrl());
         return;
     }
     else
     {
-        validationResult.cardValidationResult = {"isValidCvv": true, "txMsg": 'Cvv can not be empty.',isValid:true};
+        validationResult.cardValidationResult = {"isValidCvv": true, "txMsg": '',isValid:true};
+        toggleValidity(true);
         parent.postMessage(validationResult,getParentUrl());
         return;
     }
