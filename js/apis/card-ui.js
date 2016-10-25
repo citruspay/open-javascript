@@ -69,6 +69,7 @@ const addEventListenersForHostedFields = () => {
                 addListener(paymentField,'keypress', restrictNumeric, false);
                 addListener(paymentField,'keypress', restrictCardNumber, false);
                 addListener(paymentField,'keypress', formatCardNumber, false);
+                addListener(paymentField,'paste', restrictPaste, false);
                 addListener(paymentField,'input', reFormatCardNumber, false);
                 break;
             case "expiry" :
@@ -90,12 +91,12 @@ const addFocusAttributes=()=>{
     var hostedField = getAppData('hostedField');
     let focusReceivedMessage = {messageType:'focusReceived',fieldType:field[0],hostedField};
     parent.postMessage(focusReceivedMessage,getParentUrl());
-}
+};
 const removeFocusAttributes =()=>{
      var hostedField = getAppData('hostedField');
     let focusLostMessage = {messageType:'focusLost',fieldType:field[0],hostedField};
     parent.postMessage(focusLostMessage,getParentUrl());
-}
+};
 const formatCardNumber = () => {
     let num = paymentField.value;
 
@@ -309,7 +310,7 @@ const toggleValidity = (isValid)=>{
     paymentField.className = paymentField.className.replace(classNameToRemove,'');
     if(paymentField.className.indexOf(classNameToAdd)===-1)
         paymentField.className += classNameToAdd;
-}
+};
 
 const validateCvv = () =>{
     var hostedField = getAppData('hostedField');
@@ -330,7 +331,7 @@ const validateCvv = () =>{
         parent.postMessage(validationResult,getParentUrl());
         return;
     }
-}
+};
 
 const restrictCVC = (e) => {
     var digit, val;
@@ -350,6 +351,10 @@ const getParentUrl = ()=>{
             ? document.referrer
             : document.location.protocol+'//'+document.location.host;//getAppData('parentUrl');     
   return url;
-}
+};
+
+const restrictPaste = (e) => {
+    e.preventDefault();
+};
 
 export {cardFieldHandler, formatExpiry}
