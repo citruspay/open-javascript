@@ -55,6 +55,9 @@ const makePayment = (paymentObj) => {
         setAppData('paymentObj', paymentObj);
         win.postMessage(paymentObj, getConfigValue('hostedFieldDomain'));
     }
+    else{
+        //handle invalid fields
+    }
 };
 
 //parent listener
@@ -72,7 +75,7 @@ const listener = (event) => {
                 //should use an explicit key
                 let keys = Object.keys(event.data.cardValidationResult);
                 setAppData(event.data.hostedField.fieldType + '-' + event.data.cardType + '-validation', event.data.cardValidationResult);
-                console.log('set event data for ' + event.data.hostedField.fieldType + '-' + event.data.cardType + '-validation');
+                //console.log('set event data for ' + event.data.hostedField.fieldType + '-' + event.data.cardType + '-validation');
                 handleValidationMessage(event);
                 return;
         }
@@ -140,19 +143,21 @@ const listener = (event) => {
 };
 
 const handleValidationMessage = (event) => {
-    var hostedField = event.data.hostedField;
-    var element = getElement(hostedField.identifier);
+    var hostedField = event.data.hostedField, cardValidationResult = event.data.cardValidationResult;
+   toggleValidationClass(hostedField,cardValidationResult);
+}
+
+const toggleValidationClass = (hostedField,cardValidationResult) => {
+     var element = getElement(hostedField.identifier);
     element.className = element.className.replace('citrus-hosted-field-invalid', '').replace('citrus-hosted-field-valid', '');
-    if (event.data.messageType === "validation") {
-        if (event.data.cardValidationResult.isValid) {
-            element.className += ' citrus-hosted-field-valid';
-        } else {
-            element.className += 'citrus-hosted-field-invalid';
-        }
+    if (cardValidationResult.isValid) {
+        element.className += ' citrus-hosted-field-valid';
+    } else {
+        element.className += 'citrus-hosted-field-invalid';
     }
 }
 const handleFocus = (event) => {
-    console.log(event.data, 'inside handle focus');
+    //console.log(event.data, 'inside handle focus');
     var hostedField = event.data.hostedField;
     var element = getElement(hostedField.identifier);
     if (event.data.messageType === "focusReceived") {
@@ -232,6 +237,15 @@ const workFlowForIE = (winRef) => {
     }, 500);
 };
 
+const getHostedFieldByType = (fieldType,cardSetupType) => {
+let hostedFields = getAppData('hostedFields'+'-'+cardSetupType);
+for(var i =0;i<hostedFields.length;++i)
+{
+    if(hostedFields[i].fieldType===fieldType)
+    return hostedFields[i];
+}
+}
+
 //todo:refactor this code later
 //assumed if the validationResult is not present for a hostedField
 //it is invalid
@@ -246,38 +260,55 @@ const validateCardDetails = (cardSetupType) => {
     let requiredValidationFieldType = 'number';
     let validationResultKey = requiredValidationFieldType + '-' + cardSetupType + '-validation';
     let validationResult = getAppData(validationResultKey);
+    let hostedField = getHostedFieldByType(requiredValidationFieldType,cardSetupType);
     if (!validationResult) {
         err.error = 'Card number can not be blank.';
+        err.hostedField = hostedField;
+        toggleValidationClass(hostedField,{isValid:false});
         return false;
     }
     if (!validationResult.isValid) {
         err.error = validationResult.txMsg;
+        err.hostedField = hostedField;
+        toggleValidationClass(hostedField,{isValid:false});
         return false;
     }
     if (validationResult.isValid) {
         let validHostedFieldTypesWithoutNumber = validHostedFieldTypes.filter((val)=>{return val!=="number";});
+        let hostedFieldsWithoutNumber = [];
         if (validationResult.scheme === "maestro") {
+            let isValidField = true;
             //validate other keys if present
             for (var i = 0; i < validHostedFieldTypesWithoutNumber.length; ++i) {
                 validationResultKey = validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType + '-validation';
                 validationResult = getAppData(validationResultKey);
-                console.log('validation result for key ', validationResultKey, validationResult, i);
+                //console.log('validation result for key ', validationResultKey, validationResult, i);
+                hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i],cardSetupType);
+                hostedFieldsWithoutNumber.push(hostedField);
                 if (validationResult)
                     validationResults.push(validationResult);
 
-
+                
                 if (validationResult && !validationResult.isValid && !validationResult.isEmpty) {
                     err.error = validationResult.txMsg;
                     err.errors.push[validationResult.txMsg];
                     isValidCard = isValidCard && false;
+                    isValidField = false;
+                    toggleValidationClass(hostedField,{isValid:false});
                 }
                
+               
             }
+             for(var i=0;i<hostedFieldsWithoutNumber.length;++i)
+                {
+                    toggleValidationClass(hostedFieldsWithoutNumber[i],{isValid:isValidField});
+                }
         } else {
             for (var i = 0; i < validHostedFieldTypesWithoutNumber.length; ++i) {
                 validationResultKey = validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType + '-validation';
                 validationResult = getAppData(validationResultKey);
-                console.log('validation result for key ', validationResultKey, validationResult, i);
+               // console.log('validation result for key ', validationResultKey, validationResult, i);
+                hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i],cardSetupType);
                 if (validationResult)
                     validationResults.push(validationResult);
 
@@ -286,11 +317,13 @@ const validateCardDetails = (cardSetupType) => {
                     err.error = validationResult.txMsg;
                     err.errors.push[validationResult.txMsg];
                     isValidCard = isValidCard && false;
+                     toggleValidationClass(hostedField,{isValid:false});
                 }
                 if (!validationResult) {
                     err.error = validHostedFieldTypesWithoutNumber[i] + ' can not be blank.';
                     err.errors.push[validHostedFieldTypesWithoutNumber[i] + ' can not be blank.'];
                     isValidCard = isValidCard && false;
+                     toggleValidationClass(hostedField,{isValid:false});
                 }
             }
 

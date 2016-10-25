@@ -16,6 +16,7 @@ const uiSetup = (setUpConfig) => {
     } = setUpConfig;
     if (validCardSetupTypes.indexOf(cardType) === -1)
         throw new Error(`invalid cardType "${cardType}", cardType should have one of these values ` + validCardSetupTypes);
+    setAppData('hostedFields'+'-'+cardType,hostedFields);
     for (var i = 0, length = hostedFields.length; i < length; ++i) {
         let {
             fieldType,
