@@ -12,14 +12,14 @@ var dir_build = path.resolve(__dirname, 'release');
 module.exports = {
     entry:{
         citrus:path.resolve(dir_js,'index.js'),
-        hostedFields:path.resolve(dir_js,'cardIndex.js')
+        hostedFields:path.resolve(dir_js,'hosted-field-index.js')
     },
 
     output: {
         path: dir_build,
         //publicPath: '/release',
         publicPath: '/jsv2/release',
-        filename: '[name].js'
+        filename: '[name].min.js'
     },
     module: {
         loaders: [

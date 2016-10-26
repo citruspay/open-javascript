@@ -18,7 +18,7 @@ import {makePayment, listener} from './apis/payment';
 import {singleHopDropInFunction} from './apis/singleHop';
 import {applyWallletDynamicPricing} from './apis/wallet-dp';
 import {setAppData} from './utils';
-import {uiSetup} from './ui-setup';
+import {uiSetup} from './hosted-field-setup';
 
 
 init(); //initializes custom validators

@@ -1,9 +1,9 @@
 /**
  * Created by nagamai on 9/9/2016.
  */
-import {cardFromNumber,schemeFromNumber,getAppData,addListener} from "./../utils";
-import {getConfigValue} from '../ui-config';
-import {validateExpiryDate, validateCreditCard} from './../validation/custom-validations';
+import {cardFromNumber,schemeFromNumber,getAppData,addListener} from "./utils";
+import {getConfigValue} from './hosted-field-config';
+import {validateExpiryDate, validateCreditCard,isValidCvv} from './validation/custom-validations';
 
 let paymentField;
 let field;
@@ -315,23 +315,28 @@ const toggleValidity = (isValid)=>{
 const validateCvv = () =>{
     var hostedField = getAppData('hostedField');
     var cardType = getAppData('cardType');
+    var scheme = getAppData('scheme');
     const cvv = paymentField.value.replace(/\s+/g, '');
      let validationResult = {fieldType:'cvv',messageType:'validation',hostedField,cardType};
+     var isValid = true;
     if(!cvv)
     {
         validationResult.cardValidationResult = {"isValidCvv": false, "txMsg": 'Cvv can not be empty.',isValid:false,isEmpty:true};
-        toggleValidity(false);
-        parent.postMessage(validationResult,getParentUrl());
-        return;
+        isValid = false;
     }
-    else
+    else if(isValidCvv(cvv.length,scheme))
     {
-        validationResult.cardValidationResult = {"isValidCvv": true, "txMsg": '',isValid:true};
-        toggleValidity(true);
-        parent.postMessage(validationResult,getParentUrl());
-        return;
+        validationResult.cardValidationResult = {"isValidCvv": true, "txMsg": '',isValid:true,length:cvv.length};
+        isValid = true;
     }
+    else{
+        validationResult.cardValidationResult = {"isValidCvv": false, "txMsg": 'CVV is invalid.',isValid:false,length:cvv.length};
+        isValid = false;
+    }
+    toggleValidity(isValid);
+    parent.postMessage(validationResult,getParentUrl());
 };
+
 
 const restrictCVC = (e) => {
     var digit, val;
@@ -357,4 +362,4 @@ const restrictPaste = (e) => {
     e.preventDefault();
 };
 
-export {cardFieldHandler, formatExpiry}
+export {cardFieldHandler, formatExpiry,validateCvv}

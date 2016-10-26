@@ -6,12 +6,13 @@ import {getAppData, setAppData, isIE, getElement} from "./../utils";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
 import {refineMotoResponse} from "./response";
 import {custFetch} from "../interceptor";
-import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../ui-config";
+import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../hosted-field-config";
 
 //this file is hosted fields specific
 //todo:change the file name later
 let winRef = null;
 let cancelApiResp;
+const citrusSelectorPrefix = 'citrus';
 const regExMap = {
     'cardNumber': /^[0-9]{15,19}$/,
     'name': /^(?!\s*$)[a-zA-Z .]{1,50}$/,
@@ -70,10 +71,6 @@ const listener = (event) => {
                 handleFocus(event);
                 return;
             case 'validation':
-                //todo:remove this code,
-                //keys[0] can change any time the object is being changed
-                //should use an explicit key
-                let keys = Object.keys(event.data.cardValidationResult);
                 setAppData(event.data.hostedField.fieldType + '-' + event.data.cardType + '-validation', event.data.cardValidationResult);
                 //console.log('set event data for ' + event.data.hostedField.fieldType + '-' + event.data.cardType + '-validation');
                 handleValidationMessage(event);
@@ -144,6 +141,9 @@ const listener = (event) => {
 
 const handleValidationMessage = (event) => {
     var hostedField = event.data.hostedField, cardValidationResult = event.data.cardValidationResult;
+    if(hostedField.fieldType==="number"){
+        postMessageToChild('cvv',event.data.cardType,event.data,false);
+    }
    toggleValidationClass(hostedField,cardValidationResult);
 }
 
@@ -261,6 +261,7 @@ const validateCardDetails = (cardSetupType) => {
     let validationResultKey = requiredValidationFieldType + '-' + cardSetupType + '-validation';
     let validationResult = getAppData(validationResultKey);
     let hostedField = getHostedFieldByType(requiredValidationFieldType,cardSetupType);
+    let scheme;
     if (!validationResult) {
         err.error = 'Card number can not be blank.';
         err.hostedField = hostedField;
@@ -354,7 +355,31 @@ const validateCardDetails = (cardSetupType) => {
     }
     return true;*/
 }
+
+const postMessageToChild = (fieldType, cardType, message, isSetTimeoutRequired) => {
+    let frameId = getCitrusFrameId(fieldType, cardType);
+    if (isSetTimeoutRequired) {
+        setTimeout(() => {
+            postMessage(frameId, message);
+        }, 0);
+    } else {
+        postMessage(frameId, message);
+    }
+}
+
+const postMessage = (frameId, message) => {
+    let childFrameDomain = getConfigValue('hostedFieldDomain');
+    let win = document.getElementById(frameId).contentWindow;
+    win.postMessage(message, childFrameDomain);
+}
+
+const getCitrusFrameId = (fieldType, cardType) => {
+    return citrusSelectorPrefix + fieldType + '-' + cardType;
+}
+
 export {
     makePayment,
-    listener
+    listener,
+    postMessageToChild,
+    getCitrusFrameId
 };

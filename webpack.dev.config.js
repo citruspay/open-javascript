@@ -19,7 +19,7 @@ module.exports = {
         citrus:['webpack-dev-server/client?http://localhost:8090',
                 'webpack/hot/dev-server',
                 path.resolve(dir_js,'index.js')],
-        hostedFields:path.resolve(dir_js,'cardIndex.js')
+        hostedFields:path.resolve(dir_js,'hosted-field-index.js')
     },
 
     output: {
