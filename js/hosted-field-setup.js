@@ -4,7 +4,7 @@ import {
     validCardSetupTypes,
     supportedStyleKeys,
     specialStyleKeys
-} from './ui-config'
+} from './hosted-field-config'
 import {setAppData,getAppData} from './utils';
 import {postMessageToChild, getCitrusFrameId} from './apis/payment';
 

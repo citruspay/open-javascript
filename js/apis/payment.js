@@ -6,7 +6,7 @@ import {getAppData, setAppData, isIE, getElement} from "./../utils";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
 import {refineMotoResponse} from "./response";
 import {custFetch} from "../interceptor";
-import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../ui-config";
+import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../hosted-field-config";
 
 //this file is hosted fields specific
 //todo:change the file name later

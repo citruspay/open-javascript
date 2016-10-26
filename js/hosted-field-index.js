@@ -7,13 +7,13 @@ import 'core-js/fn/promise';
 import 'core-js/fn/string/includes';
 import {setAppData,getAppData} from './utils';
 import {makePayment} from './apis/payment';
-import {cardFieldHandler,validateCvv} from './apis/card-ui';
-import {getConfigValue} from './ui-config';
+import {cardFieldHandler,validateCvv} from './apis/hosted-field-main';
+import {getConfigValue} from './hosted-field-config';
 import {validateExpiryDate, validateScheme, validateCreditCard} from './validation/custom-validations';
 import {schemeFromNumber} from './utils';
 import {makeMotoCardPayment} from './apis/cards';
 import {init,setConfig,handlersMap} from './config';
-import {applyAttributes} from './ui-setup';
+import {applyAttributes} from './hosted-field-setup';
 
 init(); //initializes custom validators
 

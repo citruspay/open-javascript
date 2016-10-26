@@ -2,7 +2,7 @@
  * Created by nagamai on 9/9/2016.
  */
 import {cardFromNumber,schemeFromNumber,getAppData,addListener} from "./../utils";
-import {getConfigValue} from '../ui-config';
+import {getConfigValue} from '../hosted-field-config';
 import {validateExpiryDate, validateCreditCard,isValidCvv} from './../validation/custom-validations';
 
 let paymentField;
