@@ -177,6 +177,7 @@ const validateCardType = (type) => {
     return found ? type : false;
 };
 //cardCheck
+//todo:remove it later
 const validateCvv = (value,scheme) => {
     if(scheme === 'amex' && value.length === 4)
     {
@@ -191,10 +192,25 @@ const validateCvv = (value,scheme) => {
         return value;
     }
     
-    handlersMap['errorHandler']("CVV is invalid");
-    throw ("CVV is invalid");
+    handlersMap['errorHandler']("CVV is invalid.");
+    throw ("CVV is invalid.");
 
 };
+
+const isValidCvv=(length,scheme)=>{
+    //both valid length cvv considered as valid for the time being.
+    //console.log(length,scheme);
+    if(!scheme&&(length===3||length===4))
+        return true;
+    if(scheme==='amex'&&length===4)
+        return true;
+    if(scheme!=='amex'&& length===3)
+        return true;
+    if(scheme==='maestro'&&length===0)
+        return true;
+    return false;
+}
+
 
 const cardCheck = (paymentDetails, options, key, attributes) => {
     if(options !== true) return;
@@ -284,4 +300,4 @@ const validateCreditCard = (cardNo, scheme) =>{
 
 
 export { keysCheck, cardDate, cardCheck, custFormat, validateScheme, validateExpiryDate, validateCvv,
-    validateCreditCard, validateCardType, blazeCardCheck }
+    validateCreditCard, validateCardType, blazeCardCheck,isValidCvv }

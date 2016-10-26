@@ -6,7 +6,9 @@ import {
     specialStyleKeys
 } from './ui-config'
 import {setAppData,getAppData} from './utils';
-const citrusSelectorPrefix = 'citrus';
+import {postMessageToChild, getCitrusFrameId} from './apis/payment';
+
+
 const uiSetup = (setUpConfig) => {
     "use strict";
     let {
@@ -238,26 +240,7 @@ function convertHyphenFormatToCamelCase(propertyName) {
     return propertyName.replace(/-[a-z]/g, hyphenLowerToUpper);
 }
 
-const postMessageToChild = (fieldType, cardType, message, isSetTimeoutRequired) => {
-    let frameId = getCitrusFrameId(fieldType, cardType);
-    if (isSetTimeoutRequired) {
-        setTimeout(() => {
-            postMessage(frameId, message);
-        }, 0);
-    } else {
-        postMessage(frameId, message);
-    }
-}
 
-const postMessage = (frameId, message) => {
-    let childFrameDomain = getConfigValue('hostedFieldDomain');
-    let win = document.getElementById(frameId).contentWindow;
-    win.postMessage(message, childFrameDomain);
-}
-
-const getCitrusFrameId = (fieldType, cardType) => {
-    return citrusSelectorPrefix + fieldType + '-' + cardType;
-}
 
 export {
     uiSetup,

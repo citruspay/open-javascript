@@ -28,7 +28,7 @@ const enhanceWithValidation = (schema, func) =>{
 
     return (confObj) => {
         const validationResult = custValidate(confObj, schema);
-        console.log('validation Result :: ', validationResult);
+        //console.log('validation Result :: ', validationResult);
         if(validationResult){
             handlersMap['errorHandler'](validationResult);
             throw JSON.stringify(validationResult);
