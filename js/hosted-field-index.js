@@ -5,7 +5,7 @@
 import 'core-js/fn/object/assign';
 import 'core-js/fn/promise';
 import 'core-js/fn/string/includes';
-import {setAppData,getAppData} from './utils';
+import {setAppData,getAppData, postMessageWrapper} from './utils';
 import {makePayment} from './apis/payment';
 import {addField,validateCvv,validateExpiry} from './hosted-field-main';
 import {getConfigValue} from './hosted-field-config';
@@ -73,7 +73,7 @@ function listener(event) {
         response.responseType = "serverResponse";
         delete response.isValidRequest;
         response.data.redirectUrl.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
-        parent.postMessage(response.data, parentUrl);
+        postMessageWrapper(parent, response.data, parentUrl);
     });
 }
 Object.assign(window.citrus,{
@@ -106,12 +106,12 @@ citrus.registerHandlers("errorHandler", function (error) {
     let response = {};
     response.type = "errorHandler";
     response.error = error;
-    parent.postMessage(JSON.parse(JSON.stringify(response)), parentUrl);
+    postMessageWrapper(parent, response, parentUrl);
 });
 
 citrus.registerHandlers("serverErrorHandler", function (error) {
     let response = {};
     response.type = "serverErrorHandler";
     response.error = error;
-    parent.postMessage(response, parentUrl);
+    postMessageWrapper(parent, response, parentUrl);
 });

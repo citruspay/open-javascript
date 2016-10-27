@@ -1,7 +1,7 @@
 /**
  * Created by nagamai on 9/9/2016.
  */
-import {cardFromNumber,schemeFromNumber,getAppData,addListener} from "./utils";
+import {cardFromNumber,schemeFromNumber,getAppData,addListener,postMessageWrapper} from "./utils";
 import {getConfigValue} from './hosted-field-config';
 import {validateExpiryDate, validateCreditCard,isValidCvv,isValidExpiry} from './validation/custom-validations';
 
@@ -51,7 +51,9 @@ const postPaymentData = () => {
     //also if possible use name instead of index as index will be unreliable
     //if there are other iframes on merchant's page
     for(var i=0;i<parent.window.frames.length;i++)
-    {parent.window.frames[i].postMessage(cardData, getConfigValue('hostedFieldDomain'));}
+    {
+        postMessageWrapper(parent.window.frames[i], cardData, getConfigValue('hostedFieldDomain'));
+    }
 };
 
 const addEventListenersForHostedFields = () => {
@@ -90,12 +92,12 @@ const addEventListenersForHostedFields = () => {
 const addFocusAttributes=()=>{
     var hostedField = getAppData('hostedField');
     let focusReceivedMessage = {messageType:'focusReceived',fieldType:field[0],hostedField};
-    parent.postMessage(focusReceivedMessage,getParentUrl());
+    postMessageWrapper(parent, focusReceivedMessage, getParentUrl());
 };
 const removeFocusAttributes =()=>{
      var hostedField = getAppData('hostedField');
     let focusLostMessage = {messageType:'focusLost',fieldType:field[0],hostedField};
-    parent.postMessage(focusLostMessage,getParentUrl());
+    postMessageWrapper(parent, focusLostMessage, getParentUrl());
 };
 const formatCardNumber = () => {
     let num = paymentField.value;
@@ -181,7 +183,6 @@ const restrictNumeric = (e) => {
         return true;
     }
     input = String.fromCharCode(e.which);
-    //e.preventDefault ? e.preventDefault() : (e.returnValue = false);
     if(!/[\d\s]/.test(input)) e.preventDefault();
     //return !!/[\d\s]/.test(input);
 };
@@ -200,23 +201,6 @@ const reformatExpiry = () => {
         formatExpiry(paymentField.value);
     });
 };
-
-// const restrictCVC = (e) => {
-//     var digit,
-//         keyCode;
-//     //$target = $(e.currentTarget);
-//     keyCode = e.which || e.keyCode;
-//     digit = String.fromCharCode(keyCode);
-//     if (!/^\d+$/.test(digit)) {
-//         e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-//         return;
-//     }
-//     if (hasTextSelected(paymentField)) {
-//         return;
-//     }
-//     e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-//     paymentField.value.length < cvvLen ? paymentField.value = paymentField.value + digit : (e.returnValue = false);
-// };
 
 const restrictCardNumber = function(e) {
     let card,
@@ -238,20 +222,6 @@ const restrictCardNumber = function(e) {
     }
 };
 
-// const formatForwardExpiry = (e) => {
-//     var $target,
-//         digit,
-//         val;
-//     digit = String.fromCharCode(e.which);
-//     if (!/^\d+$/.test(digit)) {
-//         return;
-//     }
-//     $target = $(e.currentTarget);
-//     val = $target.val();
-//     if (/^\d\d$/.test(val)) {
-//         return $target.val("" + val + " / ");
-//     }
-// };
 //todo: change the value of these two fields
 //if the card number does not require cvv or field;
 let isExpiryRequired = true;
@@ -264,7 +234,7 @@ const validateCard = () => {
     if(!num){
         validationResult.cardValidationResult = {"isValidCard": false, "txMsg": 'Card nubmer can not be empty.',isValid:false};
         toggleValidity(false);
-        parent.postMessage(validationResult,getParentUrl());
+        postMessageWrapper(parent, validationResult, getParentUrl());
         return;
     }
     const scheme = schemeFromNumber(num);
@@ -275,7 +245,7 @@ const validateCard = () => {
     validationResult.cardValidationResult = {"isValidCard": isValidCard, "txMsg": txMsg,isValid:isValidCard,scheme:scheme};
     parentUrl = getAppData('parentUrl');
     toggleValidity(isValidCard);
-    parent.postMessage(validationResult, parentUrl);
+    postMessageWrapper(parent, validationResult, parentUrl);
 };
 
 const validateExpiryEventListener=()=>{
@@ -356,9 +326,8 @@ const validateCvv = (isCascadeFromNumberField) =>{
     }
     if(!isCascadeFromNumberField||(isCascadeFromNumberField&&!isEmpty))
         toggleValidity(isValid);
-    parent.postMessage(validationResult,getParentUrl());
+    postMessageWrapper(parent, validationResult, getParentUrl());
 };
-
 
 const restrictCVC = (e) => {
     var digit, val;
