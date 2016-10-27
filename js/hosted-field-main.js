@@ -11,7 +11,7 @@ let cvvLen = 4;
 //todo:change its name later
 let digit;
 let parentUrl = getAppData('parentUrl');
-const cardFieldHandler = () => {
+const addField = () => {
     let fieldType = document.location.href.split("#");
     field = fieldType[1].split("-");
     paymentField = document.createElement("input");
@@ -362,4 +362,4 @@ const restrictPaste = (e) => {
     e.preventDefault();
 };
 
-export {cardFieldHandler, formatExpiry,validateCvv}
+export {addField, formatExpiry,validateCvv}

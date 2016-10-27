@@ -8,8 +8,7 @@ import {
 import {setAppData,getAppData} from './utils';
 import {postMessageToChild, getCitrusFrameId} from './apis/payment';
 
-
-const uiSetup = (setUpConfig) => {
+const create = (setUpConfig) => {
     "use strict";
     let {
         hostedFields,
@@ -25,7 +24,7 @@ const uiSetup = (setUpConfig) => {
             identifier
         } = hostedFields[i];
         if (validHostedFieldTypes.indexOf(fieldType) !== -1) {
-            appendIframe(hostedFields[i], cardType.toLowerCase(), style);
+            addIframe(hostedFields[i], cardType.toLowerCase(), style);
         } else {
             throw new Error(`invalid fieldType "${fieldType}", fieldType should have one of these values ` + validHostedFieldTypes);
         }
@@ -34,7 +33,7 @@ const uiSetup = (setUpConfig) => {
 };
 
 
-const appendIframe = (hostedField, cardType, style) => {
+const addIframe = (hostedField, cardType, style) => {
     "use strict";
     let {identifier,fieldType} = hostedField;
     const invalidIdentifierMessage = `invalid identifier for field type "${fieldType}", it should be of the form of #id or .cssClass`;
@@ -243,6 +242,6 @@ function convertHyphenFormatToCamelCase(propertyName) {
 
 
 export {
-    uiSetup,
+    create,
     applyAttributes
 };

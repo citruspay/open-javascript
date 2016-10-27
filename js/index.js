@@ -18,7 +18,7 @@ import {makePayment, listener} from './apis/payment';
 import {singleHopDropInFunction} from './apis/singleHop';
 import {applyWallletDynamicPricing} from './apis/wallet-dp';
 import {setAppData} from './utils';
-import {uiSetup} from './hosted-field-setup';
+import {create} from './hosted-field-setup';
 
 
 init(); //initializes custom validators
@@ -73,8 +73,11 @@ Object.assign(window.citrus, {
         getPaymentDetailsForMCP,
         getPaymentDetails,
         applyDynamicPricing,
-        makeDPCardPayment,
-        uiSetup
+        makeDPCardPayment
+    },
+    hostedFields:
+    {
+        create
     },
     wallet: {
         //makeWallletPayment
