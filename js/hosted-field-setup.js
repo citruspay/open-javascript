@@ -5,7 +5,7 @@ import {
     supportedStyleKeys,
     specialStyleKeys
 } from './hosted-field-config'
-import {setAppData,getAppData} from './utils';
+import {setAppData,getAppData,getElement} from './utils';
 import {postMessageToChild, getCitrusFrameId} from './apis/payment';
 
 const create = (setUpConfig) => {
@@ -76,10 +76,12 @@ const addIframe = (hostedField, cardType, style) => {
     if (!identifier || identifier.length <= 1)
         throw new Error(invalidIdentifierMessage);
     const identifierName = identifier.slice(1);
-    if (identifier.indexOf('#') === 0)
-        document.getElementById(identifierName).appendChild(iframe);
-    else if (identifier.indexOf('.') == 0)
-        document.getElementsByClassName(identifierName)[0].appendChild(iframe);
+    let element = getElement(identifier);
+    if (element)
+    {
+        element.appendChild(iframe);
+        element.className += ' citrus-hosted-field-primitive';
+    }
     else throw new Error(invalidIdentifierMessage);
 }
 //todo:rename to setStyle and other attributes
