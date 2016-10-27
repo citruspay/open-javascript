@@ -211,6 +211,13 @@ const isValidCvv=(length,scheme)=>{
     return false;
 }
 
+const isValidExpiry=(expiry,scheme)=>{
+    var isValidExpiryDate = validateExpiryDate(expiry);
+    if(scheme==='maestro'&!expiry)
+        return true;
+    return isValidExpiryDate;
+}
+
 
 const cardCheck = (paymentDetails, options, key, attributes) => {
     if(options !== true) return;
@@ -300,4 +307,4 @@ const validateCreditCard = (cardNo, scheme) =>{
 
 
 export { keysCheck, cardDate, cardCheck, custFormat, validateScheme, validateExpiryDate, validateCvv,
-    validateCreditCard, validateCardType, blazeCardCheck,isValidCvv }
+    validateCreditCard, validateCardType, blazeCardCheck,isValidCvv,isValidExpiry }

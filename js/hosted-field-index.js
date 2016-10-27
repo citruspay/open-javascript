@@ -7,7 +7,7 @@ import 'core-js/fn/promise';
 import 'core-js/fn/string/includes';
 import {setAppData,getAppData} from './utils';
 import {makePayment} from './apis/payment';
-import {addField,validateCvv} from './hosted-field-main';
+import {addField,validateCvv,validateExpiry} from './hosted-field-main';
 import {getConfigValue} from './hosted-field-config';
 import {validateExpiryDate, validateScheme, validateCreditCard} from './validation/custom-validations';
 import {schemeFromNumber} from './utils';
@@ -44,7 +44,10 @@ function listener(event) {
         if(event.data.fieldType==="number")
         {
             setAppData('scheme',event.data.cardValidationResult.scheme);
+            if(fieldType=='cvv')
             validateCvv(true);
+            else if(fieldType=='expiry')
+            validateExpiry(true);
         }
         return;
     }
