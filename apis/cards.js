@@ -59,7 +59,7 @@ const makeBlazeCardPayment = validateAndCallbackify(blazeCardValidationSchema, (
         cardScheme: confObj.cardScheme//validateScheme(confObj.cardScheme)
     });
 
-    console.log('Config for blazecard fetch !!!', paymentDetails);
+    //console.log('Config for blazecard fetch !!!', paymentDetails);
 
 
     return custFetch(getConfig().blazeCardApiUrl + '/cards-gateway/rest/cardspg/mpi', {
@@ -129,7 +129,7 @@ motoCardValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 
 const  motoCardApiFunc = (confObj) => {
     const cardScheme = schemeFromNumber(confObj.paymentDetails.number);
-    console.log(cardScheme);
+    //console.log(cardScheme);
     const paymentDetails = Object.assign({}, confObj.paymentDetails, {
         type: validateCardType(confObj.paymentDetails.type),
         scheme: validateScheme(cardScheme)

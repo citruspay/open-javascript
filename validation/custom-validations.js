@@ -49,7 +49,7 @@ const validateExpiryDate = (dateStr) => {
     var inputYear = expiry.slice(-4);
     var len = expiry.length;
     var year = today.getFullYear().toString().slice(-4);
-    console.log(expiry);
+    //console.log(expiry);
     let returnVal = true;
 
     if (len == 6) {

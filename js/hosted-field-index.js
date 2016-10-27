@@ -30,7 +30,7 @@ let fieldType = field[1].split("-");
 let parentUrl;
 //child(iframe) listener
 function listener(event) {
-    //console.log(event.data);
+    //console.log(event.data,'inside child frame');
     if (!event.data)
         return;
     if (event.data.messageType === "style") {
@@ -38,14 +38,25 @@ function listener(event) {
         return;
     }
     if (event.data.messageType === "validation") {
-        if (event.data.fieldType === "number") {
+       /* if (event.data.fieldType === "number") {
             setAppData('scheme', event.data.cardValidationResult.scheme);
             if (fieldType[0] === 'cvv')
                 validateCvv(true);
             else if (fieldType[0] === 'expiry')
                 validateExpiry(true);
-        }
+        }*/
         return;
+    }
+    if(event.data.messageType=="schemeChange"){
+        setAppData(event.data.cardType+'scheme', event.data.scheme);
+        switch(fieldType[0]){
+            case 'cvv':
+            validateCvv(true);
+            return;
+            case 'expiry':
+            validateExpiry(true);
+            return;
+        }
     }
     if (event.data.messageType == 'validate') {
         switch (fieldType[0]) {

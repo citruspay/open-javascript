@@ -1,7 +1,7 @@
 /**
  * Created by nagamai on 9/9/2016.
  */
-import {cardFromNumber,schemeFromNumber,getAppData,addListener,postMessageWrapper} from "./utils";
+import {cardFromNumber,schemeFromNumber,getAppData,addListener,postMessageWrapper,setAppData} from "./utils";
 import {getConfigValue,validHostedFieldTypes} from './hosted-field-config';
 import {validateExpiryDate, validateCreditCard,isValidCvv,isValidExpiry} from './validation/custom-validations';
 import {postMessageToChild} from './apis/payment';
@@ -76,6 +76,7 @@ const addEventListenersForHostedFields = () => {
         switch (field[0]) {
             case "number" :
                 addListener(paymentField,eventStr, validateCardEventListener, false);
+                addListener(paymentField,'input',detectScheme);
                 addListener(paymentField,'keypress', restrictNumeric, false);
                 addListener(paymentField,'keypress', restrictCardNumber, false);
                 addListener(paymentField,'keypress', formatCardNumber, false);
@@ -95,6 +96,24 @@ const addEventListenersForHostedFields = () => {
                 break;
         }
 };
+
+
+const detectScheme = ()=>{
+    const num = paymentField.value.replace(/\s+/g, '');
+    const scheme = schemeFromNumber(num);
+    var setupType = getAppData('cardType');
+    var hostedField = getAppData('hostedField');
+    if(!scheme)
+        return;
+    var lastDetectedScheme = getAppData(setupType+'scheme');
+    let schemeChangeMessage = {messageType:'schemeChange',scheme:scheme,hostedField, cardType:setupType};
+    //console.log(lastDetectedScheme,scheme,setupType,'detectScheme');
+    if(lastDetectedScheme!==scheme)
+    {
+        setAppData(setupType+'scheme',scheme);
+        postMessageWrapper(parent,schemeChangeMessage,getParentUrl());
+    }
+}
 
 const addFocusAttributes=()=>{
     var hostedField = getAppData('hostedField');
@@ -264,12 +283,12 @@ const validateExpiryEventListener=()=>{
 const validateExpiry = (isCascadeFromNumberField) => {
     var hostedField = getAppData('hostedField');
     var cardType = getAppData('cardType');
-    var scheme = getAppData('scheme');
+    var scheme = getAppData(cardType+'scheme');
     const exp = paymentField.value.replace(/\s+/g, '');
     //console.log(scheme,exp,'test');
     let isEmpty = !exp;
     let isValid;
-    var ignoreValidationBroadcast =isCascadeFromNumberField&&isEmpty;
+    var ignoreValidationBroadcast =isCascadeFromNumberField;
     
     let validationResult = {fieldType:'expiry',messageType:'validation',hostedField,cardType,ignoreValidationBroadcast};
      
@@ -292,11 +311,11 @@ const validateExpiry = (isCascadeFromNumberField) => {
     
     }
     parentUrl = getAppData('parentUrl');
-    if(!isCascadeFromNumberField||(isCascadeFromNumberField&&!isEmpty))
+    if(!isCascadeFromNumberField)
     {
         toggleValidity(isValid);
-    parent.postMessage(validationResult, parentUrl);
     }
+    postMessageWrapper(parent,validationResult,getParentUrl());
 };
 
 const toggleValidity = (isValid)=>{
@@ -318,11 +337,12 @@ const validateCvvEventListener = () =>{
 const validateCvv = (isCascadeFromNumberField) =>{
     var hostedField = getAppData('hostedField');
     var cardType = getAppData('cardType');
-    var scheme = getAppData('scheme');
+    var scheme = getAppData(cardType+'scheme');
     const cvv = paymentField.value.replace(/\s+/g, '');
+    //console.log(scheme,cvv,'inside validateCvv');
     var isValid = true;
      var isEmpty = !cvv;
-     var ignoreValidationBroadcast =isCascadeFromNumberField&&isEmpty;
+     var ignoreValidationBroadcast =isCascadeFromNumberField;
      let validationResult = {fieldType:'cvv',messageType:'validation',hostedField,cardType,ignoreValidationBroadcast};
      if(!scheme&&isEmpty)
     {
@@ -342,11 +362,12 @@ const validateCvv = (isCascadeFromNumberField) =>{
         validationResult.cardValidationResult = {"isValidCvv": false, "txMsg": txMsg,isValid:false,length:cvv.length};
         isValid = false;
     }
-    if(!isCascadeFromNumberField||(isCascadeFromNumberField&&!isEmpty))
+    if(!isCascadeFromNumberField)
     {
         toggleValidity(isValid);
-    postMessageWrapper(parent, validationResult, getParentUrl());
     }
+    postMessageWrapper(parent, validationResult, getParentUrl());
+    
 };
 
 const restrictCVC = (e) => {
