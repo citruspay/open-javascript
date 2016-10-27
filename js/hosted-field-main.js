@@ -64,14 +64,14 @@ const addEventListenersForHostedFields = () => {
         //add the event listeners for ui validations of those fields.
         addListener(paymentField,eventStr, postPaymentData, false);
         addListener(paymentField,"focus", addFocusAttributes, false);
-        addListener(paymentField,"blur", removeFocusAttributes, false);        
+        addListener(paymentField,"blur", removeFocusAttributes, false);
+        addListener(paymentField,'paste', restrictPaste, false);        
         switch (field[0]) {
             case "number" :
                 addListener(paymentField,eventStr, validateCard, false);
                 addListener(paymentField,'keypress', restrictNumeric, false);
                 addListener(paymentField,'keypress', restrictCardNumber, false);
                 addListener(paymentField,'keypress', formatCardNumber, false);
-                addListener(paymentField,'paste', restrictPaste, false);
                 addListener(paymentField,'input', reFormatCardNumber, false);
                 break;
             case "expiry" :
@@ -256,7 +256,7 @@ const validateExpiry = (isCascadeFromNumberField) => {
     var cardType = getAppData('cardType');
     var scheme = getAppData('scheme');
     const exp = paymentField.value.replace(/\s+/g, '');
-    console.log(scheme,exp,'test');
+    //console.log(scheme,exp,'test');
     let validationResult = {fieldType:'expiry',messageType:'validation',hostedField,cardType};
     let isEmpty = !exp;
     let isValid;

@@ -301,6 +301,7 @@ const custFormat = function(value, options) {
     }
 };
 
+//todo:rename this function later
 const validateCreditCard = (cardNo, scheme) =>{
     return isCardValid(cardNo, validateScheme(scheme, true));
 };

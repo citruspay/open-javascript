@@ -147,8 +147,12 @@ const handleValidationMessage = (event) => {
     }
     //don't put invalid class and don't broadcast it to
     //the client either in case this boolean is true
-   if(!cardValidationResult.ignoreValidationBroadcast)
+   if(!cardValidationResult.ignoreValidationBroadcast){
    toggleValidationClass(hostedField,cardValidationResult);
+   let validationHandler = handlersMap['validationHandler'];
+   if(validationHandler)
+   validationHandler(hostedField,cardValidationResult);
+   }
 }
 
 const toggleValidationClass = (hostedField,cardValidationResult) => {
