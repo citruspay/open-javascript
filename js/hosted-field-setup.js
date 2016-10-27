@@ -12,19 +12,19 @@ const create = (setUpConfig) => {
     "use strict";
     let {
         hostedFields,
-        cardType,
+        setupType,
         style
     } = setUpConfig;
-    if (validCardSetupTypes.indexOf(cardType) === -1)
-        throw new Error(`invalid cardType "${cardType}", cardType should have one of these values ` + validCardSetupTypes);
-    setAppData('hostedFields'+'-'+cardType,hostedFields);
+    if (validCardSetupTypes.indexOf(setupType) === -1)
+        throw new Error(`invalid setupType "${setupType}", setupType should have one of these values ` + validCardSetupTypes);
+    setAppData('hostedFields'+'-'+setupType,hostedFields);
     for (var i = 0, length = hostedFields.length; i < length; ++i) {
         let {
             fieldType,
             selector
         } = hostedFields[i];
         if (validHostedFieldTypes.indexOf(fieldType) !== -1) {
-            addIframe(hostedFields[i], cardType.toLowerCase(), style);
+            addIframe(hostedFields[i], setupType.toLowerCase(), style);
         } else {
             throw new Error(`invalid fieldType "${fieldType}", fieldType should have one of these values ` + validHostedFieldTypes);
         }
