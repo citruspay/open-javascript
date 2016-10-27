@@ -209,13 +209,13 @@ const addListener = (element,eventName,callback,options=false) =>{
     }
 };
 
-const getElement=(identifier)=>{
-     if (!identifier || identifier.length <= 1)
-        throw new Error(`invalid identifier "${identifier}"`);
-    const identifierName = identifier.slice(1);
-     if (identifier.indexOf('#') === 0)
+const getElement=(selector)=>{
+     if (!selector || selector.length <= 1)
+        throw new Error(`invalid selector "${selector}"`);
+    const identifierName = selector.slice(1);
+     if (selector.indexOf('#') === 0)
         return document.getElementById(identifierName);
-    else if (identifier.indexOf('.') == 0)
+    else if (selector.indexOf('.') == 0)
         return document.getElementsByClassName(identifierName)[0];
 };
 

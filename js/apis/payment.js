@@ -156,7 +156,7 @@ const handleValidationMessage = (event) => {
 }
 
 const toggleValidationClass = (hostedField,cardValidationResult) => {
-     var element = getElement(hostedField.identifier);
+     var element = getElement(hostedField.selector);
     element.className = element.className.replace('citrus-hosted-field-invalid', '').replace('citrus-hosted-field-valid', '');
     if (cardValidationResult.isValid) {
         element.className += ' citrus-hosted-field-valid';
@@ -167,7 +167,7 @@ const toggleValidationClass = (hostedField,cardValidationResult) => {
 const handleFocus = (event) => {
     //console.log(event.data, 'inside handle focus');
     var hostedField = event.data.hostedField;
-    var element = getElement(hostedField.identifier);
+    var element = getElement(hostedField.selector);
     if (event.data.messageType === "focusReceived") {
         element.className = element.className += ' citrus-hosted-field-focused';
     } else if (event.data.messageType === "focusLost") {
@@ -316,7 +316,7 @@ const validateCardDetails = (cardSetupType) => {
             for (var i = 0; i < validHostedFieldTypesWithoutNumber.length; ++i) {
                 validationResultKey = validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType + '-validation';
                 validationResult = getAppData(validationResultKey);
-               // console.log('validation result for key ', validationResultKey, validationResult, i);
+               //console.log('validation result for key ', validationResultKey, validationResult, i);
                 hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i],cardSetupType);
                 if (validationResult)
                     validationResults.push(validationResult);

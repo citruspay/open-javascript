@@ -21,7 +21,7 @@ const create = (setUpConfig) => {
     for (var i = 0, length = hostedFields.length; i < length; ++i) {
         let {
             fieldType,
-            identifier
+            selector
         } = hostedFields[i];
         if (validHostedFieldTypes.indexOf(fieldType) !== -1) {
             addIframe(hostedFields[i], cardType.toLowerCase(), style);
@@ -35,8 +35,8 @@ const create = (setUpConfig) => {
 
 const addIframe = (hostedField, cardType, style) => {
     "use strict";
-    let {identifier,fieldType} = hostedField;
-    const invalidIdentifierMessage = `invalid identifier for field type "${fieldType}", it should be of the form of #id or .cssClass`;
+    let {selector,fieldType} = hostedField;
+    const invalidSelectorMessage = `invalid selector for field type "${fieldType}", it should be of the form of #id or .cssClass`;
     const iframe = document.createElement('iframe');
     var defaultStyle = {
         width: '100%',
@@ -73,16 +73,16 @@ const addIframe = (hostedField, cardType, style) => {
         if(inputElements&&inputElements.length>0)
         inputElements[0].focus();
     };
-    if (!identifier || identifier.length <= 1)
-        throw new Error(invalidIdentifierMessage);
-    const identifierName = identifier.slice(1);
-    let element = getElement(identifier);
+    if (!selector || selector.length <= 1)
+        throw new Error(invalidSelectorMessage);
+    const identifierName = selector.slice(1);
+    let element = getElement(selector);
     if (element)
     {
         element.appendChild(iframe);
         element.className += ' citrus-hosted-field-primitive';
     }
-    else throw new Error(invalidIdentifierMessage);
+    else throw new Error(invalidSelectorMessage);
 }
 //todo:rename to setStyle and other attributes
 const passAttributesToHostedField = (attributes, hostedField, cardType) => {
@@ -90,11 +90,11 @@ const passAttributesToHostedField = (attributes, hostedField, cardType) => {
     let hostedFrameAttributes = {
         messageType: 'style'
     };
-    let {identifier,fieldType} = hostedField;
+    let {selector,fieldType} = hostedField;
     if(attributes)
     {
-    if (attributes[identifier]) {
-        hostedFrameAttributes.specificStyle = attributes[identifier];
+    if (attributes[selector]) {
+        hostedFrameAttributes.specificStyle = attributes[selector];
     }
     if (attributes['input']) {
         hostedFrameAttributes.commonStyle = attributes['input'];
@@ -103,7 +103,7 @@ const passAttributesToHostedField = (attributes, hostedField, cardType) => {
     {
         var specialStyleKey = specialStyleKeys[i];
         hostedFrameAttributes['input'+specialStyleKey] = attributes[specialStyleKey]||attributes['input'+specialStyleKey];
-        hostedFrameAttributes[identifier+specialStyleKey] = attributes[specialStyleKey]||attributes[identifier+specialStyleKey];
+        hostedFrameAttributes[selector+specialStyleKey] = attributes[specialStyleKey]||attributes[selector+specialStyleKey];
     }
     }
     hostedFrameAttributes.hostedField = hostedField;
