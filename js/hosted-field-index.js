@@ -103,7 +103,7 @@ citrus.registerHandlers("errorHandler", function (error) {
     let response = {};
     response.type = "errorHandler";
     response.error = error;
-    parent.postMessage(response, parentUrl);
+    parent.postMessage(JSON.parse(JSON.stringify(response)), parentUrl);
 });
 
 citrus.registerHandlers("serverErrorHandler", function (error) {

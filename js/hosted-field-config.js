@@ -1,5 +1,5 @@
-const HOSTED_FIELD_DOMAIN = 'http://localhost:8085'
-const CREDIT_CARD_GENERATOR_URL =  HOSTED_FIELD_DOMAIN + '/cards.html';
+const HOSTED_FIELD_DOMAIN = 'https://icp.citruspay.com'
+const CREDIT_CARD_GENERATOR_URL =  HOSTED_FIELD_DOMAIN + '/cards.php';
 const getConfigValue = (key) =>{
     "use strict";
     switch(key){

@@ -152,7 +152,7 @@ const motoCardApiFunc = (confObj) => {
             paymentMode: paymentDetails
         },
         merchantAccessKey: getMerchantAccessKey(confObj),
-        requestOrigin: confObj.requestOrigin || "CJS2G"
+        requestOrigin: confObj.requestOrigin || "CJSG"
     });
     reqConf.paymentToken.paymentMode.expiry = confObj.paymentDetails.expiry;
     // reqConf.offerToken = getAppData().dpOfferToken;
@@ -164,7 +164,7 @@ const motoCardApiFunc = (confObj) => {
     cancelApiResp = getCancelResponse(reqConf);
     if (mode === 'dropout' || getConfig().page === 'ICP') {
     } else {
-        if (reqConf.requestOrigin === "CJS2G") {
+        if (reqConf.requestOrigin === "CJSG") {
             //todo: later to be changed over the prod url and fetch it from config
             reqConf.returnUrl = getConfig().dropInReturnUrl;
             // window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
@@ -192,7 +192,7 @@ const motoCardApiFunc = (confObj) => {
             mode: 'cors',
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
-            if (reqConf.requestOrigin === "CJS2G") return resp;
+            if (reqConf.requestOrigin === "CJSG") return resp;
             if (getConfig().page !== 'ICP') {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
