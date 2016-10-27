@@ -7,7 +7,7 @@ import 'core-js/fn/promise';
 import 'core-js/fn/string/includes';
 import {setAppData,getAppData, postMessageWrapper} from './utils';
 import {makePayment} from './apis/payment';
-import {addField,validateCvv,validateExpiry} from './hosted-field-main';
+import {addField,validateCvv,validateExpiry,validateCard} from './hosted-field-main';
 import {getConfigValue} from './hosted-field-config';
 import {validateExpiryDate, validateScheme, validateCreditCard} from './validation/custom-validations';
 import {schemeFromNumber} from './utils';
@@ -44,10 +44,24 @@ function listener(event) {
         if(event.data.fieldType==="number")
         {
             setAppData('scheme',event.data.cardValidationResult.scheme);
-            if(fieldType=='cvv')
+            if(fieldType[0]==='cvv')
             validateCvv(true);
-            else if(fieldType=='expiry')
+            else if(fieldType[0]==='expiry')
             validateExpiry(true);
+        }
+        return;
+    }
+    if(event.data.messageType=='validate'){
+        switch(fieldType[0]){
+            case 'number':
+            validateCard();
+            break;
+            case 'cvv':
+            validateCvv(false);
+            break;
+            case 'expiry':
+            validateExpiry(false);
+            break;
         }
         return;
     }

@@ -147,7 +147,7 @@ const handleValidationMessage = (event) => {
     }
     //don't put invalid class and don't broadcast it to
     //the client either in case this boolean is true
-   if(!cardValidationResult.ignoreValidationBroadcast){
+   if(!event.data.ignoreValidationBroadcast){
    toggleValidationClass(hostedField,cardValidationResult);
    let validationHandler = handlersMap['validationHandler'];
    if(validationHandler)
@@ -271,9 +271,10 @@ const validateCardDetails = (cardSetupType) => {
     let hostedField = getHostedFieldByType(requiredValidationFieldType,cardSetupType);
     let scheme;
     if (!validationResult) {
-        err.error = 'Card number can not be blank.';
+        postMessageToChild(requiredValidationFieldType,cardSetupType,{messageType:'validate'});
+        /*err.error = 'Card number can not be blank.';
         err.hostedField = hostedField;
-        toggleValidationClass(hostedField,{isValid:false});
+        toggleValidationClass(hostedField,{isValid:false});*/
         return false;
     }
     if (!validationResult.isValid) {
@@ -291,7 +292,7 @@ const validateCardDetails = (cardSetupType) => {
             for (var i = 0; i < validHostedFieldTypesWithoutNumber.length; ++i) {
                 validationResultKey = validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType + '-validation';
                 validationResult = getAppData(validationResultKey);
-                //console.log('validation result for key ', validationResultKey, validationResult, i);
+                console.log('validation result for key ', validationResultKey, validationResult, i);
                 hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i],cardSetupType);
                 hostedFieldsWithoutNumber.push(hostedField);
                 if (validationResult)
@@ -305,8 +306,9 @@ const validateCardDetails = (cardSetupType) => {
                     isValidField = false;
                     toggleValidationClass(hostedField,{isValid:false});
                 }
-               
-               
+               if(!validationResult)
+                postMessageToChild(validHostedFieldTypesWithoutNumber[i],cardSetupType,{messageType:'validate'});
+                     
             }
              for(var i=0;i<hostedFieldsWithoutNumber.length;++i)
                 {
@@ -316,7 +318,7 @@ const validateCardDetails = (cardSetupType) => {
             for (var i = 0; i < validHostedFieldTypesWithoutNumber.length; ++i) {
                 validationResultKey = validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType + '-validation';
                 validationResult = getAppData(validationResultKey);
-               //console.log('validation result for key ', validationResultKey, validationResult, i);
+               console.log('validation result for key ', validationResultKey, validationResult, i);
                 hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i],cardSetupType);
                 if (validationResult)
                     validationResults.push(validationResult);
@@ -325,14 +327,16 @@ const validateCardDetails = (cardSetupType) => {
                 if (validationResult && !validationResult.isValid) {
                     err.error = validationResult.txMsg;
                     err.errors.push[validationResult.txMsg];
-                    isValidCard = isValidCard && false;
+                    isValidCard = false;
                      toggleValidationClass(hostedField,{isValid:false});
                 }
                 if (!validationResult) {
-                    err.error = validHostedFieldTypesWithoutNumber[i] + ' can not be blank.';
+                    /*err.error = validHostedFieldTypesWithoutNumber[i] + ' can not be blank.';
                     err.errors.push[validHostedFieldTypesWithoutNumber[i] + ' can not be blank.'];
                     isValidCard = isValidCard && false;
-                     toggleValidationClass(hostedField,{isValid:false});
+                     toggleValidationClass(hostedField,{isValid:false});*/
+                     postMessageToChild(validHostedFieldTypesWithoutNumber[i],cardSetupType,{messageType:'validate'});
+                     isValidCard = false;
                 }
             }
 
