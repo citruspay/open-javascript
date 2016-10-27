@@ -104,7 +104,7 @@ const workFlowForModernBrowsers = (winRef) => {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
                 let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${txnId}`;
-                const url = `${getConfig().pgUrl}/service/v0/redis/api/getTxnModel`;
+                const url = `${getConfig().adminUrl}/service/v0/redis/api/getTxnModel`;
                 return custFetch(url, {
                     method: 'post',
                     mode: 'cors',
@@ -132,7 +132,7 @@ const workFlowForIE = (winRef) => {
             if (winRef.closed) {
                 clearInterval(intervalId);
                 let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${txnId}`;
-                const url = `${getConfig().pgUrl}/service/v0/redis/api/getTxnModel`;
+                const url = `${getConfig().adminUrl}/service/v0/redis/api/getTxnModel`;
                 return custFetch(url, {
                     method: 'post',
                     mode: 'cors',
