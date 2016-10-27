@@ -23,7 +23,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
             }
         },
         merchantAccessKey: getMerchantAccessKey(confObj),
-        requestOrigin: confObj.requestOrigin || "CJS2G"
+        requestOrigin: confObj.requestOrigin || "CJSG"
     });
     delete reqConf.bankCode;
     delete reqConf.currency;

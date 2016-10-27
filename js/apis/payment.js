@@ -153,7 +153,7 @@ const toggleValidationClass = (hostedField,cardValidationResult) => {
     if (cardValidationResult.isValid) {
         element.className += ' citrus-hosted-field-valid';
     } else {
-        element.className += 'citrus-hosted-field-invalid';
+        element.className += ' citrus-hosted-field-invalid';
     }
 }
 const handleFocus = (event) => {
