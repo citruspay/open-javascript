@@ -2,7 +2,7 @@ import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {urlReEx} from "../constants";
 import {handlersMap, getConfig} from "../config";
-import {getAppData, setAppData, isIE, getElement} from "./../utils";
+import {getAppData, setAppData, isIE, getElement, postMessageWrapper} from "./../utils";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
 import {refineMotoResponse} from "./response";
 import {custFetch} from "../interceptor";
@@ -370,7 +370,7 @@ const postMessageToChild = (fieldType, cardType, message, isSetTimeoutRequired) 
 const postMessage = (frameId, message) => {
     let childFrameDomain = getConfigValue('hostedFieldDomain');
     let win = document.getElementById(frameId).contentWindow;
-    win.postMessage(message, childFrameDomain);
+    postMessageWrapper(win, message, childFrameDomain);
 }
 
 const getCitrusFrameId = (fieldType, cardType) => {

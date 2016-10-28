@@ -207,7 +207,7 @@ const addListener = (element,eventName,callback,options=false) =>{
     else if(window.attachEvent){
         element.attachEvent('on'+eventName,callback,options);
     }
-}
+};
 
 const getElement=(identifier)=>{
      if (!identifier || identifier.length <= 1)
@@ -217,7 +217,11 @@ const getElement=(identifier)=>{
         return document.getElementById(identifierName);
     else if (identifier.indexOf('.') == 0)
         return document.getElementsByClassName(identifierName)[0];
-}
+};
+
+const postMessageWrapper = (win,messageObj,url) => {
+    win.postMessage(JSON.parse(JSON.stringify(messageObj)),url);
+};
 
 export {validateAndCallbackify, getMerchantAccessKey, schemeFromNumber,  cardFromNumber, setAppData, getAppData, isIE,
-    addListener,getElement};
+    addListener,getElement,postMessageWrapper};
