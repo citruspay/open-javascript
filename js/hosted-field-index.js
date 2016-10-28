@@ -44,7 +44,7 @@ function listener(event) {
         if(event.data.fieldType==="number")
         {
             setAppData('scheme',event.data.cardValidationResult.scheme);
-            validateCvv();
+            validateCvv(true);
         }
         return;
     }

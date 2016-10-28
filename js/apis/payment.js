@@ -144,6 +144,9 @@ const handleValidationMessage = (event) => {
     if(hostedField.fieldType==="number"){
         postMessageToChild('cvv',event.data.cardType,event.data,false);
     }
+    //don't put invalid class and don't broadcast it to
+    //the client either in case this boolean is true
+   if(!cardValidationResult.ignoreValidationBroadcast)
    toggleValidationClass(hostedField,cardValidationResult);
 }
 
