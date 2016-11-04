@@ -7,11 +7,12 @@ import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
 import {refineMotoResponse} from "./response";
 import {custFetch} from "../interceptor";
 import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../hosted-field-config";
+import {makeNetBankingPayment} from "./net-banking";
 
 //this file is hosted fields specific
 //todo:change the file name later
 let winRef = null;
-let cancelApiResp;
+//let cancelApiResp;
 const citrusSelectorPrefix = 'citrus';
 const regExMap = {
     'cardNumber': /^[0-9]{15,19}$/,
@@ -34,12 +35,26 @@ const motoCardValidationSchema = Object.assign(cloneDeep(baseSchema), {
 
 motoCardValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 const makePayment = (paymentObj) => {
+    switch (paymentObj.paymentDetails.paymentMode.toLowerCase()) {
+        //todo : needs to be checked for PCI compliant merchants
+        case "card" :
+            makeHostedFieldPayment(paymentObj);
+            break;
+        case "netbanking" :
+            makeNetBankingPayment(paymentObj);
+            break;
+        //todo: message needs to be structured
+        default :
+            handlersMap['errorHandler']("Invalid payment mode");
+    }
+};
+
+const makeHostedFieldPayment = (paymentObj) => {
     txnId = paymentObj.merchantTxnId;
     // const paymentMode = paymentObj.paymentDetails.paymentMode.toLowerCase().replace(/\s+/g, '');
     let paymentDetailsType = paymentObj.paymentDetails.type ? paymentObj.paymentDetails.type.toLowerCase() : 'card';
     let element = document.getElementById("citrusnumber-" + paymentDetailsType);
     //todo:check whether the below two lines are required, otherwise remove them
-    //
     if (!element)
         element = document.getElementById("citrusnumber-card");
     if (!element)
@@ -56,10 +71,10 @@ const makePayment = (paymentObj) => {
         setAppData('paymentObj', paymentObj);
         win.postMessage(paymentObj, getConfigValue('hostedFieldDomain'));
     }
-    else{
+    else {
         //handle invalid fields
     }
-};
+}
 
 //parent listener
 const listener = (event) => {
@@ -94,7 +109,7 @@ const listener = (event) => {
                 // winRef.document.close();
                 // return;
                 /*End of OL integration logic*/
-                singleHopDropInFunction(motoResponse.redirectUrl).then(function(response) {
+                singleHopDropInFunction(motoResponse.redirectUrl).then(function (response) {
                     if (winRef && winRef.closed !== true) {
                         /*start of OL integration logic*/
                         // winRef.document.write(response);
@@ -141,22 +156,22 @@ const listener = (event) => {
 
 const handleValidationMessage = (event) => {
     var hostedField = event.data.hostedField, cardValidationResult = event.data.cardValidationResult;
-    if(hostedField.fieldType==="number"){
-        postMessageToChild('cvv',event.data.cardType,event.data,false);
-        postMessageToChild('expiry',event.data.cardType,event.data,false);
+    if (hostedField.fieldType === "number") {
+        postMessageToChild('cvv', event.data.cardType, event.data, false);
+        postMessageToChild('expiry', event.data.cardType, event.data, false);
     }
     //don't put invalid class and don't broadcast it to
     //the client either in case this boolean is true
-   if(!event.data.ignoreValidationBroadcast){
-   toggleValidationClass(hostedField,cardValidationResult);
-   let validationHandler = handlersMap['validationHandler'];
-   if(validationHandler)
-   validationHandler(hostedField,cardValidationResult);
-   }
+    if (!event.data.ignoreValidationBroadcast) {
+        toggleValidationClass(hostedField, cardValidationResult);
+        let validationHandler = handlersMap['validationHandler'];
+        if (validationHandler)
+            validationHandler(hostedField, cardValidationResult);
+    }
 }
 
-const toggleValidationClass = (hostedField,cardValidationResult) => {
-     var element = getElement(hostedField.selector);
+const toggleValidationClass = (hostedField, cardValidationResult) => {
+    var element = getElement(hostedField.selector);
     element.className = element.className.replace('citrus-hosted-field-invalid', '').replace('citrus-hosted-field-valid', '');
     if (cardValidationResult.isValid) {
         element.className += ' citrus-hosted-field-valid';
@@ -193,7 +208,7 @@ const openPopupWindow = (url) => {
 let transactionCompleted = false;
 
 const workFlowForModernBrowsers = (winRef) => {
-    var intervalId = setInterval(function() {
+    var intervalId = setInterval(function () {
         if (transactionCompleted) {
             return clearInterval(intervalId);
         }
@@ -209,7 +224,7 @@ const workFlowForModernBrowsers = (winRef) => {
                     headers: {
                         "content-type": "application/x-www-form-urlencoded"
                     }
-                }).then(function(resp) {
+                }).then(function (resp) {
                     handlersMap['transactionHandler'](resp.data);
                 });
             }
@@ -220,7 +235,7 @@ const workFlowForModernBrowsers = (winRef) => {
 };
 
 const workFlowForIE = (winRef) => {
-    const intervalId = setInterval(function() {
+    const intervalId = setInterval(function () {
         if (transactionCompleted) {
             return clearInterval(intervalId);
         }
@@ -237,7 +252,7 @@ const workFlowForIE = (winRef) => {
                     headers: {
                         "content-type": "application/x-www-form-urlencoded"
                     }
-                }).then(function(resp) {
+                }).then(function (resp) {
                     handlersMap['transactionHandler'](resp.data);
                 });
             }
@@ -245,13 +260,12 @@ const workFlowForIE = (winRef) => {
     }, 500);
 };
 
-const getHostedFieldByType = (fieldType,cardSetupType) => {
-let hostedFields = getAppData('hostedFields'+'-'+cardSetupType);
-for(var i =0;i<hostedFields.length;++i)
-{
-    if(hostedFields[i].fieldType===fieldType)
-    return hostedFields[i];
-}
+const getHostedFieldByType = (fieldType, cardSetupType) => {
+    let hostedFields = getAppData('hostedFields' + '-' + cardSetupType);
+    for (var i = 0; i < hostedFields.length; ++i) {
+        if (hostedFields[i].fieldType === fieldType)
+            return hostedFields[i];
+    }
 }
 
 //todo:refactor this code later
@@ -268,23 +282,25 @@ const validateCardDetails = (cardSetupType) => {
     let requiredValidationFieldType = 'number';
     let validationResultKey = requiredValidationFieldType + '-' + cardSetupType + '-validation';
     let validationResult = getAppData(validationResultKey);
-    let hostedField = getHostedFieldByType(requiredValidationFieldType,cardSetupType);
+    let hostedField = getHostedFieldByType(requiredValidationFieldType, cardSetupType);
     let scheme;
     if (!validationResult) {
-        postMessageToChild(requiredValidationFieldType,cardSetupType,{messageType:'validate'});
+        postMessageToChild(requiredValidationFieldType, cardSetupType, {messageType: 'validate'});
         /*err.error = 'Card number can not be blank.';
-        err.hostedField = hostedField;
-        toggleValidationClass(hostedField,{isValid:false});*/
+         err.hostedField = hostedField;
+         toggleValidationClass(hostedField,{isValid:false});*/
         return false;
     }
     if (!validationResult.isValid) {
         err.error = validationResult.txMsg;
         err.hostedField = hostedField;
-        toggleValidationClass(hostedField,{isValid:false});
+        toggleValidationClass(hostedField, {isValid: false});
         return false;
     }
     if (validationResult.isValid) {
-        let validHostedFieldTypesWithoutNumber = validHostedFieldTypes.filter((val)=>{return val!=="number";});
+        let validHostedFieldTypesWithoutNumber = validHostedFieldTypes.filter((val)=> {
+            return val !== "number";
+        });
         let hostedFieldsWithoutNumber = [];
         if (validationResult.scheme === "maestro") {
             let isValidField = true;
@@ -293,33 +309,32 @@ const validateCardDetails = (cardSetupType) => {
                 validationResultKey = validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType + '-validation';
                 validationResult = getAppData(validationResultKey);
                 console.log('validation result for key ', validationResultKey, validationResult, i);
-                hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i],cardSetupType);
+                hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i], cardSetupType);
                 hostedFieldsWithoutNumber.push(hostedField);
                 if (validationResult)
                     validationResults.push(validationResult);
 
-                
+
                 if (validationResult && !validationResult.isValid && !validationResult.isEmpty) {
                     err.error = validationResult.txMsg;
                     err.errors.push[validationResult.txMsg];
                     isValidCard = isValidCard && false;
                     isValidField = false;
-                    toggleValidationClass(hostedField,{isValid:false});
+                    toggleValidationClass(hostedField, {isValid: false});
                 }
-               if(!validationResult)
-                postMessageToChild(validHostedFieldTypesWithoutNumber[i],cardSetupType,{messageType:'validate'});
-                     
+                if (!validationResult)
+                    postMessageToChild(validHostedFieldTypesWithoutNumber[i], cardSetupType, {messageType: 'validate'});
+
             }
-             for(var i=0;i<hostedFieldsWithoutNumber.length;++i)
-                {
-                    toggleValidationClass(hostedFieldsWithoutNumber[i],{isValid:isValidField});
-                }
+            for (var i = 0; i < hostedFieldsWithoutNumber.length; ++i) {
+                toggleValidationClass(hostedFieldsWithoutNumber[i], {isValid: isValidField});
+            }
         } else {
             for (var i = 0; i < validHostedFieldTypesWithoutNumber.length; ++i) {
                 validationResultKey = validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType + '-validation';
                 validationResult = getAppData(validationResultKey);
-               console.log('validation result for key ', validationResultKey, validationResult, i);
-                hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i],cardSetupType);
+                console.log('validation result for key ', validationResultKey, validationResult, i);
+                hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i], cardSetupType);
                 if (validationResult)
                     validationResults.push(validationResult);
 
@@ -328,15 +343,15 @@ const validateCardDetails = (cardSetupType) => {
                     err.error = validationResult.txMsg;
                     err.errors.push[validationResult.txMsg];
                     isValidCard = false;
-                     toggleValidationClass(hostedField,{isValid:false});
+                    toggleValidationClass(hostedField, {isValid: false});
                 }
                 if (!validationResult) {
                     /*err.error = validHostedFieldTypesWithoutNumber[i] + ' can not be blank.';
-                    err.errors.push[validHostedFieldTypesWithoutNumber[i] + ' can not be blank.'];
-                    isValidCard = isValidCard && false;
+                     err.errors.push[validHostedFieldTypesWithoutNumber[i] + ' can not be blank.'];
+                     isValidCard = isValidCard && false;
                      toggleValidationClass(hostedField,{isValid:false});*/
-                     postMessageToChild(validHostedFieldTypesWithoutNumber[i],cardSetupType,{messageType:'validate'});
-                     isValidCard = false;
+                    postMessageToChild(validHostedFieldTypesWithoutNumber[i], cardSetupType, {messageType: 'validate'});
+                    isValidCard = false;
                 }
             }
 
@@ -346,26 +361,26 @@ const validateCardDetails = (cardSetupType) => {
     return isValidCard;
 
     /*
-    //{"type":"errorHandler","error":{"amount":["can't be blank"]}}
-   if (("isValidCard" in validationResult) && !validationResult.isValidCard) {
-        err.error = {"card number": [validationResult.txMsg]};
-        handlersMap['errorHandler'](err);
-        return false;
-    }
-    //console.log(validationResult);
-    validationResult = getAppData('isValidExpiry');
-    if (("isValidExpiry" in validationResult) && !validationResult.isValidExpiry) {
-        err.error = {"expiry date": [validationResult.txMsg]};
-        handlersMap['errorHandler'](err);
-        return false;
-    }
-    validationResult = getAppData('isValidCvv');
-    if (("isValidCvv" in validationResult) && !validationResult.isValidCvv) {
-        err.error = {"cvv": [validationResult.txMsg]};
-        handlersMap['errorHandler'](err);
-        return false;
-    }
-    return true;*/
+     //{"type":"errorHandler","error":{"amount":["can't be blank"]}}
+     if (("isValidCard" in validationResult) && !validationResult.isValidCard) {
+     err.error = {"card number": [validationResult.txMsg]};
+     handlersMap['errorHandler'](err);
+     return false;
+     }
+     //console.log(validationResult);
+     validationResult = getAppData('isValidExpiry');
+     if (("isValidExpiry" in validationResult) && !validationResult.isValidExpiry) {
+     err.error = {"expiry date": [validationResult.txMsg]};
+     handlersMap['errorHandler'](err);
+     return false;
+     }
+     validationResult = getAppData('isValidCvv');
+     if (("isValidCvv" in validationResult) && !validationResult.isValidCvv) {
+     err.error = {"cvv": [validationResult.txMsg]};
+     handlersMap['errorHandler'](err);
+     return false;
+     }
+     return true;*/
 }
 
 const postMessageToChild = (fieldType, cardType, message, isSetTimeoutRequired) => {

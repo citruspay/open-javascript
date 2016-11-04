@@ -4,9 +4,9 @@ import {
     validCardSetupTypes,
     supportedStyleKeys,
     specialStyleKeys
-} from './hosted-field-config'
-import {setAppData,getAppData,getElement} from './utils';
-import {postMessageToChild, getCitrusFrameId} from './apis/payment';
+} from "./hosted-field-config";
+import {setAppData, getElement} from "./utils";
+import {postMessageToChild, getCitrusFrameId} from "./apis/payment";
 
 const create = (setUpConfig) => {
     "use strict";
@@ -17,7 +17,7 @@ const create = (setUpConfig) => {
     } = setUpConfig;
     if (validCardSetupTypes.indexOf(setupType) === -1)
         throw new Error(`invalid setupType "${setupType}", setupType should have one of these values ` + validCardSetupTypes);
-    setAppData('hostedFields'+'-'+setupType,hostedFields);
+    setAppData('hostedFields' + '-' + setupType, hostedFields);
     for (var i = 0, length = hostedFields.length; i < length; ++i) {
         let {
             fieldType,
@@ -35,7 +35,7 @@ const create = (setUpConfig) => {
 
 const addIframe = (hostedField, cardType, style) => {
     "use strict";
-    let {selector,fieldType} = hostedField;
+    let {selector, fieldType} = hostedField;
     const invalidSelectorMessage = `invalid selector for field type "${fieldType}", it should be of the form of #id or .cssClass`;
     const iframe = document.createElement('iframe');
     var defaultStyle = {
@@ -43,15 +43,15 @@ const addIframe = (hostedField, cardType, style) => {
         float: 'left',
         height: '100%',
         /*'marginBottom': '1em',
-        'display': 'block',
-        backgroundColor: 'transparent',*/
+         'display': 'block',
+         backgroundColor: 'transparent',*/
         border: 'none',
         /*outline: '0',
-        fontSize: '16px',
-        padding: 0,
-        boxShadow: 'none',
-        borderRadius: 0,
-        position: 'relative'*/
+         fontSize: '16px',
+         padding: 0,
+         boxShadow: 'none',
+         borderRadius: 0,
+         position: 'relative'*/
     };
     //frameborder="0" allowtransparency="true" scrolling="no"
     iframe.setAttribute('frameborder', 0);
@@ -64,21 +64,20 @@ const addIframe = (hostedField, cardType, style) => {
     iframe.id = getCitrusFrameId(fieldType, cardType);
     iframe.onload = () => {
         //console.log('inside iframe onload');
-        passAttributesToHostedField(style, hostedField, cardType); 
+        passAttributesToHostedField(style, hostedField, cardType);
     };
     //todo:check is it really doing anything otherwise remove it.
-    iframe.onfocus = ()=>{
+    iframe.onfocus = ()=> {
         //console.log('inside iframe onfocus');
         var inputElements = document.getElementsByTagName('input');
-        if(inputElements&&inputElements.length>0)
-        inputElements[0].focus();
+        if (inputElements && inputElements.length > 0)
+            inputElements[0].focus();
     };
     if (!selector || selector.length <= 1)
         throw new Error(invalidSelectorMessage);
     const identifierName = selector.slice(1);
     let element = getElement(selector);
-    if (element)
-    {
+    if (element) {
         element.appendChild(iframe);
         element.className += ' citrus-hosted-field-primitive';
     }
@@ -86,25 +85,23 @@ const addIframe = (hostedField, cardType, style) => {
 }
 //todo:rename to setStyle and other attributes
 const passAttributesToHostedField = (attributes, hostedField, cardType) => {
-   
+
     let hostedFrameAttributes = {
         messageType: 'style'
     };
-    let {selector,fieldType} = hostedField;
-    if(attributes)
-    {
-    if (attributes[selector]) {
-        hostedFrameAttributes.specificStyle = attributes[selector];
-    }
-    if (attributes['input']) {
-        hostedFrameAttributes.commonStyle = attributes['input'];
-    }
-    for(var i=0;i<specialStyleKeys.length;++i)
-    {
-        var specialStyleKey = specialStyleKeys[i];
-        hostedFrameAttributes['input'+specialStyleKey] = attributes[specialStyleKey]||attributes['input'+specialStyleKey];
-        hostedFrameAttributes[selector+specialStyleKey] = attributes[specialStyleKey]||attributes[selector+specialStyleKey];
-    }
+    let {selector, fieldType} = hostedField;
+    if (attributes) {
+        if (attributes[selector]) {
+            hostedFrameAttributes.specificStyle = attributes[selector];
+        }
+        if (attributes['input']) {
+            hostedFrameAttributes.commonStyle = attributes['input'];
+        }
+        for (var i = 0; i < specialStyleKeys.length; ++i) {
+            var specialStyleKey = specialStyleKeys[i];
+            hostedFrameAttributes['input' + specialStyleKey] = attributes[specialStyleKey] || attributes['input' + specialStyleKey];
+            hostedFrameAttributes[selector + specialStyleKey] = attributes[specialStyleKey] || attributes[selector + specialStyleKey];
+        }
     }
     hostedFrameAttributes.hostedField = hostedField;
     hostedFrameAttributes.cardType = cardType;
@@ -126,8 +123,7 @@ const applyAttributes = (attributes) => {
             let key = keys[i];
             if (supportedStyleKeys.indexOf(key) !== -1) {
                 applicableStyle[convertHyphenFormatToCamelCase(key)] = styleParam[key];
-            }else if(specialStyleKeys.indexOf(key)!==-1)
-            {
+            } else if (specialStyleKeys.indexOf(key) !== -1) {
                 //todo:handle :focus,.valid,.invalid here
 
             } else {
@@ -135,112 +131,111 @@ const applyAttributes = (attributes) => {
             }
         }
     }
-    setAppData('hostedField',attributes.hostedField);
-    setAppData('cardType',attributes.cardType);
+
+    setAppData('hostedField', attributes.hostedField);
+    setAppData('cardType', attributes.cardType);
     createSytleObject(attributes.commonStyle);
     createSytleObject(attributes.specificStyle);
     var inputElement = document.getElementsByTagName('input')[0];
-    if(attributes.hostedField&&attributes.hostedField.placeHolder)
-    {
-        inputElement.setAttribute('placeholder',attributes.hostedField.placeHolder);
+    if (attributes.hostedField && attributes.hostedField.placeHolder) {
+        inputElement.setAttribute('placeholder', attributes.hostedField.placeHolder);
     }
     Object.assign(inputElement.style, applicableStyle);
     var cssText = '';
-      for(var i=0;i<specialStyleKeys.length;++i)
-    {
+    for (var i = 0; i < specialStyleKeys.length; ++i) {
         var specialStyleKey = specialStyleKeys[i];
-        if(attributes['input'+specialStyleKey]){
-            cssText += convertStyleToCssString('input'+specialStyleKey,attributes['input'+specialStyleKey]);
+        if (attributes['input' + specialStyleKey]) {
+            cssText += convertStyleToCssString('input' + specialStyleKey, attributes['input' + specialStyleKey]);
         }
         addStyleTag(cssText);
         //if(attributes[])
     }
     /*if(attributes.style){
-        var selectors = Object.keys(attributes.style);
-        var cssText = '';
-        for(var i=0;i<selectors.length;++i){
-            var selector = selectors[i];
+     var selectors = Object.keys(attributes.style);
+     var cssText = '';
+     for(var i=0;i<selectors.length;++i){
+     var selector = selectors[i];
 
-            if(attributes.style[selector])
-            {
-               cssText += convertStyleToCssString(selector,attributes.style[selector]);
-            }
-        }
-        addStyleTag(cssText);
-    }*/
-
-}
-
-const isValidSelector=(selector,hostedField)=>{
-
-
-}
-const convertCustomSytleObjectToCssString = (style,selector)=>{
+     if(attributes.style[selector])
+     {
+     cssText += convertStyleToCssString(selector,attributes.style[selector]);
+     }
+     }
+     addStyleTag(cssText);
+     }*/
 
 }
 
-const convertStyleToCssString = (selector,style)=>{
-    if(!style)
-    return;
+const isValidSelector = (selector, hostedField)=> {
+
+
+}
+const convertCustomSytleObjectToCssString = (style, selector)=> {
+
+}
+
+const convertStyleToCssString = (selector, style)=> {
+    if (!style)
+        return;
     //console.log(style);
     var keys = Object.keys(style);
-    var cssText = selector +' {';
+    var cssText = selector + ' {';
     var specialStyles = [];
     for (var i = 0; i < keys.length; ++i) {
-            let key = keys[i];
-            if (supportedStyleKeys.indexOf(key) !== -1) {
-                cssText += key+':'+style[key]+';'
-                //applicableStyle[convertHyphenFormatToCamelCase(key)] = styleParam[key];
-            } else {
-                console.warn(`${key} is not supported`);
-            }
+        let key = keys[i];
+        if (supportedStyleKeys.indexOf(key) !== -1) {
+            cssText += key + ':' + style[key] + ';'
+            //applicableStyle[convertHyphenFormatToCamelCase(key)] = styleParam[key];
+        } else {
+            console.warn(`${key} is not supported`);
         }
-        cssText += '}';
-     return cssText;   
+    }
+    cssText += '}';
+    return cssText;
 }
 
-function addCSSRule(selector, rules,sheet, index) {
-    if(!sheet&&document.styleSheets.length>0)
+function addCSSRule(selector, rules, sheet, index) {
+    if (!sheet && document.styleSheets.length > 0)
         sheet = document.styleSheets[document.styleSheets.length - 1];
     else
         addStyleTag()
-	if("insertRule" in sheet) {
-		sheet.insertRule(selector + "{" + rules + "}", index);
-	}
-	else if("addRule" in sheet) {
-		sheet.addRule(selector, rules, index);
-	}
+    if ("insertRule" in sheet) {
+        sheet.insertRule(selector + "{" + rules + "}", index);
+    }
+    else if ("addRule" in sheet) {
+        sheet.addRule(selector, rules, index);
+    }
 }
-const addStyleTag = (css)=>{
+const addStyleTag = (css)=> {
     //var css = 'h1 { background: red; }',
     var head = document.head || document.getElementsByTagName('head')[0],
-    style = document.createElement('style');
+        style = document.createElement('style');
 
-style.type = 'text/css';
-if (style.styleSheet){
-  style.styleSheet.cssText = css;
-} else {
-  style.appendChild(document.createTextNode(css));
-}
+    style.type = 'text/css';
+    if (style.styleSheet) {
+        style.styleSheet.cssText = css;
+    } else {
+        style.appendChild(document.createTextNode(css));
+    }
 
-head.appendChild(style);
+    head.appendChild(style);
 
 
 }
 
 /*function styleHyphenFormat(propertyName) {
-  function upperToHyphenLower(match) {
-    return '-' + match.toLowerCase();
-  }
-  return propertyName.replace(/[A-Z]/g, upperToHyphenLower);
-}*/
+ function upperToHyphenLower(match) {
+ return '-' + match.toLowerCase();
+ }
+ return propertyName.replace(/[A-Z]/g, upperToHyphenLower);
+ }*/
 function convertHyphenFormatToCamelCase(propertyName) {
     function hyphenLowerToUpper(match) {
         return match[1].toUpperCase();
     }
+
     return propertyName.replace(/-[a-z]/g, hyphenLowerToUpper);
 }
-
 
 
 export {
