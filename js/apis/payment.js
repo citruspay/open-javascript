@@ -82,7 +82,6 @@ const makeHostedFieldPayment = (paymentObj) => {
 //parent listener
 const listener = (event) => {
     try {
-        //console.log('inside listener',event.data);
         if(event.origin !== getConfigValue('hostedFieldDomain'))    
             return;
         switch (event.data.messageType) {
@@ -92,7 +91,6 @@ const listener = (event) => {
                 return;
             case 'validation':
                 setAppData(event.data.hostedField.fieldType + '-' + event.data.cardType + '-validation', event.data.cardValidationResult);
-                //console.log('set event data for ' + event.data.hostedField.fieldType + '-' + event.data.cardType + '-validation');
                 handleValidationMessage(event);
                 return;
         }
@@ -185,7 +183,6 @@ const toggleValidationClass = (hostedField, cardValidationResult) => {
     }
 }
 const handleFocus = (event) => {
-    //console.log(event.data, 'inside handle focus');
     var hostedField = event.data.hostedField;
     var element = getElement(hostedField.selector);
     if (event.data.messageType === "focusReceived") {
@@ -221,7 +218,7 @@ const workFlowForModernBrowsers = (winRef) => {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
                 let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${txnId}`;
-                const url = `${getConfig().pgUrl}/service/v0/redis/api/getTxnModel`;
+                const url = `${getConfig().adminUrl}/service/v0/redis/api/getTxnModel`;
                 return custFetch(url, {
                     method: 'post',
                     mode: 'cors',
@@ -249,7 +246,7 @@ const workFlowForIE = (winRef) => {
                 clearInterval(intervalId);
                 let form = new FormData();
                 let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${txnId}`;
-                const url = `${getConfig().pgUrl}/service/v0/redis/api/getTxnModel`;
+                const url = `${getConfig().adminUrl}/service/v0/redis/api/getTxnModel`;
                 return custFetch(url, {
                     method: 'post',
                     mode: 'cors',
