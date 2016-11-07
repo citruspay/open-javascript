@@ -80,7 +80,7 @@ const setConfig = (configObj) => {
     configObj.env && (env = configObj.env);
     Object.assign(configMap,apiConfMap[env+'Conf'] , configObj);
     //todo: later to be changed with prod return url
-    configMap.dropInReturnUrl = "https://stgjs.citruspay.com/" + "blade/returnUrl";
+    configMap.dropInReturnUrl = "https://mocha.citruspay.com/" + "static/returnUrl.html";
     return Object.assign({}, configMap);
 };
 

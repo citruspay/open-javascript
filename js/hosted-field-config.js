@@ -1,5 +1,5 @@
-const HOSTED_FIELD_DOMAIN = 'https://icp.citruspay.com'
-const CREDIT_CARD_GENERATOR_URL =  HOSTED_FIELD_DOMAIN + '/cards.php';
+const HOSTED_FIELD_DOMAIN = 'https://mocha.citruspay.com/static';
+const CREDIT_CARD_GENERATOR_URL =  HOSTED_FIELD_DOMAIN + '/cards.html';
 const getConfigValue = (key) =>{
     "use strict";
     switch(key){
