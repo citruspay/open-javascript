@@ -55,7 +55,6 @@ const makeHostedFieldPayment = (paymentObj) => {
     let cardSetupType = paymentObj.paymentDetails.type ? paymentObj.paymentDetails.type.toLowerCase() :'';
     let element = document.getElementById("citrusnumber-" + cardSetupType);
     //todo:check whether the below two lines are required, otherwise remove them
-    //
     if (!element){
         element = document.getElementById("citrusnumber-card");
         cardSetupType = 'card';

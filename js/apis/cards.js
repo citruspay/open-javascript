@@ -196,7 +196,7 @@ const motoCardApiFunc = (confObj) => {
             if (getConfig().page !== 'ICP') {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
-                        singleHopDropOutFunction(resp.data.redirectUrl);
+                        (reqConf.requestOrigin === "SSLV3G" || reqConf.requestOrigin === "SSLV3W")?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
                     }
                     else {
                         if (winRef && winRef.closed) {
