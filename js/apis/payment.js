@@ -140,7 +140,6 @@ const listener = (event) => {
                         } catch (e) {
                             console.log(e);
                         }
-
                     }
                     if (!isIE()) {
                         workFlowForModernBrowsers(winRef);
