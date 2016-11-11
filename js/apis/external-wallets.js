@@ -16,6 +16,7 @@ const extWalletValidationSchema = Object.assign(cloneDeep(baseSchema), {
     "paymentDetails.bank": {presence: true},
     "paymentDetails.code": {presence: true}
 });
+extWalletValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 /* "type": "netbanking",
  "bank": "Idea Money",
  "code": "BCW009" */
