@@ -7,9 +7,11 @@ import {getCancelResponse, refineMotoResponse} from "./response";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
 let cancelApiResp;
 let txnId;
+let requestOrigin;
 const NBAPIFunc = (confObj, apiUrl) => {
     if(getAppData('net_banking')) confObj.offerToken = getAppData('net_banking')['offerToken'];
     txnId = confObj.merchantTxnId;
+    requestOrigin = confObj.requestOrigin || "CJSG";
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: 'INR',
@@ -190,6 +192,7 @@ savedNBValidationSchema.mainObjectCheck.keysCheck.push('token');
 
 const savedAPIFunc = (confObj, url) => {
     if(getAppData('citrus_wallet')) confObj.offerToken = getAppData('citrus_wallet')['offerToken'];
+    requestOrigin = confObj.requestOrigin || "CJS2W";
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: confObj.currency,
@@ -237,7 +240,7 @@ const savedAPIFunc = (confObj, url) => {
 const handlePayment = (resp,mode)=>{
     if (resp.data.redirectUrl) {
         if (mode === "dropout") {
-            (reqConf.requestOrigin === "SSLV3G" || reqConf.requestOrigin === "SSLV3W")?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
+            (requestOrigin === "SSLV3G" || requestOrigin === "SSLV3W")?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
                 }
                 else {
                     if(winRef && winRef.closed)
