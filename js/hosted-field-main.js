@@ -30,16 +30,16 @@ const addField = () => {
             placeHolder = "expiry(mm/yy)";
             break;
     }
-    var defaultStyle = {
+    /*var defaultStyle = {
         background: 0,
         display: 'inline-block',
         width: '78%',
         padding: "10px 0",
         fontSize: '13px',
         border:0
-    };
+    };*/
     paymentField.setAttribute('placeholder', placeHolder);
-    Object.assign(paymentField.style, defaultStyle);
+    //Object.assign(paymentField.style, defaultStyle);
     addEventListenersForHostedFields();
 };
 
@@ -120,6 +120,7 @@ const addFocusAttributes=()=>{
     let focusReceivedMessage = {messageType:'focusReceived',fieldType:field[0],hostedField};
     postMessageWrapper(parent, focusReceivedMessage, getParentUrl());
 };
+
 const removeFocusAttributes =()=>{
      var hostedField = getAppData('hostedField');
     let focusLostMessage = {messageType:'focusLost',fieldType:field[0],hostedField};

@@ -73,15 +73,11 @@ const addIframe = (hostedField, cardType, style) => {
         if (inputElements && inputElements.length > 0)
             inputElements[0].focus();
     };
-    if (!selector || selector.length <= 1)
-        throw new Error(invalidSelectorMessage);
-    const identifierName = selector.slice(1);
     let element = getElement(selector);
     if (element) {
         element.appendChild(iframe);
-        element.className += ' citrus-hosted-field-primitive';
     }
-    else throw new Error(invalidSelectorMessage);
+   
 }
 //todo:rename to setStyle and other attributes
 const passAttributesToHostedField = (attributes, hostedField, cardType) => {
