@@ -134,8 +134,8 @@ const applyAttributes = (attributes) => {
     createSytleObject(attributes.commonStyle);
     createSytleObject(attributes.specificStyle);
     var inputElement = document.getElementsByTagName('input')[0];
-    if (attributes.hostedField && attributes.hostedField.placeHolder) {
-        inputElement.setAttribute('placeholder', attributes.hostedField.placeHolder);
+    if (attributes.hostedField && attributes.hostedField.placeholder) {
+        inputElement.setAttribute('placeholder', attributes.hostedField.placeholder);
     }
     Object.assign(inputElement.style, applicableStyle);
     var cssText = '';
