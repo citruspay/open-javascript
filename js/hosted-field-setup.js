@@ -76,6 +76,7 @@ const addIframe = (hostedField, cardType, style) => {
     let element = getElement(selector);
     if (element) {
         element.appendChild(iframe);
+        element.className += ' citrus-hosted-field';
     }
    
 }

@@ -18,7 +18,7 @@ const addField = () => {
     paymentField = document.createElement("input");
     paymentField.setAttribute("id", field[0] + "citrusInput");
     document.body.appendChild(paymentField);
-    var placeHolder = "";
+    /*var placeHolder = "";
     switch (field[0]) {
         case "cvv":
             placeHolder = "cvv";
@@ -37,8 +37,8 @@ const addField = () => {
         padding: "10px 0",
         fontSize: '13px',
         border:0
-    };*/
-    paymentField.setAttribute('placeholder', placeHolder);
+    };
+    paymentField.setAttribute('placeholder', placeHolder);*/
     //Object.assign(paymentField.style, defaultStyle);
     addEventListenersForHostedFields();
 };
