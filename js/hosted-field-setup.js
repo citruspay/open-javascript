@@ -73,15 +73,12 @@ const addIframe = (hostedField, cardType, style) => {
         if (inputElements && inputElements.length > 0)
             inputElements[0].focus();
     };
-    if (!selector || selector.length <= 1)
-        throw new Error(invalidSelectorMessage);
-    const identifierName = selector.slice(1);
     let element = getElement(selector);
     if (element) {
         element.appendChild(iframe);
-        element.className += ' citrus-hosted-field-primitive';
+        element.className += ' citrus-hosted-field';
     }
-    else throw new Error(invalidSelectorMessage);
+   
 }
 //todo:rename to setStyle and other attributes
 const passAttributesToHostedField = (attributes, hostedField, cardType) => {
@@ -137,8 +134,8 @@ const applyAttributes = (attributes) => {
     createSytleObject(attributes.commonStyle);
     createSytleObject(attributes.specificStyle);
     var inputElement = document.getElementsByTagName('input')[0];
-    if (attributes.hostedField && attributes.hostedField.placeHolder) {
-        inputElement.setAttribute('placeholder', attributes.hostedField.placeHolder);
+    if (attributes.hostedField && attributes.hostedField.placeholder) {
+        inputElement.setAttribute('placeholder', attributes.hostedField.placeholder);
     }
     Object.assign(inputElement.style, applicableStyle);
     var cssText = '';
@@ -147,23 +144,10 @@ const applyAttributes = (attributes) => {
         if (attributes['input' + specialStyleKey]) {
             cssText += convertStyleToCssString('input' + specialStyleKey, attributes['input' + specialStyleKey]);
         }
-        addStyleTag(cssText);
+        
         //if(attributes[])
     }
-    /*if(attributes.style){
-     var selectors = Object.keys(attributes.style);
-     var cssText = '';
-     for(var i=0;i<selectors.length;++i){
-     var selector = selectors[i];
-
-     if(attributes.style[selector])
-     {
-     cssText += convertStyleToCssString(selector,attributes.style[selector]);
-     }
-     }
-     addStyleTag(cssText);
-     }*/
-
+    addStyleTag(cssText);
 }
 
 const isValidSelector = (selector, hostedField)=> {
