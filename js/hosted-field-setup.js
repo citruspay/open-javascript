@@ -144,23 +144,10 @@ const applyAttributes = (attributes) => {
         if (attributes['input' + specialStyleKey]) {
             cssText += convertStyleToCssString('input' + specialStyleKey, attributes['input' + specialStyleKey]);
         }
-        addStyleTag(cssText);
+        
         //if(attributes[])
     }
-    /*if(attributes.style){
-     var selectors = Object.keys(attributes.style);
-     var cssText = '';
-     for(var i=0;i<selectors.length;++i){
-     var selector = selectors[i];
-
-     if(attributes.style[selector])
-     {
-     cssText += convertStyleToCssString(selector,attributes.style[selector]);
-     }
-     }
-     addStyleTag(cssText);
-     }*/
-
+    addStyleTag(cssText);
 }
 
 const isValidSelector = (selector, hostedField)=> {
