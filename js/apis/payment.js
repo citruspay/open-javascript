@@ -41,6 +41,7 @@ const makePayment = (paymentObj) => {
             makeHostedFieldPayment(paymentObj);
             break;
         case "netbanking" :
+            setAppData('paymentObj', paymentObj);
             makeNetBankingPayment(paymentObj);
             break;
         //todo: message needs to be structured
@@ -229,7 +230,8 @@ const workFlowForModernBrowsers = (winRef) => {
         if (winRef) {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
-                let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${txnId}`;
+                let paymentObj = getAppData('paymentObj');
+                let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${txnId}&amount=${paymentObj.amount}&signature=${paymentObj.requestSignature}`;
                 const url = `${getConfig().adminUrl}/service/v0/redis/api/getTxnModel`;
                 return custFetch(url, {
                     method: 'post',

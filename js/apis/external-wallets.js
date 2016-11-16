@@ -43,7 +43,6 @@ const extWalletApiFunc = (confObj) => {
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
     reqConf.deviceType = getConfig().deviceType;
-    cancelApiResp = getCancelResponse(reqConf);
     if (mode === 'dropout' || getConfig().page === 'ICP') {
     } else {
         if (reqConf.requestOrigin === "CJSG") {
