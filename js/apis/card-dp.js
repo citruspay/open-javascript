@@ -7,7 +7,7 @@ import {validateScheme} from '../validation/custom-validations'
 
 const dynamicPricingSchema = {
     email: { presence : false, email : true },
-    phone : {presence:false, length: { maximum : 10 } },
+    phone : {presence:false},
     originalAmount: { presence : true },
     currency: { presence : true },
     cardNo: { presence : true },

@@ -6,7 +6,7 @@ import {getConfig} from '../config';
 
 const dynamicPricingSchema = {
     email: { presence : false, email : true },
-    phone : { presence:false, length: { maximum : 10 } },
+    phone : { presence:false},
     originalAmount: { presence : true },
     currency: { presence : true },
     bankCode: { presence : true },
