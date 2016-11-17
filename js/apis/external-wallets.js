@@ -7,6 +7,7 @@ import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {handlersMap, getConfig} from "../config";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
+import {TRACKING_IDS,PAGE_TYPES} from '../constants'
 
 const extWalletValidationSchema = Object.assign(cloneDeep(baseSchema), {
     paymentDetails: {
@@ -35,7 +36,7 @@ const extWalletApiFunc = (confObj) => {
             }
         },
         merchantAccessKey: getMerchantAccessKey(confObj),
-        requestOrigin: confObj.requestOrigin || "CJSG"
+        requestOrigin: confObj.requestOrigin || TRACKING_IDS.CitrusGuest
     });
     reqConf.paymentToken.paymentMode.expiry = confObj.paymentDetails.expiry;
     delete reqConf.paymentDetails;
@@ -43,13 +44,13 @@ const extWalletApiFunc = (confObj) => {
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
     reqConf.deviceType = getConfig().deviceType;
-    if (mode === 'dropout' || getConfig().page === 'ICP') {
+    if (mode === 'dropout' || getConfig().page === PAGE_TYPES.ICP) {
     } else {
-        if (reqConf.requestOrigin === "CJSG") {
+        if (reqConf.requestOrigin === TRACKING_IDS.CitrusGuest) {
             reqConf.returnUrl = getConfig().dropInReturnUrl;
         }
     }
-    if (getConfig().page === 'ICP') {
+    if (getConfig().page === PAGE_TYPES.ICP) {
         return custFetch(`${getConfig().motoApiUrl}/${getConfig().vanityUrl}`, {
             method: 'post',
             headers: {
@@ -68,11 +69,11 @@ const extWalletApiFunc = (confObj) => {
             mode: 'cors',
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
-            if (reqConf.requestOrigin === "CJSG") return resp;
-            if (getConfig().page !== 'ICP') {
+            if (reqConf.requestOrigin === TRACKING_IDS.CitrusGuest) return resp;
+            if (getConfig().page !== PAGE_TYPES.ICP) {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
-                        (reqConf.requestOrigin === "SSLV3G" || reqConf.requestOrigin === "SSLV3W")?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
+                    (reqConf.requestOrigin === TRACKING_IDS.SSLV3Guest || reqConf.requestOrigin === TRACKING_IDS.SSLV3Wallet)?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
                     }
                     else {
                         if (winRef && winRef.closed) {

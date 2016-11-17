@@ -5,13 +5,14 @@ import {handlersMap, getConfig, setConfig} from "../config";
 import {custFetch} from "../interceptor";
 import {getCancelResponse, refineMotoResponse} from "./response";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
+import {TRACKING_IDS, PAGE_TYPES} from '../constants'
 let cancelApiResp;
 let txnId;
 let requestOrigin;
 const NBAPIFunc = (confObj, apiUrl) => {
     if(getAppData('net_banking')) confObj.offerToken = getAppData('net_banking')['offerToken'];
     txnId = confObj.merchantTxnId;
-    requestOrigin = confObj.requestOrigin || "CJSG";
+    requestOrigin = confObj.requestOrigin ||TRACKING_IDS.CitrusGuest;
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: 'INR',
@@ -25,7 +26,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
             }
         },
         merchantAccessKey: getMerchantAccessKey(confObj),
-        requestOrigin: confObj.requestOrigin || "CJSG"
+        requestOrigin: confObj.requestOrigin || TRACKING_IDS.CitrusGuest
     });
     delete reqConf.bankCode;
     delete reqConf.currency;
@@ -36,14 +37,14 @@ const NBAPIFunc = (confObj, apiUrl) => {
     setConfig({cancelApiResp});
     //var winRef = openPopupWindow("");
     //var winRef = window.open("",'PromoteFirefoxWindowName', 'scrollbars=yes, top= 1000, left= 1000 ,visible=none;');
-    if (mode === 'dropout' || getConfig().page === 'ICP') {
+    if (mode === 'dropout' || getConfig().page === PAGE_TYPES.ICP) {
     } else {
         reqConf.returnUrl = getConfig().dropInReturnUrl;
         winRef = openPopupWindow("");
         //winRef.document.write('<html><head><meta name="viewport" content="width=device-width" /><meta http-equiv="Cache-control" content="public" /><title>Redirecting to Bank</title></head><style>body {background:#fafafa;}#wrapper {position: fixed;position: absolute;top: 20%;left: 0;right:0;margin: 0 auto;font-family: Tahoma, Geneva, sans-serif; color:#000;text-align:center;font-size: 14px;padding: 20px;max-width: 500px;width:70%;}.maintext {font-family: Roboto, Tahoma, Geneva, sans-serif;color:#f6931e;margin-bottom: 0;text-align:center;font-size: 21pt;font-weight: 400;}.textRedirect {color:#675f58;}.subtext{margin : 15px 0 15px;font-family: Roboto, Tahoma, Geneva, sans-serif;color:#929292;text-align:center;font-size: 14pt;}.subtextOne{margin : 35px 0 15px;font-family: Roboto, Tahoma, Geneva, sans-serif;color:#929292;text-align:center;font-size: 14pt;}@media screen and (max-width: 480px) {#wrapper {max-width:100%!important;}}</style><body><div id="wrapper"><div id = "imgtext" style=" margin-left:1%; margin-bottom: 5px;"><img src="https://www.citruspay.com/resources/pg/images/logo_citrus.png"/></div><p class="maintext">Quick <span class="textRedirect">Redirection</span></p><p class="subtext"><span>We are processing your payment..</span></p><p class="subtextOne"><span>IT MIGHT TAKE A WHILE</span></p></div></body></html>');
         winRef.document.write('<html><head> <meta name="viewport" content="width=device-width"/> <meta http-equiv="Cache-control" content="public"/> <title>Redirecting to Bank</title></head><style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body> <div id="wrapper"> <div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><img src="https://mocha.citruspay.com/static/images/logo.png"/> </div><div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><img src="https://mocha.citruspay.com/static/images/puff_orange.svg"/></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body></html>');
     }
-    if (getConfig().page === 'ICP') {
+    if (getConfig().page === PAGE_TYPES.ICP) {
 
         return custFetch(apiUrl, {
             method: 'post',
@@ -192,7 +193,7 @@ savedNBValidationSchema.mainObjectCheck.keysCheck.push('token');
 
 const savedAPIFunc = (confObj, url) => {
     if(getAppData('citrus_wallet')) confObj.offerToken = getAppData('citrus_wallet')['offerToken'];
-    requestOrigin = confObj.requestOrigin || "CJS2W";
+    requestOrigin = confObj.requestOrigin || TRACKING_IDS.CitrusWallet;
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: confObj.currency,
@@ -203,7 +204,7 @@ const savedAPIFunc = (confObj, url) => {
             id: confObj.token
         },
         merchantAccessKey: getMerchantAccessKey(confObj),
-        requestOrigin: confObj.requestOrigin || "CJS2W"
+        requestOrigin: confObj.requestOrigin || TRACKING_IDS.CitrusWallet
     });
 
     confObj.CVV && (reqConf.paymentToken.cvv = confObj.CVV);
@@ -213,7 +214,7 @@ const savedAPIFunc = (confObj, url) => {
     delete reqConf.CVV;
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
-    if (getConfig().page === 'ICP') {
+    if (getConfig().page === PAGE_TYPES.ICP) {
         return custFetch(url, {
             method: 'post',
             headers: {
@@ -230,7 +231,7 @@ const savedAPIFunc = (confObj, url) => {
             },
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
-            if (getConfig().page !== 'ICP') {
+            if (getConfig().page !== PAGE_TYPES.ICP) {
                 handlePayment(resp,mode);
             }
         });
@@ -239,7 +240,7 @@ const savedAPIFunc = (confObj, url) => {
 const handlePayment = (resp,mode)=>{
     if (resp.data.redirectUrl) {
         if (mode === "dropout") {
-            (requestOrigin === "SSLV3G" || requestOrigin === "SSLV3W")?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
+            (requestOrigin === TRACKING_IDS.SSLV3Guest || requestOrigin === TRACKING_IDS.SSLV3Wallet)?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
                 }
                 else {
                     if(winRef && winRef.closed)

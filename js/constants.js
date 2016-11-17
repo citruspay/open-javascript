@@ -20,5 +20,13 @@ const currencyMap = {
     'Mauritius' : 'MUR', 'Sri Lanka' : 'LKR', 'Kenya' : 'KES', 'Philippines' : 'PHP', 'New Zealand' : 'NZD', 'Niue' : 'NZD',
     'Pitcairn' : 'NZD', 'Tokelau' : 'NZD', 'Thailand' : 'THB', 'Bangladesh' : 'BDT', 'China' : 'CNY', 'Nepal' : 'NPR', 'Bahrain' : 'BHD'
 };
-
-export {urlReEx, currencyMap}
+const TRACKING_IDS = {
+    'CitrusWallet':'CJSW',
+    'CitrusGuest':'CJSG',
+    'SSLV3Guest':'SSLV3G',
+    'SSLV3Wallet':'SSLV3W'
+    };
+const PAGE_TYPES = {
+    'ICP':'ICP'
+};
+export {urlReEx, currencyMap,TRACKING_IDS,PAGE_TYPES}

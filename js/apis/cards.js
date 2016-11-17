@@ -5,7 +5,7 @@ import cloneDeep from "lodash/cloneDeep";
 import {handlersMap, getConfig} from "../config";
 import {validateCardType, validateScheme, cardDate, validateCvv} from "../validation/custom-validations";
 import {custFetch} from "../interceptor";
-import {urlReEx} from "../constants";
+import {urlReEx,TRACKING_IDS,PAGE_TYPES} from "../constants";
 import {getCancelResponse, refineMotoResponse} from "./response";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
 //import $ from 'jquery';
@@ -152,7 +152,7 @@ const motoCardApiFunc = (confObj) => {
             paymentMode: paymentDetails
         },
         merchantAccessKey: getMerchantAccessKey(confObj),
-        requestOrigin: confObj.requestOrigin || "CJSG"
+        requestOrigin: confObj.requestOrigin || TRACKING_IDS.CitrusGuest
     });
     reqConf.paymentToken.paymentMode.expiry = confObj.paymentDetails.expiry;
     // reqConf.offerToken = getAppData().dpOfferToken;
@@ -162,9 +162,9 @@ const motoCardApiFunc = (confObj) => {
     delete reqConf.mode;
     reqConf.deviceType = getConfig().deviceType;
     cancelApiResp = getCancelResponse(reqConf);
-    if (mode === 'dropout' || getConfig().page === 'ICP') {
+    if (mode === 'dropout' || getConfig().page === PAGE_TYPES.ICP) {
     } else {
-        if (reqConf.requestOrigin === "CJSG") {
+        if (reqConf.requestOrigin === TRACKING_IDS.CitrusGuest) {
             //todo: later to be changed over the prod url and fetch it from config
             reqConf.returnUrl = getConfig().dropInReturnUrl;
             // window.location.protocol + '//' + window.location.host + '/blade/returnUrl';
@@ -172,7 +172,7 @@ const motoCardApiFunc = (confObj) => {
             // winRef.document.write('<html><head> <meta name="viewport" content="width=device-width"/> <meta http-equiv="Cache-control" content="public"/> <title>Redirecting to Bank</title></head><style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body> <div id="wrapper"> <div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><!--<img src="https://context.citruspay.com/kiwi/images/logo.png"/>--> </div><div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><!---<img src="https://context.citruspay.com/kiwi/images/puff_orange.svg"/>--></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body></html>');
         }
     }
-    if (getConfig().page === 'ICP') {
+    if (getConfig().page === PAGE_TYPES.ICP) {
         return custFetch(`${getConfig().motoApiUrl}/${getConfig().vanityUrl}`, {
             method: 'post',
             headers: {
@@ -192,11 +192,11 @@ const motoCardApiFunc = (confObj) => {
             mode: 'cors',
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
-            if (reqConf.requestOrigin === "CJSG") return resp;
-            if (getConfig().page !== 'ICP') {
+            if (reqConf.requestOrigin === TRACKING_IDS.CitrusGuest) return resp;
+            if (getConfig().page !== PAGE_TYPES.ICP) {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
-                        (reqConf.requestOrigin === "SSLV3G" || reqConf.requestOrigin === "SSLV3W")?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
+                        (reqConf.requestOrigin === TRACKING_IDS.SSLV3Guest || reqConf.requestOrigin === TRACKING_IDS.SSLV3Wallet)?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
                     }
                     else {
                         if (winRef && winRef.closed) {

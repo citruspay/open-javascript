@@ -14,6 +14,8 @@ let digit;
 let parentUrl = getAppData('parentUrl');
 const addField = () => {
     let fieldType = document.location.href.split("#");
+    if(fieldType.length<2)
+        return;
     field = fieldType[1].split("-");
     paymentField = document.createElement("input");
     paymentField.setAttribute("id", field[0] + "citrusInput");
