@@ -19,5 +19,6 @@ const supportedStyleKeys = [
     "outline text-shadow","transition","-moz-osx-font-smoothing","-moz-tap-highlight-color",
     "-moz-transition","-webkit-font-smoothing","-webkit-tap-highlight-color","-webkit-transition"
 ];
-const specialStyleKeys = [':focus','.valid','.invalid','.valid:focus','.invalid:focus'];
+const specialStyleKeys = [':focus','.valid','.invalid','.valid:focus','.invalid:focus'
+,'::-webkit-input-placeholder',':-moz-placeholder',':-ms-input-placeholder','::-moz-placeholder'];
 export {getConfigValue,validHostedFieldTypes,validCardSetupTypes,validPaymentTypes,supportedStyleKeys,specialStyleKeys};
