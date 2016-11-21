@@ -21,8 +21,8 @@ const currencyMap = {
     'Pitcairn' : 'NZD', 'Tokelau' : 'NZD', 'Thailand' : 'THB', 'Bangladesh' : 'BDT', 'China' : 'CNY', 'Nepal' : 'NPR', 'Bahrain' : 'BHD'
 };
 const TRACKING_IDS = {
-    'CitrusWallet':'CJSW',
-    'CitrusGuest':'CJSG',
+    'CitrusWallet':'CJS2W',
+    'CitrusGuest':'CJS2G',
     'SSLV3Guest':'SSLV3G',
     'SSLV3Wallet':'SSLV3W'
     };
