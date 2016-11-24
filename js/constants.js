@@ -24,7 +24,8 @@ const TRACKING_IDS = {
     'CitrusWallet':'CJS2W',
     'CitrusGuest':'CJS2G',
     'SSLV3Guest':'SSLV3G',
-    'SSLV3Wallet':'SSLV3W'
+    'SSLV3Wallet':'SSLV3W',
+    'SSLV3Nitro' : 'SSLV3N'
     };
 const PAGE_TYPES = {
     'ICP':'ICP'

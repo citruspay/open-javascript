@@ -196,7 +196,7 @@ const motoCardApiFunc = (confObj) => {
             if (getConfig().page !== PAGE_TYPES.ICP) {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
-                        (reqConf.requestOrigin === TRACKING_IDS.SSLV3Guest || reqConf.requestOrigin === TRACKING_IDS.SSLV3Wallet)?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
+                        (reqConf.requestOrigin === TRACKING_IDS.SSLV3Guest || reqConf.requestOrigin === TRACKING_IDS.SSLV3Wallet || reqConf.requestOrigin === TRACKING_IDS.SSLV3Nitro)?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
                     }
                     else {
                         if (winRef && winRef.closed) {
