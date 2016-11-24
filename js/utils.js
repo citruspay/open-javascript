@@ -235,8 +235,17 @@ const getElement = (selector) => {
 };
 
 const postMessageWrapper = (win, messageObj, url) => {
+    messageObj.generatedBy = 'citrus';
     win.postMessage(JSON.parse(JSON.stringify(messageObj)), url);
 };
+
+const doValidation = (confObj,schema)=>{
+    const validationResult = custValidate(confObj, schema);
+        if (validationResult) {
+            handlersMap['errorHandler'](validationResult);
+            throw JSON.stringify(validationResult);
+        }
+}
 
 export {
     validateAndCallbackify,
@@ -248,5 +257,6 @@ export {
     isIE,
     addListener,
     getElement,
-    postMessageWrapper
+    postMessageWrapper,
+    doValidation
 };

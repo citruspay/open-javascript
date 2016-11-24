@@ -2,12 +2,13 @@ import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {urlReEx} from "../constants";
 import {handlersMap, getConfig} from "../config";
-import {getAppData, setAppData, isIE, getElement, postMessageWrapper} from "./../utils";
+import {getAppData, setAppData, isIE, getElement, postMessageWrapper,doValidation} from "./../utils";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
 import {refineMotoResponse} from "./response";
 import {custFetch} from "../interceptor";
 import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../hosted-field-config";
 import {makeNetBankingPayment} from "./net-banking";
+import {motoCardValidationSchema} from "./cards";
 
 //this file is hosted fields specific
 //todo:change the file name later
@@ -21,7 +22,7 @@ const regExMap = {
     url: urlReEx
 };
 let txnId;
-const motoCardValidationSchema = Object.assign(cloneDeep(baseSchema), {
+/*const motoCardValidationSchema = Object.assign(cloneDeep(baseSchema), {
     paymentDetails: {
         presence: true,
         cardCheck: true,
@@ -33,7 +34,21 @@ const motoCardValidationSchema = Object.assign(cloneDeep(baseSchema), {
     }
 });
 
-motoCardValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
+motoCardValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');*/
+
+const hostedFieldPaymentObjschema = Object.assign(cloneDeep(baseSchema), {
+    paymentDetails: {
+        presence: true,
+        keysCheck: ['type', 'holder','paymentMode']
+    },
+    "paymentDetails.holder": {
+        presence: true,
+        format: regExMap.name
+    },
+    mode:{presence:true,inclusion:{within:["dropOut","dropIn"],message:"invalid mode %{value} it should have one of these values dropIn, dropOut"}}
+
+});
+hostedFieldPaymentObjschema.mainObjectCheck.keysCheck.push('paymentDetails');
 const makePayment = (paymentObj) => {
     switch (paymentObj.paymentDetails.paymentMode.toLowerCase()) {
         //todo : needs to be checked for PCI compliant merchants
@@ -47,12 +62,14 @@ const makePayment = (paymentObj) => {
         //todo: message needs to be structured
         default :
             handlersMap['errorHandler']("Invalid payment mode");
+            return;
     }
 };
 
 const makeHostedFieldPayment = (paymentObj) => {
     txnId = paymentObj.merchantTxnId;
     // const paymentMode = paymentObj.paymentDetails.paymentMode.toLowerCase().replace(/\s+/g, '');
+    //todo:remove dependency on paymentDetails.type, this code can cause problems late on.
     let cardSetupType = paymentObj.paymentDetails.type ? paymentObj.paymentDetails.type.toLowerCase() :'';
     let element = document.getElementById("citrusnumber-" + cardSetupType);
     //todo:check whether the below two lines are required, otherwise remove them
@@ -64,15 +81,18 @@ const makeHostedFieldPayment = (paymentObj) => {
         throw new Error(`Either invalid paymentDetails type "${cardSetupType}", it should be either of these values ` + validPaymentTypes +
             ' or there was some problem in setting up hosted fields');
     const win = element.contentWindow;
-    paymentObj.pgSettingsData = getAppData('pgSettingsData');
-    paymentObj.config = getConfig();
+    let message = {messageType:'makePayment'};
+    message.pgSettingsData = getAppData('pgSettingsData');
+    message.config = getConfig();
+    message.paymentData = paymentObj;
     if (validateCardDetails(cardSetupType)) {
+         doValidation(paymentObj,hostedFieldPaymentObjschema);
         if (paymentObj.mode.toLowerCase() !== "dropout") {
             winRef = openPopupWindow("");
             winRef.document.write('<html><head> <meta name="viewport" content="width=device-width"/> <meta http-equiv="Cache-control" content="public"/> <title>Redirecting to Bank</title></head><style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body> <div id="wrapper"> <div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><img src="https://mocha.citruspay.com/static/images/logo.png"/></div><div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><img src="https://mocha.citruspay.com/static/images/puff_orange.svg"/></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body></html>');
         }
         setAppData('paymentObj', paymentObj);
-        win.postMessage(paymentObj, getConfigValue('hostedFieldDomain'));
+       postMessageWrapper(win,message,getConfigValue('hostedFieldDomain'));
     }
     else {
         //handle invalid fields
@@ -102,7 +122,8 @@ const listener = (event) => {
                 handleSchemeChange(event);
                 return;   
         }
-        const motoResponse = event.data;
+        
+        const motoResponse = event.data.response;
         const paymentObj = getAppData('paymentObj');
         if (event.origin === getConfigValue('hostedFieldDomain') && motoResponse.redirectUrl) { //url check has to configured, currently its hardcoded
             if (paymentObj.mode.toLowerCase() === "dropout") {
@@ -362,8 +383,6 @@ const validateCardDetails = (cardSetupType) => {
                 hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i], cardSetupType);
                 if (validationResult)
                     validationResults.push(validationResult);
-
-
                 if (validationResult) {
                     err.error = validationResult.txMsg;
                     err.errors.push[validationResult.txMsg];
@@ -389,28 +408,6 @@ const validateCardDetails = (cardSetupType) => {
     }
 
     return isValidCard;
-
-    /*
-     //{"type":"errorHandler","error":{"amount":["can't be blank"]}}
-     if (("isValidCard" in validationResult) && !validationResult.isValidCard) {
-     err.error = {"card number": [validationResult.txMsg]};
-     handlersMap['errorHandler'](err);
-     return false;
-     }
-     //console.log(validationResult);
-     validationResult = getAppData('isValidExpiry');
-     if (("isValidExpiry" in validationResult) && !validationResult.isValidExpiry) {
-     err.error = {"expiry date": [validationResult.txMsg]};
-     handlersMap['errorHandler'](err);
-     return false;
-     }
-     validationResult = getAppData('isValidCvv');
-     if (("isValidCvv" in validationResult) && !validationResult.isValidCvv) {
-     err.error = {"cvv": [validationResult.txMsg]};
-     handlersMap['errorHandler'](err);
-     return false;
-     }
-     return true;*/
 }
 
 const postMessageToChild = (fieldType, cardType, message, isSetTimeoutRequired) => {

@@ -10,7 +10,7 @@ import {makePayment} from "./apis/payment";
 import {addField, validateCvv, validateExpiry, validateCard} from "./hosted-field-main";
 import {getConfigValue} from "./hosted-field-config";
 import {validateExpiryDate, validateScheme, validateCreditCard} from "./validation/custom-validations";
-import {makeMotoCardPayment} from "./apis/cards";
+import {makeMotoCardPayment,motoCardValidationSchema} from "./apis/cards";
 import {init, setConfig, handlersMap} from "./config";
 import {applyAttributes} from "./hosted-field-setup";
 
@@ -31,7 +31,8 @@ let parentUrl;
 //child(iframe) listener
 function listener(event) {
     //console.log(event.data,'inside child frame');
-    if (!event.data)
+    var data = event.data;
+    if (!event.data||event.data.generatedBy!=='citrus')
         return;
     if (event.data.messageType === "style") {
         applyAttributes(event.data);
@@ -72,29 +73,30 @@ function listener(event) {
         }
         return;
     }
-    if (!(event.data.cardType === fieldType[1] || event.data.cardType === "card" || event.data.paymentDetails ))
+    //if the cardType send is same as for which it is setup, or the cardSetupType is card or the data is intended 
+    //for making payment then only go ahead
+    if (!(event.data.cardType === fieldType[1] || event.data.cardType === "card" || event.data.messageType==="makePayment" ))
         return;
-    if (event.origin === getConfigValue('hostedFieldDomain')) {
-        let keys = Object.keys(event.data);
-        //var val = event.data[keys[0]];
-        event.data[keys[0]] = event.data[keys[0]].replace(/\s+/g, '');
-        Object.assign(paymentDetails, event.data);
+    if (event.origin === getConfigValue('hostedFieldDomain')&&event.data.messageType==="cardData") {
+        let cardData = event.data.cardData;
+        let requiredPaymentData = {};
+        requiredPaymentData[cardData.key] = cardData.value.replace(/\s+/g, '');
+        Object.assign(paymentDetails, requiredPaymentData);
         return;
     }
-    let data = event.data;
     citrus.payment.setAppData('pgSettingsData', data.pgSettingsData);
     citrus.setConfig(data.config);
-    delete data.pgSettingsData;
-    delete data.config;
-    Object.assign(data.paymentDetails, paymentDetails);
-    delete data.paymentDetails.paymentMode;
-    delete data.paymentDetails.cardType;
+    let paymentData = data.paymentData;
+    Object.assign(paymentData.paymentDetails, paymentDetails);
+    delete paymentData.paymentDetails.paymentMode;
+    delete paymentData.paymentDetails.cardType;
     parentUrl = getAppData('parentUrl');
-    citrus.cards.makeMotoCardPayment(data).then(function (response) {
+    citrus.cards.makeMotoCardPayment(paymentData).then(function (response) {
         response.responseType = "serverResponse";
         delete response.isValidRequest;
         response.data.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
-        postMessageWrapper(parent, response.data, parentUrl);
+        let message = {messageType:'serverResponse',response:response.data};
+        postMessageWrapper(parent, message, parentUrl);
     });
 }
 Object.assign(window.citrus, {

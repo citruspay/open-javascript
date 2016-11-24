@@ -62,6 +62,7 @@ const addIframe = (hostedField, cardType, style) => {
     //todo: url needs to be configured
     iframe.src = getConfigValue('hostedFieldUrl') + '#' + fieldType + '-' + cardType;
     iframe.id = getCitrusFrameId(fieldType, cardType);
+    iframe.name = getCitrusFrameId(fieldType, cardType);
     iframe.onload = () => {
         //console.log('inside iframe onload');
         passAttributesToHostedField(style, hostedField, cardType);

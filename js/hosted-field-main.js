@@ -20,36 +20,17 @@ const addField = () => {
     paymentField = document.createElement("input");
     paymentField.setAttribute("id", field[0] + "citrusInput");
     document.body.appendChild(paymentField);
-    /*var placeHolder = "";
-    switch (field[0]) {
-        case "cvv":
-            placeHolder = "cvv";
-            break;
-        case "number":
-            placeHolder = "card number";
-            break;
-        case "expiry":
-            placeHolder = "expiry(mm/yy)";
-            break;
-    }
-    /*var defaultStyle = {
-        background: 0,
-        display: 'inline-block',
-        width: '78%',
-        padding: "10px 0",
-        fontSize: '13px',
-        border:0
-    };
-    paymentField.setAttribute('placeholder', placeHolder);*/
-    //Object.assign(paymentField.style, defaultStyle);
     addEventListenersForHostedFields();
 };
 
 const postPaymentData = () => {
     //Send value of the field to the cardnumber iframe
+    let message = {messageType:'cardData'};
     let cardData = {};
-    cardData[field[0]] = paymentField.value;
-    cardData.cardType = field[1];
+    cardData.value = paymentField.value;
+    cardData.key = field[0];
+    message.cardType = field[1];
+    message.cardData = cardData;
     //todo:IMPORTANT, change * to citrus server url,
     //also if possible use name instead of index as index will be unreliable
     //if there are other iframes on merchant's page
@@ -60,7 +41,7 @@ const postPaymentData = () => {
     postMessageToChild(fieldTypesToPostData[i],field[1],cardData,getConfigValue('hostedFieldDomain'));*/
     for(var i=0;i<parent.window.frames.length;i++)
     {
-        postMessageWrapper(parent.window.frames[i], cardData, getConfigValue('hostedFieldDomain'));
+        postMessageWrapper(parent.window.frames[i], message, getConfigValue('hostedFieldDomain'));
         //console.log(parent.window.frames[i].id,'test');
     }
 };
@@ -349,8 +330,7 @@ const validateCvv = (isCascadeFromNumberField) =>{
      let validationResult = {fieldType:'cvv',messageType:'validation',hostedField,cardType,ignoreValidationBroadcast};
      if(!scheme&&isEmpty)
     {
-        validationResult.cardValidationResult = {"txMsg": 'Cvv can not be empty.',isValid:false,isEmpty:true,
-            };
+        validationResult.cardValidationResult = {"txMsg": 'Cvv can not be empty.',isValid:false,isEmpty:true};
         isValid = false;
     }
     else if(isValidCvv(cvv.length,scheme))
@@ -362,7 +342,7 @@ const validateCvv = (isCascadeFromNumberField) =>{
         let txMsg = 'Cvv can not be empty.'
         if(!isEmpty)
         txMsg = 'Cvv is invalid.'
-        validationResult.cardValidationResult = {"isValidCvv": false, "txMsg": txMsg,isValid:false,length:cvv.length};
+        validationResult.cardValidationResult = {"txMsg": txMsg,isValid:false,length:cvv.length};
         isValid = false;
     }
     if(!isCascadeFromNumberField)
