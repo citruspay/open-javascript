@@ -240,7 +240,7 @@ const savedAPIFunc = (confObj, url) => {
 const handlePayment = (resp,mode)=>{
     if (resp.data.redirectUrl) {
         if (mode === "dropout") {
-            (requestOrigin === TRACKING_IDS.SSLV3Guest || requestOrigin === TRACKING_IDS.SSLV3Wallet)?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
+            (requestOrigin === TRACKING_IDS.SSLV3Guest || requestOrigin === TRACKING_IDS.SSLV3Wallet || requestOrigin === TRACKING_IDS.SSLV3Nitro)?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
                 }
                 else {
                     if(winRef && winRef.closed)
