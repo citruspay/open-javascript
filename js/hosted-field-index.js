@@ -126,15 +126,15 @@ Object.assign(window.citrus, {
 
 //todo:remove this handlers
 citrus.registerHandlers("errorHandler", function (error) {
-    let response = {};
-    response.type = "errorHandler";
-    response.error = error;
-    postMessageWrapper(parent, response, parentUrl);
+    let message = {};
+    message.messageType = "errorHandler";
+    message.error = error;
+    postMessageWrapper(parent, message, parentUrl);
 });
 
 citrus.registerHandlers("serverErrorHandler", function (error) {
-    let response = {};
-    response.type = "serverErrorHandler";
-    response.error = error;
-    postMessageWrapper(parent, response, parentUrl);
+    let message = {};
+    message.messageType = "serverErrorHandler";
+    message.error = error;
+    postMessageWrapper(parent, message, parentUrl);
 });

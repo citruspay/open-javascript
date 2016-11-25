@@ -22,19 +22,6 @@ const regExMap = {
     url: urlReEx
 };
 let txnId;
-/*const motoCardValidationSchema = Object.assign(cloneDeep(baseSchema), {
-    paymentDetails: {
-        presence: true,
-        cardCheck: true,
-        keysCheck: ['type', 'number', 'holder', 'cvv', 'expiry']
-    },
-    "paymentDetails.holder": {
-        presence: true,
-        format: regExMap.name
-    }
-});
-
-motoCardValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');*/
 
 const hostedFieldPaymentObjschema = Object.assign(cloneDeep(baseSchema), {
     paymentDetails: {
@@ -78,7 +65,7 @@ const makeHostedFieldPayment = (paymentObj) => {
         cardSetupType = 'card';
     }
     if (!element)
-        throw new Error(`Either invalid paymentDetails type "${cardSetupType}", it should be either of these values ` + validPaymentTypes +
+        throw new Error(`Either invalid paymentDetails type ${cardSetupType}, it should be either of these values ` + validPaymentTypes +
             ' or there was some problem in setting up hosted fields');
     const win = element.contentWindow;
     let message = {messageType:'makePayment'};
@@ -102,7 +89,7 @@ const makeHostedFieldPayment = (paymentObj) => {
 //parent listener
 const listener = (event) => {
     try {
-        if(event.origin !== getConfigValue('hostedFieldDomain'))    
+        if (event.origin !== getConfigValue('hostedFieldDomain'))
             return;
         switch (event.data.messageType) {
             case 'focusReceived':
@@ -112,28 +99,26 @@ const listener = (event) => {
             case 'validation':
                 setAppData(event.data.hostedField.fieldType + '-' + event.data.cardType + '-validation', event.data.cardValidationResult);
                 setAppData(event.data.hostedField.fieldType + '-' + event.data.cardType + '-ignore-validation', event.data.ignoreValidationBroadcast);
-                
+
                 //console.log('set event data for ' + event.data.hostedField.fieldType + '-' + event.data.cardType + '-validation');
                 handleValidationMessage(event);
                 return;
             case 'schemeChange':
-                setAppData(event.data.cardType+'scheme');
+                setAppData(event.data.cardType + 'scheme');
                 setAppData(event.data.hostedField.fieldType + '-' + event.data.cardType + '-ignore-validation', event.data.ignoreValidationBroadcast);
                 handleSchemeChange(event);
-                return;   
+                return;
+            case 'errorHandler':
+            case 'serverErrorHandler':
+                handlersMap[event.data.messageType](event.data.error);
+                return;
         }
-        
         const motoResponse = event.data.response;
         const paymentObj = getAppData('paymentObj');
-        if (event.origin === getConfigValue('hostedFieldDomain') && motoResponse.redirectUrl) { //url check has to configured, currently its hardcoded
+        if (motoResponse && motoResponse.redirectUrl) { //url check has to configured, currently its hardcoded
             if (paymentObj.mode.toLowerCase() === "dropout") {
                 singleHopDropOutFunction(motoResponse.redirectUrl);
             } else {
-                // if(winRef && winRef.closed)
-                // {
-                //     //handlersMap["serverErrorHandler"](response);
-                //     return;
-                // }
                 /* OL integration logic to be uncommented later*/
                 // let htmlStr = motoResponse.redirectUrl.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"');
                 // winRef.document.open("text/html", "replace");
@@ -141,7 +126,7 @@ const listener = (event) => {
                 // winRef.document.close();
                 // return;
                 /*End of OL integration logic*/
-                singleHopDropInFunction(motoResponse.redirectUrl).then(function (response) {
+                singleHopDropInFunction(motoResponse.redirectUrl).then(function(response) {
                     if (winRef && winRef.closed !== true) {
                         /*start of OL integration logic*/
                         // winRef.document.write(response);
@@ -152,13 +137,13 @@ const listener = (event) => {
                         let form = el.getElementsByTagName('form');
                         try {
                             let paymentForm = document.createElement('form');
-                            paymentForm.setAttribute("action", form[0].action),
-                                paymentForm.setAttribute("method", form[0].method),
-                                paymentForm.setAttribute("target", winRef.name),
-                                paymentForm.innerHTML = form[0].innerHTML,
-                                document.documentElement.appendChild(paymentForm),
-                                paymentForm.submit(),
-                                document.documentElement.removeChild(paymentForm);
+                            paymentForm.setAttribute("action", form[0].action);
+                            paymentForm.setAttribute("method", form[0].method);
+                            paymentForm.setAttribute("target", winRef.name);
+                            paymentForm.innerHTML = form[0].innerHTML;
+                            document.documentElement.appendChild(paymentForm);
+                            paymentForm.submit();
+                            document.documentElement.removeChild(paymentForm);
                         } catch (e) {
                             console.log(e);
                         }
@@ -174,12 +159,13 @@ const listener = (event) => {
             if (winRef) {
                 winRef.close();
             }
+            //if we did not get returnUrl from server, pass the motoResonse 
+            //after modifying it, what particular case it handles need to be understood.
             const response = refineMotoResponse(motoResponse);
             handlersMap['serverErrorHandler'](response);
 
         }
-        if (event.data.responseType === "errorHandler") handlersMap['errorHandler'](event.data.error);
-        if (event.data.responseType === "serverErrorHandler") handlersMap['serverErrorHandler'](event.data.error);
+
     } catch (e) {
         console.log(e);
     }
@@ -322,7 +308,9 @@ const validateCardDetails = (cardSetupType) => {
     let hostedField = getHostedFieldByType(requiredValidationFieldType, cardSetupType);
     let scheme;
     if (!validationResult) {
-        postMessageToChild(requiredValidationFieldType, cardSetupType, {messageType: 'validate'});
+        postMessageToChild(requiredValidationFieldType, cardSetupType, {
+            messageType: 'validate'
+        });
         /*err.error = 'Card number can not be blank.';
          err.hostedField = hostedField;
          toggleValidationClass(hostedField,{isValid:false});*/
@@ -331,11 +319,13 @@ const validateCardDetails = (cardSetupType) => {
     if (!validationResult.isValid) {
         err.error = validationResult.txMsg;
         err.hostedField = hostedField;
-        toggleValidationClass(hostedField, {isValid: false});
+        toggleValidationClass(hostedField, {
+            isValid: false
+        });
         return false;
     }
     if (validationResult.isValid) {
-        let validHostedFieldTypesWithoutNumber = validHostedFieldTypes.filter((val)=> {
+        let validHostedFieldTypesWithoutNumber = validHostedFieldTypes.filter((val) => {
             return val !== "number";
         });
         let hostedFieldsWithoutNumber = [];
@@ -354,31 +344,33 @@ const validateCardDetails = (cardSetupType) => {
                     validationResults.push(validationResult);
 
 
-                if (validationResult /*&& !validationResult.isEmpty*/) {
+                if (validationResult /*&& !validationResult.isEmpty*/ ) {
                     err.error = validationResult.txMsg;
                     err.errors.push[validationResult.txMsg];
-                    if(!validationResult.isValid)
-                    {
-                    isValidCard = false;
-                    isValidField = false;
+                    if (!validationResult.isValid) {
+                        isValidCard = false;
+                        isValidField = false;
                     }
-                    if(!ignoreValidationBroadcast)
-                        toggleValidationClass(hostedField, {isValid: validationResult.isValid});
+                    if (!ignoreValidationBroadcast)
+                        toggleValidationClass(hostedField, {
+                            isValid: validationResult.isValid
+                        });
                     else
-                        postMessageToChild(validHostedFieldTypesWithoutNumber[i], cardSetupType, {messageType: 'validate'});
-                     }
+                        postMessageToChild(validHostedFieldTypesWithoutNumber[i], cardSetupType, {
+                            messageType: 'validate'
+                        });
+                }
                 if (!validationResult)
-                    postMessageToChild(validHostedFieldTypesWithoutNumber[i], cardSetupType, {messageType: 'validate'});
+                    postMessageToChild(validHostedFieldTypesWithoutNumber[i], cardSetupType, {
+                        messageType: 'validate'
+                    });
 
             }
-           /* for (var i = 0; i < hostedFieldsWithoutNumber.length; ++i) {
-                toggleValidationClass(hostedFieldsWithoutNumber[i], {isValid: isValidField});
-            }*/
         } else {
             for (var i = 0; i < validHostedFieldTypesWithoutNumber.length; ++i) {
                 validationResultKey = validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType + '-validation';
                 validationResult = getAppData(validationResultKey);
-                 ignoreValidationBroadcast = getAppData(validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType + '-ignore-validation');
+                ignoreValidationBroadcast = getAppData(validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType + '-ignore-validation');
                 //console.log('validation result for key ', validationResultKey, validationResult, i,ignoreValidationBroadcast);
                 hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i], cardSetupType);
                 if (validationResult)
@@ -386,20 +378,26 @@ const validateCardDetails = (cardSetupType) => {
                 if (validationResult) {
                     err.error = validationResult.txMsg;
                     err.errors.push[validationResult.txMsg];
-                    if(!validationResult.isValid)
+                    if (!validationResult.isValid)
                         isValidCard = false;
-                    if(!ignoreValidationBroadcast)
-                        toggleValidationClass(hostedField, {isValid: validationResult.isValid});
+                    if (!ignoreValidationBroadcast)
+                        toggleValidationClass(hostedField, {
+                            isValid: validationResult.isValid
+                        });
                     else
-                        postMessageToChild(validHostedFieldTypesWithoutNumber[i], cardSetupType, {messageType: 'validate'});
-                    
+                        postMessageToChild(validHostedFieldTypesWithoutNumber[i], cardSetupType, {
+                            messageType: 'validate'
+                        });
+
                 }
                 if (!validationResult) {
                     /*err.error = validHostedFieldTypesWithoutNumber[i] + ' can not be blank.';
                      err.errors.push[validHostedFieldTypesWithoutNumber[i] + ' can not be blank.'];
                      isValidCard = isValidCard && false;
                      toggleValidationClass(hostedField,{isValid:false});*/
-                    postMessageToChild(validHostedFieldTypesWithoutNumber[i], cardSetupType, {messageType: 'validate'});
+                    postMessageToChild(validHostedFieldTypesWithoutNumber[i], cardSetupType, {
+                        messageType: 'validate'
+                    });
                     isValidCard = false;
                 }
             }
