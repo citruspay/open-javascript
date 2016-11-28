@@ -6,7 +6,7 @@ import {
     specialStyleKeys
 } from "./hosted-field-config";
 import {setAppData, getElement} from "./utils";
-import {postMessageToChild, getCitrusFrameId} from "./apis/payment";
+import {postMessageToChild, getCitrusFrameId} from "./apis/hosted-field-payment";
 
 const create = (setUpConfig) => {
     "use strict";
