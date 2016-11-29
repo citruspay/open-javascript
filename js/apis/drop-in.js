@@ -1,6 +1,6 @@
-import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
+import { singleHopDropInFunction} from "./singleHop";
 import {handlersMap, getConfig} from "../config";
-import {getAppData, setAppData, isIE, getElement, postMessageWrapper,doValidation} from "../utils";
+import {getAppData} from "../utils";
 import {custFetch} from "../interceptor";
 
 

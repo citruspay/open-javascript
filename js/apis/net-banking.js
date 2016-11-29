@@ -1,4 +1,4 @@
-import {validateAndCallbackify, getMerchantAccessKey, getAppData} from "./../utils";
+import {validateAndCallbackify, getMerchantAccessKey, getAppData, setAppData} from "./../utils";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {handlersMap, getConfig, setConfig} from "../config";
@@ -106,6 +106,7 @@ const savedNBValidationSchema = Object.assign(cloneDeep(baseSchema), {
 savedNBValidationSchema.mainObjectCheck.keysCheck.push('token');
 
 const savedAPIFunc = (confObj, url) => {
+    setAppData('paymentObj',confObj);
     if(getAppData('citrus_wallet')) confObj.offerToken = getAppData('citrus_wallet')['offerToken'];
     requestOrigin = confObj.requestOrigin || TRACKING_IDS.CitrusWallet;
     const reqConf = Object.assign({}, confObj, {
@@ -128,6 +129,11 @@ const savedAPIFunc = (confObj, url) => {
     delete reqConf.CVV;
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
+    if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP) {
+        reqConf.returnUrl = getConfig().dropInReturnUrl;
+        winRef = openPopupWindowForDropIn(winRef);
+        
+    }
     if (getConfig().page === PAGE_TYPES.ICP) {
         return custFetch(url, {
             method: 'post',

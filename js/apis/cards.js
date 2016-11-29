@@ -162,8 +162,9 @@ const motoCardApiFunc = (confObj) => {
     delete reqConf.mode;
     reqConf.deviceType = getConfig().deviceType;
     cancelApiResp = getCancelResponse(reqConf);
-    if (mode === 'dropout' || getConfig().page === PAGE_TYPES.ICP) {
-    } else {
+    //if (mode === 'dropout' || getConfig().page === PAGE_TYPES.ICP) {
+    //} else {
+        if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP) {
         if (reqConf.requestOrigin === TRACKING_IDS.CitrusGuest) {
             reqConf.returnUrl = getConfig().dropInReturnUrl;
         }
