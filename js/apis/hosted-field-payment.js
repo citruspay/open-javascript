@@ -9,7 +9,7 @@ import {custFetch} from "../interceptor";
 import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../hosted-field-config";
 import {makeNetBankingPayment} from "./net-banking";
 import {motoCardValidationSchema} from "./cards";
-import {handleDropIn, openPopupWindowForDropIn} from './drop-in'
+import {handleDropIn, openPopupWindowForDropIn} from './drop-in';
 
 let winRef = null;
 //let cancelApiResp;
