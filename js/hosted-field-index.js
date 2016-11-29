@@ -92,7 +92,7 @@ function listener(event) {
     delete paymentData.paymentDetails.cardType;
     parentUrl = getAppData('parentUrl');
     citrus.cards.makeMotoCardPayment(paymentData).then(function (response) {
-        response.responseType = "serverResponse";
+        //response.responseType = "serverResponse";
         delete response.isValidRequest;
         response.data.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
         let message = {messageType:'serverResponse',response:response.data};

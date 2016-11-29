@@ -26,7 +26,7 @@ module.exports = {
         path: dir_build,
         //publicPath: '/release',
         publicPath: '/jsv2/release',
-        filename: '[name].js'
+        filename: '[name].min.js'
     },
     devServer: {
         //contentBase: dir_build,
