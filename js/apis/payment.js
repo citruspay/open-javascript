@@ -13,7 +13,7 @@ import {motoCardValidationSchema} from "./cards";
 //this file is hosted fields specific
 //todo:change the file name later
 let winRef = null;
-//let cancelApiResp;
+let cancelApiResp;
 const citrusSelectorPrefix = 'citrus';
 const regExMap = {
     'cardNumber': /^[0-9]{15,19}$/,
@@ -126,6 +126,11 @@ const listener = (event) => {
                 // winRef.document.close();
                 // return;
                 /*End of OL integration logic*/
+                if(winRef && winRef.closed)
+                {
+                    handlersMap["serverErrorHandler"](cancelApiResp);
+                    return;
+                }
                 singleHopDropInFunction(motoResponse.redirectUrl).then(function(response) {
                     if (winRef && winRef.closed !== true) {
                         /*start of OL integration logic*/

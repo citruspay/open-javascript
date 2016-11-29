@@ -2,7 +2,7 @@
 import "core-js/fn/object/assign";
 import "core-js/fn/promise";
 import "core-js/fn/string/includes";
-import {makeNetBankingPayment, makeSavedNBPayment, makeBlazeNBPayment} from "./apis/net-banking";
+import {makeNetBankingPayment, makeSavedNBPayment} from "./apis/net-banking";
 import {getPaymentDetails, getPaymentDetailsForMCP} from "./apis/payment-details";
 import {getmerchantCardSchemes, makeMotoCardPayment, makeSavedCardPayment} from "./apis/cards";
 import {makeExtWalletsPayment} from "./apis/external-wallets";
@@ -16,9 +16,6 @@ import {makePayment, listener} from "./apis/payment";
 import {singleHopDropInFunction} from "./apis/singleHop";
 import {applyWallletDynamicPricing} from "./apis/wallet-dp";
 import {create} from "./hosted-field-setup";
-//import {makeWallletPayment} from './apis/wallet';
-//import * as tests from './tests/simple-tests';
-
 
 init(); //initializes custom validators
 
@@ -53,21 +50,18 @@ Object.assign(window.citrus, {
     registerHandlers: (key, handler) => {
         handlersMap[key] = handler;
     },
-    geteways: {
+    gateways: {
         getPaymentDetails
     },
     netbanking: {
         makeNetBankingPayment,
         makeSavedNBPayment,
-        makeBlazeNBPayment,
         applyNbDynamicPricing
     },
     cards: {
         getmerchantCardSchemes,
         makeMotoCardPayment,
-        //makeBlazeCardPayment,
         makeSavedCardPayment,
-        //makeMCPCardPayment,
         getCardCurrencyInfo,
         getPaymentDetailsForMCP,
         getPaymentDetails,
@@ -78,14 +72,12 @@ Object.assign(window.citrus, {
         create
     },
     wallet: {
-        //makeWallletPayment
         makeExtWalletsPayment
     },
     features: {
         applyDynamicPricing,
         singleHopDropInFunction,
         applyWallletDynamicPricing
-        //makeWallletPayment
     },
     payment: {
         makePayment
