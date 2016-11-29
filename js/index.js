@@ -22,15 +22,6 @@ init(); //initializes custom validators
 
 window.citrus = window.citrus || {};
 
-window.responseHandler = function (response) {
-    if (response.txnHandle) {
-        let responded = true;
-        setConfig({responded});
-        delete response.txnHandle;
-    }
-    handlersMap['transactionHandler'](response);
-};
-
 if (window.addEventListener) {
     addEventListener("message", listener, false)
 } else {

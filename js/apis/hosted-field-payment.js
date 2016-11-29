@@ -6,7 +6,9 @@ import {getAppData, setAppData, getElement, postMessageWrapper,doValidation} fro
 import {singleHopDropOutFunction} from "./singleHop";
 import {refineMotoResponse} from "./response";
 import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../hosted-field-config";
-import {handleDropIn, openPopupWindowForDropIn} from './drop-in'
+import {makeNetBankingPayment} from "./net-banking";
+import {motoCardValidationSchema} from "./cards";
+import {handleDropIn, openPopupWindowForDropIn} from './drop-in';
 
 let winRef = null;
 //let cancelApiResp;

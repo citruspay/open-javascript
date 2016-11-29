@@ -5,13 +5,12 @@ import {handlersMap, getConfig, setConfig} from "../config";
 import {custFetch} from "../interceptor";
 import {getCancelResponse, refineMotoResponse} from "./response";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
-import {TRACKING_IDS, PAGE_TYPES} from '../constants'
+import {TRACKING_IDS, PAGE_TYPES} from '../constants';
+import {handleDropIn, openPopupWindowForDropIn} from './drop-in';
 let cancelApiResp;
-let txnId;
 let requestOrigin;
 const NBAPIFunc = (confObj, apiUrl) => {
     if(getAppData('net_banking')) confObj.offerToken = getAppData('net_banking')['offerToken'];
-    txnId = confObj.merchantTxnId;
     requestOrigin = confObj.requestOrigin ||TRACKING_IDS.CitrusGuest;
     const reqConf = Object.assign({}, confObj, {
         amount: {
@@ -37,12 +36,12 @@ const NBAPIFunc = (confObj, apiUrl) => {
     setConfig({cancelApiResp});
     //var winRef = openPopupWindow("");
     //var winRef = window.open("",'PromoteFirefoxWindowName', 'scrollbars=yes, top= 1000, left= 1000 ,visible=none;');
-    if (mode === 'dropout' || getConfig().page === PAGE_TYPES.ICP) {
-    } else {
+    //if (mode === 'dropout' || getConfig().page === PAGE_TYPES.ICP) {
+    //} else {
+    if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP) {
         reqConf.returnUrl = getConfig().dropInReturnUrl;
-        winRef = openPopupWindow("");
-        //winRef.document.write('<html><head><meta name="viewport" content="width=device-width" /><meta http-equiv="Cache-control" content="public" /><title>Redirecting to Bank</title></head><style>body {background:#fafafa;}#wrapper {position: fixed;position: absolute;top: 20%;left: 0;right:0;margin: 0 auto;font-family: Tahoma, Geneva, sans-serif; color:#000;text-align:center;font-size: 14px;padding: 20px;max-width: 500px;width:70%;}.maintext {font-family: Roboto, Tahoma, Geneva, sans-serif;color:#f6931e;margin-bottom: 0;text-align:center;font-size: 21pt;font-weight: 400;}.textRedirect {color:#675f58;}.subtext{margin : 15px 0 15px;font-family: Roboto, Tahoma, Geneva, sans-serif;color:#929292;text-align:center;font-size: 14pt;}.subtextOne{margin : 35px 0 15px;font-family: Roboto, Tahoma, Geneva, sans-serif;color:#929292;text-align:center;font-size: 14pt;}@media screen and (max-width: 480px) {#wrapper {max-width:100%!important;}}</style><body><div id="wrapper"><div id = "imgtext" style=" margin-left:1%; margin-bottom: 5px;"><img src="https://www.citruspay.com/resources/pg/images/logo_citrus.png"/></div><p class="maintext">Quick <span class="textRedirect">Redirection</span></p><p class="subtext"><span>We are processing your payment..</span></p><p class="subtextOne"><span>IT MIGHT TAKE A WHILE</span></p></div></body></html>');
-        winRef.document.write('<html><head> <meta name="viewport" content="width=device-width"/> <meta http-equiv="Cache-control" content="public"/> <title>Redirecting to Bank</title></head><style>body{background: #fafafa;}#wrapper{position: fixed; position: absolute; top: 10%; left: 0; right: 0; margin: 0 auto; font-family: Tahoma, Geneva, sans-serif; color: #000; text-align: center; font-size: 14px; padding: 20px; max-width: 500px; width: 70%;}.maintext{font-family: Roboto, Tahoma, Geneva, sans-serif; color: #f6931e; margin-bottom: 0; text-align: center; font-size: 16pt; font-weight: 400;}.textRedirect{color: #675f58;}.subtext{margin: 15px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}.subtextOne{margin: 35px 0 15px; font-family: Roboto, Tahoma, Geneva, sans-serif; color: #929292; text-align: center; font-size: 10pt;}@media screen and (max-width: 480px){#wrapper{max-width: 100%!important;}}</style><body> <div id="wrapper"> <div id="imgtext" style="margin-left:1%; margin-bottom: 5px;"><img src="https://mocha.citruspay.com/static/images/logo.png"/> </div><div id="imgtext" style="text-align:center;padding: 15% 0 10%;"><img src="https://mocha.citruspay.com/static/images/puff_orange.svg"/></div><p class="maintext">Processing <span class="textRedirect">Payment</span> </p><p class="subtext"><span>We are redirecting you to the bank\'s page</span></p><p class="subtextOne"><span>DO NOT CLOSE THIS POP-UP</span> </p></div></body></html>');
+        winRef = openPopupWindowForDropIn(winRef);
+        
     }
     if (getConfig().page === PAGE_TYPES.ICP) {
 
@@ -63,97 +62,12 @@ const NBAPIFunc = (confObj, apiUrl) => {
             },
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
-            handlePayment(resp,mode);
+            handlePayment(resp.data,mode);
         });
     }
 };
 
 let winRef = null;
-let transactionCompleted = false;
-
-const openPopupWindow = (url) => {
-
-    if (winRef == null || winRef.closed) {
-        var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-        var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-        var w = 800;
-        var h = 600;
-        var left = ((width - w) / 2);
-        var top = height / 10;
-        console.log('url to open :', url);
-        winRef = window.open(url, 'PromoteFirefoxWindowName', 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left + 'visible=none;');
-
-    } else {
-        winRef.focus();
-    }
-
-    return winRef;
-};
-
-const isIE = () => {
-    const ua = window.navigator.userAgent;
-    const ie10orless = ua.indexOf('MSIE ');
-    const ie11 = ua.indexOf('Trident/');
-    const edge = ua.indexOf('Edge/');
-    return !!(ie10orless > -1 || ie11 > -1 || edge > -1);
-};
-
-const workFlowForModernBrowsers = (winRef) => {
-    var intervalId = setInterval(function () {
-        if (transactionCompleted) {
-            return clearInterval(intervalId);
-        }
-        if (winRef) {
-            if (winRef.closed === true) {
-                clearInterval(intervalId);
-                let paymentObj = getAppData('paymentObj');
-                let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${paymentObj.merchantTxnId}&amount=${paymentObj.amount}&signature=${paymentObj.requestSignature}`;
-                const url = `${getConfig().adminUrl}/service/v0/redis/api/getTxnModel`;
-                return custFetch(url, {
-                    method: 'post',
-                    mode: 'cors',
-                    body: param,
-                    headers: {
-                        "content-type": "application/x-www-form-urlencoded"
-                    }
-                }).then(function (resp) {
-                    handlersMap['transactionHandler'](resp.data);
-                });
-            }
-        } else {
-            clearInterval(intervalId);
-        }
-    }, 500);
-};
-
-const workFlowForIE = (winRef) => {
-    const intervalId = setInterval(function () {
-        if (transactionCompleted) {
-            return clearInterval(intervalId);
-        }
-        if (winRef) {
-            if (winRef.closed) {
-                clearInterval(intervalId);
-                let paymentObj = getAppData('paymentObj');
-                let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${paymentObj.merchantTxnId}&amount=${paymentObj.amount}&signature=${paymentObj.requestSignature}`;
-                return custFetch(url, {
-                    method: 'post',
-                    mode: 'cors',
-                    body: param,
-                    headers: {
-                        "content-type": "application/x-www-form-urlencoded"
-                    }
-                }).then(function (resp) {
-                    handlersMap['transactionHandler'](resp.data);
-                });
-            }
-        }
-    }, 500);
-};
-
-window.responseHandler = function (response) {
-    handlersMap['transactionHandler'](response);
-};
 
 const netBankingValidationSchema = Object.assign(cloneDeep(baseSchema), {
     paymentDetails: {
@@ -232,66 +146,26 @@ const savedAPIFunc = (confObj, url) => {
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
             if (getConfig().page !== PAGE_TYPES.ICP) {
-                handlePayment(resp,mode);
+                handlePayment(resp.data,mode);
             }
         });
     }
 };
 const handlePayment = (resp,mode)=>{
-    if (resp.data.redirectUrl) {
+    if (resp.redirectUrl) {
         if (mode === "dropout") {
-            (requestOrigin === TRACKING_IDS.SSLV3Guest || requestOrigin === TRACKING_IDS.SSLV3Wallet || requestOrigin === TRACKING_IDS.SSLV3Nitro)?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
+            (requestOrigin === TRACKING_IDS.SSLV3Guest || requestOrigin === TRACKING_IDS.SSLV3Wallet || requestOrigin === TRACKING_IDS.SSLV3Nitro)?window.location = resp.redirectUrl:singleHopDropOutFunction(resp.redirectUrl);
                 }
                 else {
-                    if(winRef && winRef.closed)
-                    {
-                        handlersMap["serverErrorHandler"](cancelApiResp);
-                        return;
-                    }
-                    singleHopDropInFunction(resp.data.redirectUrl).then(function (response) {
-                        let el = document.createElement('body');
-                        el.innerHTML = response;
-                        let form = el.getElementsByTagName('form');
-                        console.log(form);
-                        try {
-                            if(winRef && winRef.closed)
-                            {
-                                handlersMap["serverErrorHandler"](cancelApiResp);
-                                return;
-                            }
-                            /* OL integration logic to be uncommented later*/
-                            //winRef.document.write(response);
-                            /*End of OL integration logic*/
-                                    submitForm(form[0],winRef);
-                        } catch (e) {
-                            console.log(e);
-                                    submitForm(form[0],winRef);
-                        }
-                        if (!isIE()) {
-                            workFlowForModernBrowsers(winRef);
-                        } else {
-                            workFlowForIE(winRef);
-                        }
-                    });
+                 handleDropIn(resp,winRef);
                 }
     } else {
         if (winRef) {
             winRef.close();
         }
-        const response = refineMotoResponse(resp.data);
+        const response = refineMotoResponse(resp);
         handlersMap['serverErrorHandler'](response);
     }
-};
-
-const submitForm=(form,winRef)=>{
-    let paymentForm = document.createElement('form');
-    paymentForm.setAttribute("action", form.action);
-    paymentForm.setAttribute("method", form.method);
-    paymentForm.setAttribute("target", winRef.name);
-    paymentForm.innerHTML = form.innerHTML;
-    document.documentElement.appendChild(paymentForm);
-    paymentForm.submit();
-    document.documentElement.removeChild(paymentForm);
 };
 
 const makeSavedNBPayment = validateAndCallbackify(savedNBValidationSchema, (confObj)=> {
