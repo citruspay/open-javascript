@@ -4,7 +4,7 @@
 import {cardFromNumber,schemeFromNumber,getAppData,addListener,postMessageWrapper,setAppData} from "./utils";
 import {getConfigValue,validHostedFieldTypes} from './hosted-field-config';
 import {validateExpiryDate, validateCreditCard,isValidCvv,isValidExpiry} from './validation/custom-validations';
-import {postMessageToChild} from './apis/payment';
+import {postMessageToChild} from './apis/hosted-field-payment';
 
 let paymentField;
 let field;
