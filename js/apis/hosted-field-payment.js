@@ -2,13 +2,10 @@ import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {urlReEx} from "../constants";
 import {handlersMap, getConfig} from "../config";
-import {getAppData, setAppData, isIE, getElement, postMessageWrapper,doValidation} from "./../utils";
-import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
+import {getAppData, setAppData, getElement, postMessageWrapper,doValidation} from "./../utils";
+import {singleHopDropOutFunction} from "./singleHop";
 import {refineMotoResponse} from "./response";
-import {custFetch} from "../interceptor";
 import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../hosted-field-config";
-import {makeNetBankingPayment} from "./net-banking";
-import {motoCardValidationSchema} from "./cards";
 import {handleDropIn, openPopupWindowForDropIn} from './drop-in'
 
 let winRef = null;

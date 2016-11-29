@@ -107,7 +107,7 @@ const workFlowForModernBrowsers = (winRef) => {
             if (winRef.closed === true) {
                 clearInterval(intervalId);
                 let paymentObj = getAppData('paymentObj');
-                let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${txnId}&amount=${paymentObj.amount}&signature=${paymentObj.requestSignature}`;
+                let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${paymentObj.merchantTxnId}&amount=${paymentObj.amount}&signature=${paymentObj.requestSignature}`;
                 const url = `${getConfig().adminUrl}/service/v0/redis/api/getTxnModel`;
                 return custFetch(url, {
                     method: 'post',
@@ -135,7 +135,7 @@ const workFlowForIE = (winRef) => {
             if (winRef.closed) {
                 clearInterval(intervalId);
                 let paymentObj = getAppData('paymentObj');
-                let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${txnId}&amount=${paymentObj.amount}&signature=${paymentObj.requestSignature}`;
+                let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${paymentObj.merchantTxnId}&amount=${paymentObj.amount}&signature=${paymentObj.requestSignature}`;
                 return custFetch(url, {
                     method: 'post',
                     mode: 'cors',

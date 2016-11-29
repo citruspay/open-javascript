@@ -9,7 +9,7 @@ import {makeExtWalletsPayment} from "./apis/external-wallets";
 import {validateExpiryDate, validateScheme, validateCreditCard} from "./validation/custom-validations";
 import {init, handlersMap, setConfig, getConfig} from "./config";
 import {getCardCurrencyInfo} from "./apis/mcp";
-import {schemeFromNumber,setAppData} from "./utils";
+import {schemeFromNumber} from "./utils";
 import {applyDynamicPricing, makeDPCardPayment} from "./apis/card-dp";
 import {applyNbDynamicPricing} from "./apis/net-banking-dp";
 import {makePayment} from "./apis/payment";
