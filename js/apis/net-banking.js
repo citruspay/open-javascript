@@ -4,9 +4,9 @@ import cloneDeep from "lodash/cloneDeep";
 import {handlersMap, getConfig, setConfig} from "../config";
 import {custFetch} from "../interceptor";
 import {getCancelResponse, refineMotoResponse} from "./response";
-import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
-import {TRACKING_IDS, PAGE_TYPES} from '../constants';
-import {handleDropIn, openPopupWindowForDropIn} from './drop-in';
+import {singleHopDropOutFunction} from "./singleHop";
+import {TRACKING_IDS, PAGE_TYPES} from "../constants";
+import {handleDropIn, openPopupWindowForDropIn} from "./drop-in";
 let cancelApiResp;
 let requestOrigin;
 const NBAPIFunc = (confObj, apiUrl) => {
@@ -62,7 +62,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
             },
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
-            handlePayment(resp.data,mode);
+            handlePayment(resp.data, mode);
         });
     }
 };
@@ -146,7 +146,7 @@ const savedAPIFunc = (confObj, url) => {
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
             if (getConfig().page !== PAGE_TYPES.ICP) {
-                handlePayment(resp.data,mode);
+                handlePayment(resp.data, mode);
             }
         });
     }
@@ -154,10 +154,10 @@ const savedAPIFunc = (confObj, url) => {
 const handlePayment = (resp,mode)=>{
     if (resp.redirectUrl) {
         if (mode === "dropout") {
-            (requestOrigin === TRACKING_IDS.SSLV3Guest || requestOrigin === TRACKING_IDS.SSLV3Wallet || requestOrigin === TRACKING_IDS.SSLV3Nitro)?window.location = resp.redirectUrl:singleHopDropOutFunction(resp.redirectUrl);
+            (requestOrigin === TRACKING_IDS.SSLV3Guest || requestOrigin === TRACKING_IDS.SSLV3Wallet || requestOrigin === TRACKING_IDS.SSLV3Nitro) ? window.location = resp.redirectUrl : singleHopDropOutFunction(resp.redirectUrl);
                 }
                 else {
-                 handleDropIn(resp,winRef);
+            handleDropIn(resp, winRef);
                 }
     } else {
         if (winRef) {

@@ -2,13 +2,11 @@ import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {urlReEx} from "../constants";
 import {handlersMap, getConfig} from "../config";
-import {getAppData, setAppData, getElement, postMessageWrapper,doValidation} from "./../utils";
+import {getAppData, setAppData, getElement, postMessageWrapper, doValidation} from "./../utils";
 import {singleHopDropOutFunction} from "./singleHop";
 import {refineMotoResponse} from "./response";
 import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../hosted-field-config";
-import {makeNetBankingPayment} from "./net-banking";
-import {motoCardValidationSchema} from "./cards";
-import {handleDropIn, openPopupWindowForDropIn} from './drop-in';
+import {handleDropIn, openPopupWindowForDropIn} from "./drop-in";
 
 let winRef = null;
 //let cancelApiResp;
@@ -66,7 +64,7 @@ const makeHostedFieldPayment = (paymentObj) => {
     else {
         //handle invalid fields
     }
-}
+};
 
 //parent listener
 const listener = (event) => {
@@ -130,7 +128,7 @@ const listener = (event) => {
 const handleSchemeChange = (event)=>{
     postMessageToChild('cvv',event.data.cardType,event.data,false);
     postMessageToChild('expiry',event.data.cardType,event.data,false);
-}
+};
 
 const handleValidationMessage = (event) => {
     var hostedField = event.data.hostedField, cardValidationResult = event.data.cardValidationResult;
@@ -147,7 +145,7 @@ const handleValidationMessage = (event) => {
         if (validationHandler)
             validationHandler(hostedField, cardValidationResult);
     }
-}
+};
 
 const toggleValidationClass = (hostedField, cardValidationResult) => {
     var element = getElement(hostedField.selector);
@@ -157,7 +155,7 @@ const toggleValidationClass = (hostedField, cardValidationResult) => {
     } else {
         element.className += ' citrus-hosted-field-invalid';
     }
-}
+};
 const handleFocus = (event) => {
     var hostedField = event.data.hostedField;
     var element = getElement(hostedField.selector);
@@ -166,7 +164,7 @@ const handleFocus = (event) => {
     } else if (event.data.messageType === "focusLost") {
         element.className = element.className.replace('citrus-hosted-field-focused', '');
     }
-}
+};
 
 
 
@@ -176,7 +174,7 @@ const getHostedFieldByType = (fieldType, cardSetupType) => {
         if (hostedFields[i].fieldType === fieldType)
             return hostedFields[i];
     }
-}
+};
 
 //todo:refactor this code later
 //assumed if the validationResult is not present for a hostedField
@@ -293,7 +291,7 @@ const validateCardDetails = (cardSetupType) => {
     }
 
     return isValidCard;
-}
+};
 
 const postMessageToChild = (fieldType, cardType, message, isSetTimeoutRequired) => {
     let frameId = getCitrusFrameId(fieldType, cardType);
@@ -304,17 +302,17 @@ const postMessageToChild = (fieldType, cardType, message, isSetTimeoutRequired) 
     } else {
         postMessage(frameId, message);
     }
-}
+};
 
 const postMessage = (frameId, message) => {
     let childFrameDomain = getConfigValue('hostedFieldDomain');
     let win = document.getElementById(frameId).contentWindow;
     postMessageWrapper(win, message, childFrameDomain);
-}
+};
 
 const getCitrusFrameId = (fieldType, cardType) => {
     return citrusSelectorPrefix + fieldType + '-' + cardType;
-}
+};
 
 export {
     makeHostedFieldPayment,
