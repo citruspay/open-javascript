@@ -6,6 +6,7 @@ import {
     validate
 } from 'validate.js';
 import flow from 'lodash/flow';
+import {PAGE_TYPES, TRACKING_IDS} from './constants';
 
 //Important: This should be defined as 'function' and not as ES6 arrow function
 //because arrow functions don't have 'arguments' object
@@ -247,6 +248,19 @@ const doValidation = (confObj,schema)=>{
         }
 }
 
+const isIcpRequest = ()=>{
+   return getConfig().page === PAGE_TYPES.ICP;
+};
+
+const isV3Request = (requestOrigin)=>{
+   return (requestOrigin === TRACKING_IDS.SSLV3Guest || requestOrigin === TRACKING_IDS.SSLV3Wallet || requestOrigin === TRACKING_IDS.SSLV3Nitro);
+}
+
+const isIOS = ()=>{
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+
 export {
     validateAndCallbackify,
     getMerchantAccessKey,
@@ -258,5 +272,8 @@ export {
     addListener,
     getElement,
     postMessageWrapper,
-    doValidation
+    doValidation,
+    isIcpRequest,
+    isV3Request,
+    isIOS
 };

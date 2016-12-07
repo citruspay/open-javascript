@@ -1,4 +1,4 @@
-import {validateAndCallbackify, getMerchantAccessKey, getAppData, setAppData} from "./../utils";
+import {validateAndCallbackify, getMerchantAccessKey, getAppData, setAppData,isV3Request} from "./../utils";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {handlersMap, getConfig, setConfig} from "../config";
@@ -129,9 +129,10 @@ const savedAPIFunc = (confObj, url) => {
     delete reqConf.CVV;
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
-    if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP) {
+    if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP ) {
         reqConf.returnUrl = getConfig().dropInReturnUrl;
-        winRef = openPopupWindowForDropIn(winRef);
+        if(getConfig().page!== PAGE_TYPES.HOSTED_FIELD)
+            winRef = openPopupWindowForDropIn(winRef);
         
     }
     if (getConfig().page === PAGE_TYPES.ICP) {
@@ -152,7 +153,10 @@ const savedAPIFunc = (confObj, url) => {
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
             if (getConfig().page !== PAGE_TYPES.ICP) {
-                handlePayment(resp.data,mode);
+                if(getConfig().page!== PAGE_TYPES.HOSTED_FIELD)
+                    handlePayment(resp.data,mode);
+                else
+                    return resp;
             }
         });
     }
@@ -160,11 +164,11 @@ const savedAPIFunc = (confObj, url) => {
 const handlePayment = (resp,mode)=>{
     if (resp.redirectUrl) {
         if (mode === "dropout") {
-            (requestOrigin === TRACKING_IDS.SSLV3Guest || requestOrigin === TRACKING_IDS.SSLV3Wallet || requestOrigin === TRACKING_IDS.SSLV3Nitro)?window.location = resp.redirectUrl:singleHopDropOutFunction(resp.redirectUrl);
-                }
-                else {
-                 handleDropIn(resp,winRef);
-                }
+            isV3Request(requestOrigin)?window.location = resp.redirectUrl:singleHopDropOutFunction(resp.redirectUrl);
+        }
+        else {
+                handleDropIn(resp,winRef);
+            }
     } else {
         if (winRef) {
             winRef.close();

@@ -45,7 +45,7 @@ Object.assign(window.citrus, {
     registerHandlers: (key, handler) => {
         handlersMap[key] = handler;
     },
-    geteways: {
+    gateways: {
         getPaymentDetails
     },
     netbanking: {

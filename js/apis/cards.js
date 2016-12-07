@@ -1,4 +1,4 @@
-import {validateAndCallbackify, getMerchantAccessKey, schemeFromNumber, getAppData} from "./../utils";
+import {validateAndCallbackify, getMerchantAccessKey, schemeFromNumber, getAppData, isV3Request, isIcpRequest} from "./../utils";
 import {savedNBValidationSchema, savedAPIFunc} from "./net-banking";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
@@ -8,6 +8,7 @@ import {custFetch} from "../interceptor";
 import {urlReEx,TRACKING_IDS,PAGE_TYPES} from "../constants";
 import {getCancelResponse, refineMotoResponse} from "./response";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
+import {handleDropIn} from './drop-in';
 //import $ from 'jquery';
 
 const regExMap = {
@@ -113,6 +114,8 @@ const motoCardValidationSchema = Object.assign(cloneDeep(baseSchema), {
 
 motoCardValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 
+//this code has become hosted-field-specific for dropin case
+//for the time being, look into it later
 const motoCardApiFunc = (confObj) => {
     const cardScheme = schemeFromNumber(confObj.paymentDetails.number);
     let paymentDetails;
@@ -181,7 +184,7 @@ const motoCardApiFunc = (confObj) => {
             },
             mode: 'cors',
             body: JSON.stringify(reqConf)
-        })
+        });
     }
     else {
         return custFetch(`${getConfig().motoApiUrl}/${getConfig().vanityUrl}`, {
@@ -197,39 +200,14 @@ const motoCardApiFunc = (confObj) => {
             if (getConfig().page !== PAGE_TYPES.ICP) {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
-                        (reqConf.requestOrigin === TRACKING_IDS.SSLV3Guest || reqConf.requestOrigin === TRACKING_IDS.SSLV3Wallet || reqConf.requestOrigin === TRACKING_IDS.SSLV3Nitro)?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
+                        isV3Request(reqConf.requestOrigin)?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
                     }
-                    else {
+                    else {//the code will never reach this point for the time being (or atleast should not reach)
                         if (winRef && winRef.closed) {
                             handlersMap["serverErrorHandler"](cancelApiResp);
                             return;
                         }
-                        singleHopDropInFunction(resp.data.redirectUrl).then(function (response) {
-                            let el = document.createElement('body');
-                            el.innerHTML = response;
-                            let form = el.getElementsByTagName('form');
-                            try {
-                                if (winRef && winRef.closed) {
-                                    handlersMap["serverErrorHandler"](cancelApiResp);
-                                    return;
-                                }
-                                let paymentForm = document.createElement('form');
-                                        paymentForm.setAttribute("action", form[0].action),
-                                            paymentForm.setAttribute("method", form[0].method),
-                                            paymentForm.setAttribute("target", winRef.name),
-                                            paymentForm.innerHTML = form[0].innerHTML,
-                                            document.documentElement.appendChild(paymentForm),
-                                            paymentForm.submit(),
-                                            document.documentElement.removeChild(paymentForm);
-                            } catch (e) {
-                                console.log(e);
-                            }
-                            if (!isIE()) {
-                                workFlowForModernBrowsers(winRef);
-                            } else {
-                                workFlowForIE(winRef);
-                            }
-                        });
+                        handleDropIn(resp.data, winRef);
                     }
                 } else {
                     if (winRef) {
@@ -245,67 +223,26 @@ const motoCardApiFunc = (confObj) => {
 
 const makeMotoCardPayment = validateAndCallbackify(motoCardValidationSchema, motoCardApiFunc);
 
+//this variable is not being assigned anywhere for the time being
+//after changes were made for hosted fields in this file, although
+//the variable is used in unreachable portions of code for the time being.
 let winRef = null;
-let transactionCompleted = false;
-
-const workFlowForModernBrowsers = (winRef) => {
-    var intervalId = setInterval(function () {
-        if (transactionCompleted) {
-            return clearInterval(intervalId);
-        }
-        if (winRef) {
-            if (winRef.closed === true) {
-                clearInterval(intervalId);
-                let form = new FormData();
-                form.append("merchantAccessKey", `${getConfig().merchantAccessKey}`);
-                form.append("transactionId", cancelApiResp.TxId);
-                const url = `${getConfig().adminUrl}/api/v1/txn/enquiry`;
-                return custFetch(url, {
-                    method: 'post',
-                    mode: 'cors',
-                    body: form
-                }).then(function (resp) {
-                    handlersMap['transactionHandler'](resp.data.enquiry);
-                });
-            }
-        } else {
-            clearInterval(intervalId);
-        }
-    }, 500);
-};
-
-const workFlowForIE = (winRef) => {
-    const intervalId = setInterval(function () {
-        if (transactionCompleted) {
-            return clearInterval(intervalId);
-        }
-        if (winRef) {
-            if (winRef.closed) {
-                clearInterval(intervalId);
-                let form = new FormData();
-                form.append("merchantAccessKey", `${getConfig().merchantAccessKey}`);
-                form.append("transactionId", cancelApiResp.TxId);
-                const url = `${getConfig().adminUrl}/api/v1/txn/enquiry`;
-                return custFetch(url, {
-                    method: 'post',
-                    mode: 'cors',
-                    body: form
-                }).then(function (resp) {
-                    handlersMap['transactionHandler'](resp.data.enquiry);
-                });
-            }
-        }
-    }, 500);
-};
 
 const savedCardValidationSchema = Object.assign({}, savedNBValidationSchema);
 savedCardValidationSchema.mainObjectCheck.keysCheck.push('CVV');
 
-const makeSavedCardPayment = validateAndCallbackify(savedCardValidationSchema, (confObj)=> {
+const makeSavedCardPayment = validateAndCallbackify(savedCardValidationSchema, (paymentData)=> {
     const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
-    if(!confObj.CVV) { confObj.CVV = Math.floor(Math.random()*900) + 100; }
-    return savedAPIFunc(confObj, apiUrl);
+    if(isCvvGenerationRequired(paymentData)) { paymentData.CVV = Math.floor(Math.random()*900) + 100; }
+    return savedAPIFunc(paymentData, apiUrl);
 });
+
+const isCvvGenerationRequired = (paymentData)=>{
+    return true;
+    if((isV3Request(paymentData.requestOrigin)||isIcpRequest())&&!paymentData.CVV)
+        return true;
+    return false;
+}
 
 export {
     makeBlazeCardPayment, getmerchantCardSchemes, motoCardValidationSchema, motoCardApiFunc,

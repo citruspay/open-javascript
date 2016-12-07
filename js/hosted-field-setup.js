@@ -5,8 +5,9 @@ import {
     supportedStyleKeys,
     specialStyleKeys
 } from "./hosted-field-config";
-import {setAppData, getElement} from "./utils";
-import {postMessageToChild, getCitrusFrameId} from "./apis/hosted-field-payment";
+import {setAppData, getElement,getAppData} from "./utils";
+import {postMessageToChild, getCitrusFrameId,getCitrusFrameIdForSavedCard,postMessageToSavedCardFrame} from "./apis/hosted-field-payment";
+import {addEventListenersForHostedFields} from './hosted-field-main'
 
 const create = (setUpConfig) => {
     "use strict";
@@ -16,27 +17,46 @@ const create = (setUpConfig) => {
         style
     } = setUpConfig;
     if (validCardSetupTypes.indexOf(setupType) === -1)
-        throw new Error(`invalid setupType "${setupType}", setupType should have one of these values ` + validCardSetupTypes);
-    setAppData('hostedFields' + '-' + setupType, hostedFields);
+        throw new Error(`invalid setupType "${setupType}", setupType should have one of these values ` + validCardSetupTypes); 
+   
     for (var i = 0, length = hostedFields.length; i < length; ++i) {
         let {
             fieldType,
             selector
         } = hostedFields[i];
         if (validHostedFieldTypes.indexOf(fieldType) !== -1) {
-            addIframe(hostedFields[i], setupType.toLowerCase(), style);
+            addIframe(hostedFields[i], setupType, style);
         } else {
             throw new Error(`invalid fieldType "${fieldType}", fieldType should have one of these values ` + validHostedFieldTypes);
         }
     }
+     
+    if(setupType==='savedCard'){
+        var savedCardHostedFields = getAppData('hostedFields' + '-' + setupType);
+        if(savedCardHostedFields)
+        {
+            hostedFields = savedCardHostedFields.concat(hostedFields);
+        }
+
+    }
+    setAppData('hostedFields' + '-' + setupType, hostedFields);
     //setStyle(style,hostedFields,cardType);
 };
 
 
 const addIframe = (hostedField, cardType, style) => {
     "use strict";
+    if(cardType==="savedCard")
+    {
+        if(!hostedField.savedMaskedCardNumber){
+            throw new Error(`savedMaskedCardNumber property is required in hostedField for setupType ${cardType}`);
+        }
+        if(!hostedField.savedCardScheme){
+             throw new Error(`savedCardScheme property is required in hostedField for setupType ${cardType}`);
+        }
+    }
     let {selector, fieldType} = hostedField;
-    const invalidSelectorMessage = `invalid selector for field type "${fieldType}", it should be of the form of #id or .cssClass`;
+    let element = getElement(selector);
     const iframe = document.createElement('iframe');
     var defaultStyle = {
         width: '100%',
@@ -61,8 +81,14 @@ const addIframe = (hostedField, cardType, style) => {
     Object.assign(iframe.style, defaultStyle);
     //todo: url needs to be configured
     iframe.src = getConfigValue('hostedFieldUrl') + '#' + fieldType + '-' + cardType;
-    iframe.id = getCitrusFrameId(fieldType, cardType);
-    iframe.name = getCitrusFrameId(fieldType, cardType);
+    if(cardType!='savedCard')
+    {
+        iframe.id = getCitrusFrameId(fieldType, cardType);
+        iframe.name = iframe.id;
+    }else{
+        iframe.id = getCitrusFrameIdForSavedCard(hostedField);
+        iframe.name = iframe.id;
+    }
     iframe.onload = () => {
         //console.log('inside iframe onload');
         passAttributesToHostedField(style, hostedField, cardType);
@@ -74,7 +100,7 @@ const addIframe = (hostedField, cardType, style) => {
         if (inputElements && inputElements.length > 0)
             inputElements[0].focus();
     };
-    let element = getElement(selector);
+    
     if (element) {
         element.appendChild(iframe);
         element.className += ' citrus-hosted-field';
@@ -104,11 +130,15 @@ const passAttributesToHostedField = (attributes, hostedField, cardType) => {
     hostedFrameAttributes.hostedField = hostedField;
     hostedFrameAttributes.cardType = cardType;
     //Object.assign(hostedFrameAttributes,attributes);
+    if(cardType.toLowerCase()!=='savedcard')
     postMessageToChild(fieldType, cardType, hostedFrameAttributes, true);
+    else
+    postMessageToSavedCardFrame(hostedField,hostedFrameAttributes);
 
 }
 
 const applyAttributes = (attributes) => {
+    //console.log(attributes,'inside applyAttributes');
     if (!attributes)
         return;
     let applicableStyle = {};
@@ -132,6 +162,11 @@ const applyAttributes = (attributes) => {
 
     setAppData('hostedField', attributes.hostedField);
     setAppData('cardType', attributes.cardType);
+    if(attributes.cardType.toLowerCase()==='savedcard')
+    {
+        setAppData(attributes.cardType+'scheme',attributes.hostedField.savedCardScheme);
+    }
+    addEventListenersForHostedFields(attributes.cardType);
     createSytleObject(attributes.commonStyle);
     createSytleObject(attributes.specificStyle);
     var inputElement = document.getElementsByTagName('input')[0];
@@ -149,14 +184,6 @@ const applyAttributes = (attributes) => {
         //if(attributes[])
     }
     addStyleTag(cssText);
-}
-
-const isValidSelector = (selector, hostedField)=> {
-
-
-}
-const convertCustomSytleObjectToCssString = (style, selector)=> {
-
 }
 
 const convertStyleToCssString = (selector, style)=> {

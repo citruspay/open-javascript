@@ -10,9 +10,11 @@ import {makePayment} from "./apis/payment";
 import {addField, validateCvv, validateExpiry, validateCard} from "./hosted-field-main";
 import {getConfigValue} from "./hosted-field-config";
 import {validateExpiryDate, validateScheme, validateCreditCard} from "./validation/custom-validations";
-import {makeMotoCardPayment,motoCardValidationSchema} from "./apis/cards";
+import {makeMotoCardPayment,motoCardValidationSchema,makeSavedCardPayment} from "./apis/cards";
 import {init, setConfig, handlersMap} from "./config";
 import {applyAttributes} from "./hosted-field-setup";
+import cloneDeep from 'lodash/cloneDeep';
+import {PAGE_TYPES} from './constants';
 
 init(); //initializes custom validators
 
@@ -75,7 +77,7 @@ function listener(event) {
     }
     //if the cardType send is same as for which it is setup, or the cardSetupType is card or the data is intended 
     //for making payment then only go ahead
-    if (!(event.data.cardType === fieldType[1] || event.data.cardType === "card" || event.data.messageType==="makePayment" ))
+    if (!(event.data.cardType === fieldType[1] || event.data.cardType === "card"||event.data.cardType=='savedCard' || event.data.messageType==="makePayment" ))
         return;
     if (event.origin === getConfigValue('hostedFieldDomain')&&event.data.messageType==="cardData") {
         let cardData = event.data.cardData;
@@ -84,20 +86,37 @@ function listener(event) {
         Object.assign(paymentDetails, requiredPaymentData);
         return;
     }
-    citrus.payment.setAppData('pgSettingsData', data.pgSettingsData);
-    citrus.setConfig(data.config);
-    let paymentData = data.paymentData;
-    Object.assign(paymentData.paymentDetails, paymentDetails);
-    delete paymentData.paymentDetails.paymentMode;
-    delete paymentData.paymentDetails.cardType;
     parentUrl = getAppData('parentUrl');
-    citrus.cards.makeMotoCardPayment(paymentData).then(function (response) {
-        response.responseType = "serverResponse";
-        delete response.isValidRequest;
-        response.data.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
-        let message = {messageType:'serverResponse',response:response.data};
-        postMessageWrapper(parent, message, parentUrl);
-    });
+    data.config.page = PAGE_TYPES.HOSTED_FIELD;
+    if(event.data.messageType==='makePayment')
+    {
+        citrus.payment.setAppData('pgSettingsData', data.pgSettingsData);
+        citrus.setConfig(data.config);
+        let paymentData = data.paymentData;
+        Object.assign(paymentData.paymentDetails, paymentDetails);
+        delete paymentData.paymentDetails.paymentMode;
+        delete paymentData.paymentDetails.cardType;
+        citrus.cards.makeMotoCardPayment(paymentData).then(function (response) {
+            response.responseType = "serverResponse";
+            delete response.isValidRequest;
+            response.data.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+            let message = {messageType:'serverResponse',response:response.data};
+            postMessageWrapper(parent, message, parentUrl);
+        });
+    } else if(event.data.messageType==="makeSavedCardPayment"){
+        let paymentData =  cloneDeep(data.paymentData);
+        citrus.setConfig(data.config);
+        delete paymentData.paymentDetails;
+        paymentData.CVV = document.getElementsByTagName('input')[0].value;
+     
+        makeSavedCardPayment(paymentData).then(function(response){
+            response.responseType = "serverResponse";
+            delete response.isValidRequest;
+            response.data.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+            let message = {messageType:'serverResponse',response:response.data};
+            postMessageWrapper(parent, message, parentUrl);
+        });
+    }
 }
 Object.assign(window.citrus, {
     setConfig,

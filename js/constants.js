@@ -28,6 +28,7 @@ const TRACKING_IDS = {
     'SSLV3Nitro' : 'SSLV3N'
     };
 const PAGE_TYPES = {
-    'ICP':'ICP'
+    'ICP':'ICP',
+    'HOSTED_FIELD':'HOSTED_FIELD'
 };
 export {urlReEx, currencyMap,TRACKING_IDS,PAGE_TYPES}

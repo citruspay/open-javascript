@@ -36,6 +36,25 @@ const hostedFieldPaymentObjschema = Object.assign(cloneDeep(baseSchema), {
 });
 hostedFieldPaymentObjschema.mainObjectCheck.keysCheck.push('paymentDetails');
 
+let savedCardPaymentObjSchema =  Object.assign(cloneDeep(baseSchema), {
+    paymentDetails: {
+        presence: true,
+        keysCheck: ['cardScheme', 'cardNumber','paymentMode']
+    },
+     "paymentDetails.cardScheme": {
+        presence: true
+    },
+     "paymentDetails.cardNumber": {
+        presence: true
+    },
+     "paymentDetails.paymentMode": {
+        presence: true
+    },
+    token:{presence:true},
+    mode:{presence:true,inclusion:{within:["dropOut","dropIn"],message:"invalid mode %{value} it should have one of these values dropIn, dropOut"}}
+});
+savedCardPaymentObjSchema.mainObjectCheck.keysCheck.push('paymentDetails');
+savedCardPaymentObjSchema.mainObjectCheck.keysCheck.push('token');
 const makeHostedFieldPayment = (paymentObj) => {
     txnId = paymentObj.merchantTxnId;
     // const paymentMode = paymentObj.paymentDetails.paymentMode.toLowerCase().replace(/\s+/g, '');
@@ -69,30 +88,68 @@ const makeHostedFieldPayment = (paymentObj) => {
     }
 }
 
+const makeSavedCardHostedFieldPayment = (paymentObj) =>{
+     doValidation(paymentObj,savedCardPaymentObjSchema);
+    let cardSetupType = paymentObj.paymentDetails.type;
+    let {cardNumber,cardScheme} = paymentObj.paymentDetails;
+    let hostedField = getHostedFieldForSavedCard({savedMaskedCardNumber:cardNumber,savedCardScheme:cardScheme});
+    let frameId = getCitrusFrameIdForSavedCard(hostedField);
+    //console.log('farmeId',frameId,hostedField);
+    let element = getElement('#'+frameId);
+    if (!element)
+        throw new Error(`Either invalid paymentDetails type ${cardSetupType}, it should be either of these values ` + validPaymentTypes +
+            ' or there was some problem in setting up hosted fields');
+    const win = element.contentWindow;
+    let message = {messageType:'makeSavedCardPayment',cardType:'savedCard'};
+    message.pgSettingsData = getAppData('pgSettingsData');
+    message.config = getConfig();
+    message.paymentData = paymentObj;
+    if (validateSavedCardCvvDetails(hostedField)) {
+        
+        if (paymentObj.mode.toLowerCase() !== "dropout") {
+            //open pop up window here
+            winRef = openPopupWindowForDropIn(winRef);
+        }
+        setAppData('paymentObj', paymentObj);
+       postMessageWrapper(win,message,getConfigValue('hostedFieldDomain'));
+    }
+    else {
+        //handle invalid fields
+    }
+}
+
 //parent listener
 const listener = (event) => {
     try {
         if (event.origin !== getConfigValue('hostedFieldDomain'))
             return;
+        var validationKeyPrefix;
+        if(event.data.hostedField) 
+            validationKeyPrefix = event.data.hostedField.fieldType + '-' + event.data.cardType;
         switch (event.data.messageType) {
             case 'focusReceived':
             case 'focusLost':
                 handleFocus(event);
                 return;
             case 'validation':
-                setAppData(event.data.hostedField.fieldType + '-' + event.data.cardType + '-validation', event.data.cardValidationResult);
-                setAppData(event.data.hostedField.fieldType + '-' + event.data.cardType + '-ignore-validation', event.data.ignoreValidationBroadcast);
-
-                //console.log('set event data for ' + event.data.hostedField.fieldType + '-' + event.data.cardType + '-validation');
+                if(event.data.cardType==="savedCard")
+                {
+                    validationKeyPrefix = getCitrusFrameIdForSavedCard(event.data.hostedField);
+                }
+                setAppData(validationKeyPrefix + '-validation', event.data.cardValidationResult);
+                setAppData(validationKeyPrefix + '-ignore-validation', event.data.ignoreValidationBroadcast);
+                //console.log('set event data for ' +validationKeyPrefix + '-validation');
                 handleValidationMessage(event);
                 return;
             case 'schemeChange':
                 setAppData(event.data.cardType + 'scheme');
-                setAppData(event.data.hostedField.fieldType + '-' + event.data.cardType + '-ignore-validation', event.data.ignoreValidationBroadcast);
+                setAppData(validationKeyPrefix+ '-ignore-validation', event.data.ignoreValidationBroadcast);
                 handleSchemeChange(event);
                 return;
             case 'errorHandler':
             case 'serverErrorHandler':
+                if(winRef)
+                    winRef.close();
                 handlersMap[event.data.messageType](event.data.error);
                 return;
         }
@@ -136,10 +193,6 @@ const handleSchemeChange = (event)=>{
 const handleValidationMessage = (event) => {
     var hostedField = event.data.hostedField, cardValidationResult = event.data.cardValidationResult;
     //console.log(hostedField,cardValidationResult,'test');
-    /*if (hostedField.fieldType === "number") {
-        postMessageToChild('cvv', event.data.cardType, event.data, false);
-        postMessageToChild('expiry', event.data.cardType, event.data, false);
-    }*/
     //don't put invalid class and don't broadcast it to
     //the client either in case this boolean is true
     if (!event.data.ignoreValidationBroadcast) {
@@ -172,10 +225,20 @@ const handleFocus = (event) => {
 
 
 const getHostedFieldByType = (fieldType, cardSetupType) => {
-    let hostedFields = getAppData('hostedFields' + '-' + cardSetupType);
+    let hostedFields = getAppData('hostedFields-' + cardSetupType);
     for (var i = 0; i < hostedFields.length; ++i) {
         if (hostedFields[i].fieldType === fieldType)
             return hostedFields[i];
+    }
+}
+
+const getHostedFieldForSavedCard = ({savedMaskedCardNumber,savedCardScheme})=>{
+    let hostedFields = getAppData('hostedFields-savedCard');
+    let hostedField;
+    for(var i=0;i<hostedFields.length; ++i){
+        hostedField = hostedFields[i];
+        if(hostedField.savedCardScheme===savedCardScheme&&hostedField.savedMaskedCardNumber===savedMaskedCardNumber)
+            return hostedField;
     }
 }
 
@@ -218,13 +281,15 @@ const validateCardDetails = (cardSetupType) => {
         });
         let hostedFieldsWithoutNumber = [];
         let ignoreValidationBroadcast;
+        let validationKeyPrefix;
         if (validationResult.scheme === "maestro") {
             let isValidField = true;
             //validate other keys if present
             for (var i = 0; i < validHostedFieldTypesWithoutNumber.length; ++i) {
-                validationResultKey = validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType + '-validation';
+                validationKeyPrefix = validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType;
+                validationResultKey = validationKeyPrefix + '-validation';
                 validationResult = getAppData(validationResultKey);
-                ignoreValidationBroadcast = getAppData(validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType + '-ignore-validation');
+                ignoreValidationBroadcast = getAppData(validationKeyPrefix + '-ignore-validation');
                 //console.log('validation result for key ', validationResultKey, validationResult, i,ignoreValidationBroadcast);
                 hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i], cardSetupType);
                 hostedFieldsWithoutNumber.push(hostedField);
@@ -256,9 +321,10 @@ const validateCardDetails = (cardSetupType) => {
             }
         } else {
             for (var i = 0; i < validHostedFieldTypesWithoutNumber.length; ++i) {
-                validationResultKey = validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType + '-validation';
+                validationKeyPrefix = validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType;
+                validationResultKey = validationKeyPrefix+ '-validation';
                 validationResult = getAppData(validationResultKey);
-                ignoreValidationBroadcast = getAppData(validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType + '-ignore-validation');
+                ignoreValidationBroadcast = getAppData(validationKeyPrefix + '-ignore-validation');
                 //console.log('validation result for key ', validationResultKey, validationResult, i,ignoreValidationBroadcast);
                 hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i], cardSetupType);
                 if (validationResult)
@@ -295,9 +361,50 @@ const validateCardDetails = (cardSetupType) => {
 
     return isValidCard;
 }
+const validateSavedCardCvvDetails = (hostedField)=>{
+    let validationKeyPrefix = getCitrusFrameIdForSavedCard(hostedField);
+    let validationResultKey = validationKeyPrefix+'-validation';
+    let validationResult = getAppData(validationResultKey);
+    let ignoreValidationBroadcast = getAppData(validationKeyPrefix + '-ignore-validation');
+    let isValidCard = true;
+                //console.log('validation result for key ', validationResultKey, validationResult, i,ignoreValidationBroadcast);
+    //if (validationResult)
+    //    validationResults.push(validationResult);
+    if (validationResult) {
+        if (!validationResult.isValid)
+            isValidCard = false;
+        if (!ignoreValidationBroadcast)
+            toggleValidationClass(hostedField, {
+                            isValid: validationResult.isValid
+                        });
+        else
+            postMessageToSavedCardFrame(hostedField, {
+                            messageType: 'validate'
+                        });
+
+    }
+    if (!validationResult) {
+        postMessageToSavedCardFrame(hostedField, {
+                        messageType: 'validate'
+                    });
+        isValidCard = false;
+    }
+    return isValidCard;         
+}
 
 const postMessageToChild = (fieldType, cardType, message, isSetTimeoutRequired) => {
     let frameId = getCitrusFrameId(fieldType, cardType);
+    if (isSetTimeoutRequired) {
+        setTimeout(() => {
+            postMessage(frameId, message);
+        }, 0);
+    } else {
+        postMessage(frameId, message);
+    }
+}
+
+const postMessageToSavedCardFrame=(hostedField,message,isSetTimeoutRequired)=>{
+    let frameId = getCitrusFrameIdForSavedCard(hostedField);
     if (isSetTimeoutRequired) {
         setTimeout(() => {
             postMessage(frameId, message);
@@ -313,13 +420,28 @@ const postMessage = (frameId, message) => {
     postMessageWrapper(win, message, childFrameDomain);
 }
 
+//todo:refactor both these methods to one method later on
 const getCitrusFrameId = (fieldType, cardType) => {
     return citrusSelectorPrefix + fieldType + '-' + cardType;
 }
 
+const getCitrusFrameIdForSavedCard = (hostedField)=>{
+    //var uid = getGuid();
+    return citrusSelectorPrefix+'cvv-savedCard-'+ getLastFourDigits(hostedField.savedMaskedCardNumber)+'-'+
+    hostedField.savedCardScheme;
+}
+
+const getLastFourDigits=(maskedCardNumber)=>{
+    return maskedCardNumber.substring(maskedCardNumber.length-4);
+}
+
+
 export {
     makeHostedFieldPayment,
+    makeSavedCardHostedFieldPayment,
     listener,
     postMessageToChild,
-    getCitrusFrameId
+    postMessageToSavedCardFrame,
+    getCitrusFrameId,
+    getCitrusFrameIdForSavedCard
 };

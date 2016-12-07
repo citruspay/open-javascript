@@ -1,12 +1,12 @@
 /**
  * Created by nagamai on 9/9/2016.
  */
-import {cardFromNumber,schemeFromNumber,getAppData,addListener,postMessageWrapper,setAppData} from "./utils";
+import {cardFromNumber,schemeFromNumber,getAppData,addListener,postMessageWrapper,setAppData,isIOS} from "./utils";
 import {getConfigValue,validHostedFieldTypes} from './hosted-field-config';
 import {validateExpiryDate, validateCreditCard,isValidCvv,isValidExpiry} from './validation/custom-validations';
 import {postMessageToChild} from './apis/hosted-field-payment';
 
-let paymentField;
+let _paymentField;
 let field;
 let cvvLen = 4;
 //todo:change its name later
@@ -17,17 +17,17 @@ const addField = () => {
     if(fieldType.length<2)
         return;
     field = fieldType[1].split("-");
-    paymentField = document.createElement("input");
-    paymentField.setAttribute("id", field[0] + "citrusInput");
-    document.body.appendChild(paymentField);
-    addEventListenersForHostedFields();
+    _paymentField = document.createElement("input");
+    _paymentField.setAttribute("id", field[0] + "citrusInput");
+    document.body.appendChild(_paymentField);
+    //addEventListenersForHostedFields();
 };
 
 const postPaymentData = () => {
     //Send value of the field to the cardnumber iframe
     let message = {messageType:'cardData'};
     let cardData = {};
-    cardData.value = paymentField.value;
+    cardData.value = _paymentField.value;
     cardData.key = field[0];
     message.cardType = field[1];
     message.cardData = cardData;
@@ -46,43 +46,44 @@ const postPaymentData = () => {
     }
 };
 
-const addEventListenersForHostedFields = () => {
+const addEventListenersForHostedFields = (cardSetupType) => {
     //detect the ios user agent, since ios devices don't listen to blur events. ignore the microsoft user agent which also contains the ios keyword.
-    let iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    let iOS = isIOS();
     let eventStr;
     iOS ? eventStr = "input" : eventStr = "blur";
         //add the event listeners for ui validations of those fields.
-        addListener(paymentField,eventStr, postPaymentData, false);
-        addListener(paymentField,"focus", addFocusAttributes, false);
-        addListener(paymentField,"blur", removeFocusAttributes, false);
-        addListener(paymentField,'paste', restrictPaste, false);        
+        if(cardSetupType==="credit"||cardSetupType==="debit"||cardSetupType==="card")
+            addListener(_paymentField,eventStr, postPaymentData, false);
+        addListener(_paymentField,"focus", addFocusAttributes, false);
+        addListener(_paymentField,"blur", removeFocusAttributes, false);
+        addListener(_paymentField,'paste', restrictPaste, false);        
         switch (field[0]) {
             case "number" :
-                addListener(paymentField,eventStr, validateCardEventListener, false);
-                addListener(paymentField,'input',detectScheme);
-                addListener(paymentField,'keypress', restrictNumeric, false);
-                addListener(paymentField,'keypress', restrictCardNumber, false);
-                addListener(paymentField,'keypress', formatCardNumber, false);
-                addListener(paymentField,'input', reFormatCardNumber, false);
+                addListener(_paymentField,eventStr, validateCardEventListener, false);
+                addListener(_paymentField,'input',detectScheme);
+                addListener(_paymentField,'keypress', restrictNumeric, false);
+                addListener(_paymentField,'keypress', restrictCardNumber, false);
+                addListener(_paymentField,'keypress', formatCardNumber, false);
+                addListener(_paymentField,'input', reFormatCardNumber, false);
                 break;
             case "expiry" :
-                addListener(paymentField,eventStr, validateExpiryEventListener, false);
-                addListener(paymentField,'keypress', restrictNumeric, false);
-                addListener(paymentField,'keypress', formatExpiry, false);
-                addListener(paymentField,'input', reformatExpiry, false);
+                addListener(_paymentField,eventStr, validateExpiryEventListener, false);
+                addListener(_paymentField,'keypress', restrictNumeric, false);
+                addListener(_paymentField,'keypress', formatExpiry, false);
+                addListener(_paymentField,'input', reformatExpiry, false);
                 break;
             case "cvv"    :
-                addListener(paymentField,eventStr, validateCvvEventListener, false);
-                paymentField.setAttribute("type", "password");
-                addListener(paymentField,'keypress', restrictNumeric, false);
-                addListener(paymentField,'keypress', restrictCVC, false);
+                addListener(_paymentField,eventStr, validateCvvEventListener, false);
+                _paymentField.setAttribute("type", "password");
+                addListener(_paymentField,'keypress', restrictNumeric, false);
+                addListener(_paymentField,'keypress', restrictCVC, false);
                 break;
         }
 };
 
 
 const detectScheme = ()=>{
-    const num = paymentField.value.replace(/\s+/g, '');
+    const num = _paymentField.value.replace(/\s+/g, '');
     const scheme = schemeFromNumber(num);
     var setupType = getAppData('cardType');
     var hostedField = getAppData('hostedField');
@@ -110,7 +111,7 @@ const removeFocusAttributes =()=>{
     postMessageWrapper(parent, focusLostMessage, getParentUrl());
 };
 const formatCardNumber = () => {
-    let num = paymentField.value;
+    let num = _paymentField.value;
 
     var card, groups, upperLength, _ref;
     card = cardFromNumber(num);
@@ -121,7 +122,7 @@ const formatCardNumber = () => {
     num = num.replace(/\D/g, '');
     num = num.slice(0, upperLength);
     if (card.groupingFormat.global) {
-        paymentField.value = (_ref = num.match(card.groupingFormat)) != null ? _ref.join(' ') : void 0;
+        _paymentField.value = (_ref = num.match(card.groupingFormat)) != null ? _ref.join(' ') : void 0;
     } else {
         groups = card.groupingFormat.exec(num);
         if (groups == null) {
@@ -131,7 +132,7 @@ const formatCardNumber = () => {
         groups = groups.filter(function (n) {
             return n;
         });
-        paymentField.value = groups.join(' ');
+        _paymentField.value = groups.join(' ');
     }
 };
 
@@ -148,14 +149,14 @@ const hasTextSelected = (target) => {
 };
 
 const formatExpiry = (e) => {
-    let expiry = paymentField.value;
+    let expiry = _paymentField.value;
     var mon,
         parts,
         sep,
         year;
     parts = expiry.match(/^\D*(\d{1,2})(\D+)?(\d{1,4})?/);
     if (!parts) {
-        paymentField.value = '';
+        _paymentField.value = '';
         return;
     }
     mon = parts[1] || '';
@@ -175,7 +176,7 @@ const formatExpiry = (e) => {
          sep = ' / ';
         digit = 60;
     }
-    paymentField.value = mon + sep + year;
+    _paymentField.value = mon + sep + year;
 };
 
 const restrictNumeric = (e) => {
@@ -201,14 +202,14 @@ const restrictNumeric = (e) => {
 //and also formats the card number while pasting the number directly inside the field
 const reFormatCardNumber = () => {
     return setTimeout(function () {
-        formatCardNumber(paymentField.value);
+        formatCardNumber(_paymentField.value);
     });
 };
 //to avoid the acceptance of one extra digit in the field
 //and also formats the card number while pasting the number directly inside the field
 const reformatExpiry = () => {
     return setTimeout(function () {
-        formatExpiry(paymentField.value);
+        formatExpiry(_paymentField.value);
     });
 };
 
@@ -220,10 +221,10 @@ const restrictCardNumber = function(e) {
     if (!/^\d+$/.test(digit)) {
         return;
     }
-    if (hasTextSelected(paymentField)) {
+    if (hasTextSelected(_paymentField)) {
         return;
     }
-    value = (paymentField.value + digit).replace(/\D/g, '');
+    value = (_paymentField.value + digit).replace(/\D/g, '');
     card = cardFromNumber(value);
     if (card) {
         if(value.length > card.length[card.length.length - 1]) e.preventDefault();
@@ -240,7 +241,7 @@ const validateCardEventListener=()=>{
     validateCard();
 }
 const validateCard = () => {
-    const num = paymentField.value.replace(/\s+/g, '');
+    const num = _paymentField.value.replace(/\s+/g, '');
     var cardType = getAppData('cardType');
     var hostedField = getAppData('hostedField');
     let validationResult = {fieldType:'number',messageType:'validation',hostedField,cardType};
@@ -268,7 +269,7 @@ const validateExpiry = (isCascadeFromNumberField) => {
     var hostedField = getAppData('hostedField');
     var cardType = getAppData('cardType');
     var scheme = getAppData(cardType+'scheme');
-    const exp = paymentField.value.replace(/\s+/g, '');
+    const exp = _paymentField.value.replace(/\s+/g, '');
     //console.log(scheme,exp,'test');
     let isEmpty = !exp;
     let isValid;
@@ -309,9 +310,9 @@ const toggleValidity = (isValid)=>{
         classNameToAdd=' valid';
         classNameToRemove = ' invalid';
     }
-    paymentField.className = paymentField.className.replace(classNameToRemove,'');
-    if(paymentField.className.indexOf(classNameToAdd)===-1)
-        paymentField.className += classNameToAdd;
+    _paymentField.className = _paymentField.className.replace(classNameToRemove,'');
+    if(_paymentField.className.indexOf(classNameToAdd)===-1)
+        _paymentField.className += classNameToAdd;
 };
 const validateCvvEventListener = () =>{
     validateCvv(false);
@@ -322,7 +323,7 @@ const validateCvv = (isCascadeFromNumberField) =>{
     var hostedField = getAppData('hostedField');
     var cardType = getAppData('cardType');
     var scheme = getAppData(cardType+'scheme');
-    const cvv = paymentField.value.replace(/\s+/g, '');
+    const cvv = _paymentField.value.replace(/\s+/g, '');
     //console.log(scheme,cvv,'inside validateCvv');
     var isValid = true;
      var isEmpty = !cvv;
@@ -359,10 +360,10 @@ const restrictCVC = (e) => {
     if (!/^\d+$/.test(digit)) {
         return;
     }
-    if (hasTextSelected(paymentField)) {
+    if (hasTextSelected(_paymentField)) {
         return;
     }
-    val = paymentField.value + digit;
+    val = _paymentField.value + digit;
     if(val.length > 4)  e.preventDefault();
 };
 
@@ -377,4 +378,4 @@ const restrictPaste = (e) => {
     e.preventDefault();
 };
 
-export {addField, formatExpiry,validateCvv,validateExpiry,validateCard}
+export {addField, formatExpiry,validateCvv,validateExpiry,validateCard,addEventListenersForHostedFields}
