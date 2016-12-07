@@ -4,9 +4,9 @@ import cloneDeep from "lodash/cloneDeep";
 import {handlersMap, getConfig, setConfig} from "../config";
 import {custFetch} from "../interceptor";
 import {getCancelResponse, refineMotoResponse} from "./response";
-import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
-import {TRACKING_IDS, PAGE_TYPES} from '../constants';
-import {handleDropIn, openPopupWindowForDropIn} from './drop-in';
+import {singleHopDropOutFunction} from "./singleHop";
+import {TRACKING_IDS, PAGE_TYPES} from "../constants";
+import {handleDropIn, openPopupWindowForDropIn} from "./drop-in";
 let cancelApiResp;
 let requestOrigin;
 const NBAPIFunc = (confObj, apiUrl) => {
@@ -62,7 +62,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
             },
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
-            handlePayment(resp.data,mode);
+            handlePayment(resp.data, mode);
         });
     }
 };
