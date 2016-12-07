@@ -8,7 +8,7 @@ import {custFetch} from "../interceptor";
 import {urlReEx,TRACKING_IDS,PAGE_TYPES} from "../constants";
 import {getCancelResponse, refineMotoResponse} from "./response";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
-import {handleDropIn} from './drop-in';
+import {handleDropIn,openPopupWindowForDropIn} from './drop-in';
 //import $ from 'jquery';
 
 const regExMap = {
@@ -167,10 +167,10 @@ const motoCardApiFunc = (confObj) => {
     cancelApiResp = getCancelResponse(reqConf);
     //if (mode === 'dropout' || getConfig().page === PAGE_TYPES.ICP) {
     //} else {
-        if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP) {
-        if (reqConf.requestOrigin === TRACKING_IDS.CitrusGuest) {
-            reqConf.returnUrl = getConfig().dropInReturnUrl;
-        }
+    if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP ) {
+        reqConf.returnUrl = getConfig().dropInReturnUrl;
+        if(getConfig().page!== PAGE_TYPES.HOSTED_FIELD)
+            winRef = openPopupWindowForDropIn(winRef);
     }
     if (getConfig().page === PAGE_TYPES.ICP) {
         return custFetch(`${getConfig().motoApiUrl}/${getConfig().vanityUrl}`, {
@@ -192,7 +192,7 @@ const motoCardApiFunc = (confObj) => {
             mode: 'cors',
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
-            if (reqConf.requestOrigin === TRACKING_IDS.CitrusGuest) return resp;
+            if (getConfig().page === PAGE_TYPES.HOSTED_FIELD) return resp;
             if (getConfig().page !== PAGE_TYPES.ICP) {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
