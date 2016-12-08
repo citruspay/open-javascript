@@ -1,14 +1,21 @@
-import {validateAndCallbackify, getMerchantAccessKey, schemeFromNumber, getAppData, isV3Request, isIcpRequest} from "./../utils";
+import {
+    validateAndCallbackify,
+    getMerchantAccessKey,
+    schemeFromNumber,
+    getAppData,
+    isV3Request,
+    isIcpRequest
+} from "./../utils";
 import {savedNBValidationSchema, savedAPIFunc} from "./net-banking";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {handlersMap, getConfig} from "../config";
 import {validateCardType, validateScheme, cardDate, validateCvv} from "../validation/custom-validations";
 import {custFetch} from "../interceptor";
-import {urlReEx,TRACKING_IDS,PAGE_TYPES} from "../constants";
+import {urlReEx, TRACKING_IDS, PAGE_TYPES} from "../constants";
 import {getCancelResponse, refineMotoResponse} from "./response";
-import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
-import {handleDropIn,openPopupWindowForDropIn} from './drop-in';
+import {singleHopDropOutFunction} from "./singleHop";
+import {handleDropIn, openPopupWindowForDropIn} from "./drop-in";
 //import $ from 'jquery';
 
 const regExMap = {
@@ -234,11 +241,10 @@ const makeSavedCardPayment = validateAndCallbackify(savedCardValidationSchema, (
 });
 
 const isCvvGenerationRequired = (paymentData)=>{
-    return true;
     if((isV3Request(paymentData.requestOrigin)||isIcpRequest())&&!paymentData.CVV)
         return true;
     return false;
-}
+};
 
 export {
     makeBlazeCardPayment, getmerchantCardSchemes, motoCardValidationSchema, motoCardApiFunc,

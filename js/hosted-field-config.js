@@ -1,6 +1,5 @@
-
-const HOSTED_FIELD_DOMAIN = 'https://mocha.citruspay.com';
-const CREDIT_CARD_GENERATOR_URL =  HOSTED_FIELD_DOMAIN + '/static/cards.html';
+const HOSTED_FIELD_DOMAIN = 'http://localhost';//'https://mocha.citruspay.com';
+const CREDIT_CARD_GENERATOR_URL = HOSTED_FIELD_DOMAIN + '/cards.html';
 
 const getConfigValue = (key) =>{
     "use strict";
@@ -10,7 +9,7 @@ const getConfigValue = (key) =>{
         case 'hostedFieldUrl':
             return CREDIT_CARD_GENERATOR_URL;
     }
-}
+};
 const validHostedFieldTypes = ["cvv","expiry","number"];
 const validPaymentTypes = ["credit","debit"];
 const validCardSetupTypes = validPaymentTypes.concat(["card","savedCard"]);

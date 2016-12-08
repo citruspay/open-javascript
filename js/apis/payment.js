@@ -1,10 +1,8 @@
 import {handlersMap} from "../config";
-import {setAppData,doValidation} from "./../utils";
+import {setAppData} from "./../utils";
 import {makeNetBankingPayment, makeSavedNBPayment} from "./net-banking";
 import {makeHostedFieldPayment, makeSavedCardHostedFieldPayment} from "./hosted-field-payment";
 import cloneDeep from "lodash/cloneDeep";
-import {baseSchema} from "./../validation/validation-schema";
-
 
 
 const makePayment = (paymentObj) => {
@@ -28,7 +26,7 @@ const makePayment = (paymentObj) => {
         case "savedNetbanking":
             let paymentData = cloneDeep(paymentObj);
             delete paymentData.paymentDetails;
-            makeSavedNBPayment(paymentObj);
+            makeSavedNBPayment(paymentData);
             break;
         //todo: message needs to be structured
         default :
