@@ -1,4 +1,4 @@
-import { singleHopDropInFunction} from "./singleHop";
+import {singleHopDropInFunction} from "./singleHop";
 import {handlersMap, getConfig} from "../config";
 import {getAppData} from "../utils";
 import {custFetch} from "../interceptor";
@@ -26,8 +26,8 @@ const openPopupWindow = (url,winRef) => {
 const openPopupWindowForDropIn = (winRef)=>{
     winRef = openPopupWindow("",winRef);
     winRef.document.write(dropInHtml);
-    return winRef;         
-}
+    return winRef;
+};
 
 let transactionCompleted = false;
 
@@ -88,7 +88,25 @@ singleHopDropInFunction(motoResponse.redirectUrl).then(function(response) {
                 });
 };
 
+const handleOlResponse = (htmlStr) => {
+    let el = document.createElement('body');
+    el.innerHTML = htmlStr;
+    let form = el.getElementsByTagName('form');
+    try {
+        let paymentForm = document.createElement('form');
+        paymentForm.setAttribute("action", form[0].action),
+            paymentForm.setAttribute("method", form[0].method),
+            paymentForm.innerHTML = form[0].innerHTML,
+            document.documentElement.appendChild(paymentForm),
+            paymentForm.submit(),
+            document.documentElement.removeChild(paymentForm);
+    } catch (e) {
+        console.log(e);
+    }
+};
+
 export {
     handleDropIn,
-    openPopupWindowForDropIn
+    openPopupWindowForDropIn,
+    handleOlResponse
 }

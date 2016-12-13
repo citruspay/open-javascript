@@ -4,7 +4,8 @@ import {
     schemeFromNumber,
     getAppData,
     isV3Request,
-    isIcpRequest
+    isIcpRequest,
+    isUrl
 } from "./../utils";
 import {savedNBValidationSchema, savedAPIFunc} from "./net-banking";
 import {baseSchema} from "./../validation/validation-schema";
@@ -15,7 +16,7 @@ import {custFetch} from "../interceptor";
 import {urlReEx, TRACKING_IDS, PAGE_TYPES} from "../constants";
 import {getCancelResponse, refineMotoResponse} from "./response";
 import {singleHopDropOutFunction} from "./singleHop";
-import {handleDropIn, openPopupWindowForDropIn} from "./drop-in";
+import {handleDropIn, openPopupWindowForDropIn, handleOlResponse} from "./drop-in";
 //import $ from 'jquery';
 
 const regExMap = {
@@ -171,16 +172,21 @@ const motoCardApiFunc = (confObj) => {
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
     reqConf.deviceType = getConfig().deviceType;
+    //const env = `${getConfig().isOl}`;
+    let isOl = getConfig().isOlEnabled;
+    //env.toLowerCase().contains('ol') ?  isOl = true :  isOl = false;
     cancelApiResp = getCancelResponse(reqConf);
-    //if (mode === 'dropout' || getConfig().page === PAGE_TYPES.ICP) {
-    //} else {
+    let corsString;
+    isOl ? corsString = 'no-cors' : corsString = 'cors';
+    let url;
+    isOl ? url = `${getConfig().olUrl}/${getConfig().vanityUrl}` : url = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
     if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP ) {
         reqConf.returnUrl = getConfig().dropInReturnUrl;
         if(getConfig().page!== PAGE_TYPES.HOSTED_FIELD)
             winRef = openPopupWindowForDropIn(winRef);
     }
     if (getConfig().page === PAGE_TYPES.ICP) {
-        return custFetch(`${getConfig().motoApiUrl}/${getConfig().vanityUrl}`, {
+        return custFetch(url, {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json'
@@ -190,22 +196,29 @@ const motoCardApiFunc = (confObj) => {
         });
     }
     else {
-        return custFetch(`${getConfig().motoApiUrl}/${getConfig().vanityUrl}`, {
+        return custFetch(url, {
         //     return custFetch(`${getConfig().motoApiUrl}/struct/${getConfig().vanityUrl}`, {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json'
             },
-            mode: 'cors',
+            mode: corsString,
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
             if (getConfig().page === PAGE_TYPES.HOSTED_FIELD) return resp;
             if (getConfig().page !== PAGE_TYPES.ICP) {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
-                        isV3Request(reqConf.requestOrigin)?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
+                        //logic for OL
+                        if (isV3Request(reqConf.requestOrigin)) {
+                            let htmlStr = resp.data.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"');
+                            if (isUrl(htmlStr) && !(getConfig().isSingleHop)) {
+                                window.location = resp.data.redirectUrl;
+                            }
+                            isUrl(htmlStr) ? singleHopDropOutFunction(htmlStr) : handleOlResponse(htmlStr);
+                        }
                     }
-                    else {//the code will never reach this point for the time being (or atleast should not reach)
+                    else {//the code will never reach this point for the time being (or at least should not reach)
                         if (winRef && winRef.closed) {
                             handlersMap["serverErrorHandler"](cancelApiResp);
                             return;

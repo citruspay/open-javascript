@@ -1,61 +1,72 @@
-import {validate} from 'validate.js';
-import {keysCheck, cardDate, custFormat, cardCheck, blazeCardCheck} from './validation/custom-validations';
-import {setAppData} from './utils';
+import {validate} from "validate.js";
+import {keysCheck, cardDate, custFormat, cardCheck, blazeCardCheck} from "./validation/custom-validations";
+import {setAppData} from "./utils";
 
 const apiConfMap = {
-    sandboxConf : {
-        blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
-        blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
+    sandboxConf: {
+        blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
+        blazeNetApiUrl: 'https://sboxblazenet.citruspay.com',
         motoApiUrl: 'https://sandboxadmin.citruspay.com/service/moto/authorize/struct',
-        adminUrl : 'https://sandboxadmin.citruspay.com',
+        olUrl: 'https://sboxpay.citruspay.com/service/moto/authorize/struct',
+        adminUrl: 'https://sandboxadmin.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing',
-        pgUrl : 'https://sandbox.citruspay.com'
+        pgUrl: 'https://sandbox.citruspay.com'
     },
-    prodConf : {
-        blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
-        blazeNetApiUrl : 'https://sboxblaze.citruspay.com',
+    prodConf: {
+        blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
+        blazeNetApiUrl: 'https://sboxblaze.citruspay.com',
         motoApiUrl: 'https://admin.citruspay.com/service/moto/authorize/struct',
-        adminUrl : 'https://admin.citruspay.com',
+        olUrl: 'https://pay.citruspay.com/service/moto/authorize/struct',
+        adminUrl: 'https://admin.citruspay.com',
         MCPAPIUrl: 'https://mercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://mars.citruspay.com/dynamicpricing/dynamicpricing',
-        pgUrl : 'https://www.citruspay.com'
+        pgUrl: 'https://www.citruspay.com'
     },
-    stagingConf : {
-        blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
-        blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
+    stagingConf: {
+        blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
+        blazeNetApiUrl: 'https://sboxblazenet.citruspay.com',
         motoApiUrl: 'https://stgadmin2.citruspay.com/service/moto/authorize/struct', //'https://stgpay.citruspay.com/service/moto/authorize/struct',
-        adminUrl : 'https://stgadmin2.citruspay.com',
+        adminUrl: 'https://stgadmin2.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://stgadmin2.citruspay.com/dynamic-pricing/dynamicpricing',
-        pgUrl : 'https://stgpg2.citruspay.com'
+        pgUrl: 'https://stgpg2.citruspay.com'
     },
-    olStagingConf : {
-        blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
-        blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
+    olstagingConf: {
+        blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
+        blazeNetApiUrl: 'https://sboxblazenet.citruspay.com',
         motoApiUrl: 'https://stgpay.citruspay.com/service/moto/authorize/struct',
-        adminUrl : 'https://sandboxadmin.citruspay.com',
+        adminUrl: 'https://sandboxadmin.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://stgadmin2.citruspay.com/dynamic-pricing/dynamicpricing',
-        pgUrl : 'https://stgpg2.citruspay.com'
+        pgUrl: 'https://stgpg2.citruspay.com'
     },
-    olSandboxConf : {
-        blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
-        blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
+    olsandboxConf: {
+        blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
+        blazeNetApiUrl: 'https://sboxblazenet.citruspay.com',
         motoApiUrl: 'https://sboxpay.citruspay.com/service/moto/authorize/struct',
-        adminUrl : 'https://sandboxadmin.citruspay.com',
+        adminUrl: 'https://sandboxadmin.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://stgadmin2.citruspay.com/dynamic-pricing/dynamicpricing',
-        pgUrl : 'https://stgpg2.citruspay.com'
+        pgUrl: 'https://stgpg2.citruspay.com'
     },
-    localConf : {
-        blazeCardApiUrl : 'https://blazecardsbox.citruspay.com',
-        blazeNetApiUrl : 'https://sboxblazenet.citruspay.com',
+    olprodConf: {
+        blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
+        blazeNetApiUrl: 'https://sboxblazenet.citruspay.com',
+        motoApiUrl: 'https://pay.citruspay.com/service/moto/authorize/struct',
+        adminUrl: 'https://sandboxadmin.citruspay.com',
+        MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
+        dpApiUrl: 'https://stgadmin2.citruspay.com/dynamic-pricing/dynamicpricing',
+        pgUrl: 'https://stgpg2.citruspay.com'
+    },
+    localConf: {
+        blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
+        blazeNetApiUrl: 'https://sboxblazenet.citruspay.com',
         motoApiUrl: 'http://localhost:8080/admin-site/service/moto/authorize/struct',
-        adminUrl : 'http://localhost:8080/admin-site',
+        adminUrl: 'http://localhost:8080/admin-site',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'http://localhost:8080/dynamic-pricing/dynamicpricing',
-        pgUrl : 'https://stgpg2.citruspay.com'
+        pgUrl: 'https://stgpg2.citruspay.com'
     }
 };
 
@@ -71,7 +82,7 @@ const handlersMap = {
     serverErrorHandler: (error) => {
         console.error("Error thrown from citrus.js sdk:", JSON.stringify(error));
     },
-    transactionHandler:(response) => {
+    transactionHandler: (response) => {
         console.log("Transaction status :", response);
     }
 };
@@ -79,15 +90,17 @@ const handlersMap = {
 let env = 'prod';
 
 const configMap = Object.assign({
-    merchantAccessKey: '',
-    vanityUrl: '',
-    env: 'prod'},
-    apiConfMap[env+'Conf']
-    );
+        merchantAccessKey: '',
+        vanityUrl: '',
+        env: 'prod'
+    },
+    apiConfMap[env + 'Conf']
+);
 
 const setConfig = (configObj) => {
     configObj.env && (env = configObj.env);
-    Object.assign(configMap,apiConfMap[env+'Conf'] , configObj);
+    // (configObj.isOl) ? configObj.env = 'ol' + configObj.env : configObj.isOl = false;
+    Object.assign(configMap, apiConfMap[env + 'Conf'], configObj);
     //todo: later to be changed with prod return url
     configMap.dropInReturnUrl = "https://mocha.citruspay.com/" + "static/returnUrl.html";
     return Object.assign({}, configMap);
@@ -120,7 +133,7 @@ function getDeviceType() {
     }
     return device;
 }
- 
+
 //todo:ideally we don't need to set the config url three times
 //as we are calling setConfig three times we are setting it three times
 const init = () => {
@@ -138,8 +151,8 @@ const init = () => {
         : document.location;
     setAppData('parentUrl', url);
     setAppData('isValidCard', {"isValidCard": false, "txMsg": "Invalid card number"});
-    setAppData('isValidExpiry', {"isValidExpiry" : false, "txMsg": "Invalid expiry date"});
-    setAppData('isValidCvv', {"isValidCvv" : false, "txMsg": "Invalid cvv"});
+    setAppData('isValidExpiry', {"isValidExpiry": false, "txMsg": "Invalid expiry date"});
+    setAppData('isValidCvv', {"isValidCvv": false, "txMsg": "Invalid cvv"});
 
     //for back button cancellation scenario
     if (history && history.pushState) {
@@ -150,8 +163,8 @@ const init = () => {
             urlWithQS = urlWithQS.replace('fromBank=yes&', '');
             urlWithQS = urlWithQS.replace('?fromBank=yes', '');
             window.history.pushState({path: urlWithQS}, '', urlWithQS);
-        }else {
-        //console.log('for cancellation API ==> not from bank!');
+        } else {
+            //console.log('for cancellation API ==> not from bank!');
         }
     }
 };

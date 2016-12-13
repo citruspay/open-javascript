@@ -1,12 +1,7 @@
-import {
-    handlersMap,
-    getConfig
-} from './config';
-import {
-    validate
-} from 'validate.js';
-import flow from 'lodash/flow';
-import {PAGE_TYPES, TRACKING_IDS} from './constants';
+import {handlersMap, getConfig} from "./config";
+import {validate} from "validate.js";
+import flow from "lodash/flow";
+import {PAGE_TYPES, TRACKING_IDS} from "./constants";
 
 //Important: This should be defined as 'function' and not as ES6 arrow function
 //because arrow functions don't have 'arguments' object
@@ -173,7 +168,7 @@ const schemeFromNumber = (num) => {
 };
 
 const cardFromNumber = (num) => {
-    var card, _i, _len, _ref;
+    var card, _i, _len;
     num = (num + '').replace(/\D/g, '');
     for (_i = 0, _len = cards.length; _i < _len; _i++) {
         card = cards[_i];
@@ -246,7 +241,7 @@ const doValidation = (confObj,schema)=>{
             handlersMap['errorHandler'](validationResult);
             throw JSON.stringify(validationResult);
         }
-}
+};
 
 const isIcpRequest = ()=>{
    return getConfig().page === PAGE_TYPES.ICP;
@@ -254,12 +249,17 @@ const isIcpRequest = ()=>{
 
 const isV3Request = (requestOrigin)=>{
    return (requestOrigin === TRACKING_IDS.SSLV3Guest || requestOrigin === TRACKING_IDS.SSLV3Wallet || requestOrigin === TRACKING_IDS.SSLV3Nitro);
-}
+};
 
 const isIOS = ()=>{
     return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-}
+};
 
+const isUrl = (data) => {
+    //regex for url
+    const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+    return regexp.test(data);
+};
 
 export {
     validateAndCallbackify,
@@ -275,5 +275,6 @@ export {
     doValidation,
     isIcpRequest,
     isV3Request,
-    isIOS
+    isIOS,
+    isUrl
 };

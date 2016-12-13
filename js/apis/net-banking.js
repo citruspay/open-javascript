@@ -1,4 +1,4 @@
-import {validateAndCallbackify, getMerchantAccessKey, getAppData, setAppData,isV3Request} from "./../utils";
+import {validateAndCallbackify, getMerchantAccessKey, getAppData, setAppData, isV3Request, isUrl} from "./../utils";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {handlersMap, getConfig, setConfig} from "../config";
@@ -6,7 +6,7 @@ import {custFetch} from "../interceptor";
 import {getCancelResponse, refineMotoResponse} from "./response";
 import {singleHopDropOutFunction} from "./singleHop";
 import {TRACKING_IDS, PAGE_TYPES} from "../constants";
-import {handleDropIn, openPopupWindowForDropIn} from "./drop-in";
+import {handleDropIn, openPopupWindowForDropIn, handleOlResponse} from "./drop-in";
 let cancelApiResp;
 let requestOrigin;
 const NBAPIFunc = (confObj, apiUrl) => {
@@ -164,7 +164,15 @@ const savedAPIFunc = (confObj, url) => {
 const handlePayment = (resp,mode)=>{
     if (resp.redirectUrl) {
         if (mode === "dropout") {
-            isV3Request(requestOrigin)?window.location = resp.redirectUrl:singleHopDropOutFunction(resp.redirectUrl);
+            // isV3Request(requestOrigin)?window.location = resp.redirectUrl:singleHopDropOutFunction(resp.redirectUrl);
+
+            if (isV3Request(requestOrigin)) {
+                let htmlStr = resp.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"');
+                if (isUrl(htmlStr) && !(getConfig().isSingleHop)) {
+                    window.location = resp.redirectUrl;
+                }
+                isUrl(htmlStr) ? singleHopDropOutFunction(htmlStr) : handleOlResponse(htmlStr);
+            }
         }
         else {
                 handleDropIn(resp,winRef);
