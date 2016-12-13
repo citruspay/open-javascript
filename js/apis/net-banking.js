@@ -178,10 +178,19 @@ const handlePayment = (resp,mode)=>{
     }
 };
 
-const makeSavedNBPayment = validateAndCallbackify(savedNBValidationSchema, (confObj)=> {
+const makeSavedNBPayment = (paymentObj)=>{
+    let paymentData = cloneDeep(paymentObj);
+    if(paymentObj.paymentDetails){
+        if(!paymentObj.token && paymentObj.paymentDetails.token)
+            paymentData.token = paymentObj.paymentDetails.token;
+        delete paymentData.paymentDetails;
+    }
+    let makeSavedNBPaymentInternal = validateAndCallbackify(savedNBValidationSchema, (confObj)=> {
     const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
     return savedAPIFunc(confObj, apiUrl);
-});
+    });
+    return makeSavedNBPaymentInternal(paymentData);
+}
 
 export {
     makeNetBankingPayment,

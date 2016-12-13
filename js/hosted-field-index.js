@@ -106,7 +106,6 @@ function listener(event) {
     } else if(event.data.messageType==="makeSavedCardPayment"){
         let paymentData =  cloneDeep(data.paymentData);
         citrus.setConfig(data.config);
-        delete paymentData.paymentDetails;
         paymentData.CVV = document.getElementsByTagName('input')[0].value;
      
         makeSavedCardPayment(paymentData).then(function(response){

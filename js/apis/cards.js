@@ -234,11 +234,20 @@ let winRef = null;
 const savedCardValidationSchema = Object.assign({}, savedNBValidationSchema);
 savedCardValidationSchema.mainObjectCheck.keysCheck.push('CVV');
 
-const makeSavedCardPayment = validateAndCallbackify(savedCardValidationSchema, (paymentData)=> {
-    const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
-    if(isCvvGenerationRequired(paymentData)) { paymentData.CVV = Math.floor(Math.random()*900) + 100; }
-    return savedAPIFunc(paymentData, apiUrl);
-});
+const makeSavedCardPayment = (paymentObj)=>{
+    let paymentData = cloneDeep(paymentObj);
+    if(paymentObj.paymentDetails){
+        if(!paymentObj.token && paymentObj.paymentDetails.token)
+            paymentData.token = paymentObj.paymentDetails.token;
+        delete paymentData.paymentDetails;
+    } 
+    let makeSavedCardPaymentInternal = validateAndCallbackify(savedCardValidationSchema, (paymentData)=> {
+        const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
+        if(isCvvGenerationRequired(paymentData)) { paymentData.CVV = Math.floor(Math.random()*900) + 100; }
+        return savedAPIFunc(paymentData, apiUrl);
+    });
+    return makeSavedCardPaymentInternal(paymentData);
+};
 
 const isCvvGenerationRequired = (paymentData)=>{
     if((isV3Request(paymentData.requestOrigin)||isIcpRequest())&&!paymentData.CVV)
