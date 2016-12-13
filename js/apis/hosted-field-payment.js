@@ -36,7 +36,7 @@ hostedFieldPaymentObjschema.mainObjectCheck.keysCheck.push('paymentDetails');
 let savedCardPaymentObjSchema =  Object.assign(cloneDeep(baseSchema), {
     paymentDetails: {
         presence: true,
-        keysCheck: ['cardScheme', 'cardNumber','paymentMode']
+        keysCheck: ['cardScheme', 'cardNumber','paymentMode','token']
     },
      "paymentDetails.cardScheme": {
         presence: true
@@ -47,11 +47,12 @@ let savedCardPaymentObjSchema =  Object.assign(cloneDeep(baseSchema), {
      "paymentDetails.paymentMode": {
         presence: true
     },
-    token:{presence:true},
+    "paymentDetails.token":{
+        presence:true
+    },
     mode:{presence:true,inclusion:{within:["dropOut","dropIn"],message:"invalid mode %{value} it should have one of these values dropIn, dropOut"}}
 });
 savedCardPaymentObjSchema.mainObjectCheck.keysCheck.push('paymentDetails');
-savedCardPaymentObjSchema.mainObjectCheck.keysCheck.push('token');
 const makeHostedFieldPayment = (paymentObj) => {
     txnId = paymentObj.merchantTxnId;
     // const paymentMode = paymentObj.paymentDetails.paymentMode.toLowerCase().replace(/\s+/g, '');

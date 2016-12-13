@@ -24,9 +24,7 @@ const makePayment = (paymentObj) => {
             makeSavedCardHostedFieldPayment(paymentObj);
             break;
         case "savedNetbanking":
-            let paymentData = cloneDeep(paymentObj);
-            delete paymentData.paymentDetails;
-            makeSavedNBPayment(paymentData);
+            makeSavedNBPayment(paymentObj);
             break;
         //todo: message needs to be structured
         default :

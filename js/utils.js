@@ -4,7 +4,11 @@ import flow from "lodash/flow";
 import {PAGE_TYPES, TRACKING_IDS} from "./constants";
 
 //Important: This should be defined as 'function' and not as ES6 arrow function
-//because arrow functions don't have 'arguments' object
+//because arrow functions don't have 'arguments' object 
+//This function is used to mainly suppress the default validation messages
+//shown by validate.js which prepends the name of the attribute in the messagese
+//the first parameter passed is the object to be validated, the other object is constraint
+//the third object is options (dealing with error messages format, grouping etc.)
 const custValidate = function() {
     //Array.from(arguments) 's equivalent to in ES5/ES3 is Array.prototype.slice.call(arguments)
     //const args = Array.from(arguments);
