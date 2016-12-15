@@ -176,8 +176,8 @@ const motoCardApiFunc = (confObj) => {
     let isOl = (getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled && getConfig().isOlEnabled !== 'false');
     //env.toLowerCase().contains('ol') ?  isOl = true :  isOl = false;
     cancelApiResp = getCancelResponse(reqConf);
-    let corsString = 'cors';
-    isOl ? corsString = 'no-cors' : corsString = 'cors';
+    // let corsString = 'cors';
+    // isOl ? corsString = 'no-cors' : corsString = 'cors';
     let url;
     isOl ? url = `${getConfig().olUrl}/${getConfig().vanityUrl}` : url = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
     if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP ) {
@@ -191,7 +191,7 @@ const motoCardApiFunc = (confObj) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            mode: 'cors',
+            // mode: 'cors',
             body: JSON.stringify(reqConf)
         });
     }
@@ -202,7 +202,7 @@ const motoCardApiFunc = (confObj) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            mode: corsString,
+            //  mode: corsString,
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
             if (getConfig().page === PAGE_TYPES.HOSTED_FIELD) return resp;
