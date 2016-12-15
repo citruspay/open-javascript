@@ -81,7 +81,10 @@ netBankingValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 
 
 const makeNetBankingPayment = validateAndCallbackify(netBankingValidationSchema, (confObj) => {
-    const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
+    let isOl = (getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled && getConfig().isOlEnabled !== 'false');
+    let apiUrl;
+    isOl ? apiUrl = `${getConfig().olUrl}/${getConfig().vanityUrl}` : apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
+    //isOl ? const apiUrl = `${getConfig().olUrl}/${getConfig().vanityUrl}` : const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
     return NBAPIFunc(confObj, apiUrl);
 });
 //wrapper function call
@@ -135,6 +138,9 @@ const savedAPIFunc = (confObj, url) => {
             winRef = openPopupWindowForDropIn(winRef);
         
     }
+    let isOl = (getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled && getConfig().isOlEnabled !== 'false');
+    let apiUrl;
+    isOl ? apiUrl = `${getConfig().olUrl}/${getConfig().vanityUrl}` : apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
     if (getConfig().page === PAGE_TYPES.ICP) {
         return custFetch(url, {
             method: 'post',
@@ -198,7 +204,7 @@ const makeSavedNBPayment = (paymentObj)=>{
     return savedAPIFunc(confObj, apiUrl);
     });
     return makeSavedNBPaymentInternal(paymentData);
-}
+};
 
 export {
     makeNetBankingPayment,

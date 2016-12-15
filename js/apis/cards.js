@@ -173,10 +173,10 @@ const motoCardApiFunc = (confObj) => {
     delete reqConf.mode;
     reqConf.deviceType = getConfig().deviceType;
     //const env = `${getConfig().isOl}`;
-    let isOl = getConfig().isOlEnabled;
+    let isOl = (getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled && getConfig().isOlEnabled !== 'false');
     //env.toLowerCase().contains('ol') ?  isOl = true :  isOl = false;
     cancelApiResp = getCancelResponse(reqConf);
-    let corsString;
+    let corsString = 'cors';
     isOl ? corsString = 'no-cors' : corsString = 'cors';
     let url;
     isOl ? url = `${getConfig().olUrl}/${getConfig().vanityUrl}` : url = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
