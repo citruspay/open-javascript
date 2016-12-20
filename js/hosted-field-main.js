@@ -1,10 +1,17 @@
 /**
  * Created by nagamai on 9/9/2016.
  */
-import {cardFromNumber,schemeFromNumber,getAppData,addListener,postMessageWrapper,setAppData,isIOS} from "./utils";
-import {getConfigValue,validHostedFieldTypes} from './hosted-field-config';
-import {validateExpiryDate, validateCreditCard,isValidCvv,isValidExpiry} from './validation/custom-validations';
-import {postMessageToChild} from './apis/hosted-field-payment';
+import {
+    cardFromNumber,
+    schemeFromNumber,
+    getAppData,
+    addListener,
+    postMessageWrapper,
+    setAppData,
+    isIOS
+} from "./utils";
+import {getConfigValue} from "./hosted-field-config";
+import {validateCreditCard, isValidCvv, isValidExpiry} from "./validation/custom-validations";
 
 let _paymentField;
 let field;
@@ -97,7 +104,7 @@ const detectScheme = ()=>{
         setAppData(setupType+'scheme',scheme);
         postMessageWrapper(parent,schemeChangeMessage,getParentUrl());
     }
-}
+};
 
 const addFocusAttributes=()=>{
     var hostedField = getAppData('hostedField');
@@ -235,11 +242,10 @@ const restrictCardNumber = function(e) {
 
 //todo: change the value of these two fields
 //if the card number does not require cvv or field;
-let isExpiryRequired = true;
-let isCvvRequired = true;
+
 const validateCardEventListener=()=>{
     validateCard();
-}
+};
 const validateCard = () => {
     const num = _paymentField.value.replace(/\s+/g, '');
     var cardType = getAppData('cardType');
@@ -264,7 +270,7 @@ const validateCard = () => {
 
 const validateExpiryEventListener=()=>{
     validateExpiry(false);
-}
+};
 const validateExpiry = (isCascadeFromNumberField) => {
     var hostedField = getAppData('hostedField');
     var cardType = getAppData('cardType');
@@ -316,7 +322,7 @@ const toggleValidity = (isValid)=>{
 };
 const validateCvvEventListener = () =>{
     validateCvv(false);
-}
+};
 
 
 const validateCvv = (isCascadeFromNumberField) =>{
@@ -340,9 +346,9 @@ const validateCvv = (isCascadeFromNumberField) =>{
         isValid = true;
     }
     else{
-        let txMsg = 'Cvv can not be empty.'
+         let txMsg = 'Cvv can not be empty.';
         if(!isEmpty)
-        txMsg = 'Cvv is invalid.'
+            txMsg = 'Cvv is invalid.';
         validationResult.cardValidationResult = {"txMsg": txMsg,isValid:false,length:cvv.length};
         isValid = false;
     }
@@ -370,7 +376,7 @@ const restrictCVC = (e) => {
 const getParentUrl = ()=>{
   let url =  (window.location != window.parent.location)
             ? document.referrer
-            : document.location.protocol+'//'+document.location.host;//getAppData('parentUrl');     
+      : document.location.protocol + '//' + document.location.host;     
   return url;
 };
 

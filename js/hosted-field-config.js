@@ -1,5 +1,7 @@
-const HOSTED_FIELD_DOMAIN = 'http://localhost';//'https://mocha.citruspay.com';
-const CREDIT_CARD_GENERATOR_URL = HOSTED_FIELD_DOMAIN + '/cards.html';
+import {getConfig} from "./config";
+
+const HOSTED_FIELD_DOMAIN = getConfig().hostedFieldDomain;
+const CREDIT_CARD_GENERATOR_URL = HOSTED_FIELD_DOMAIN + '/static/cards.html';
 
 const getConfigValue = (key) =>{
     "use strict";

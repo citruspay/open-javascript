@@ -11,7 +11,8 @@ const apiConfMap = {
         adminUrl: 'https://sandboxadmin.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing',
-        pgUrl: 'https://sandbox.citruspay.com'
+        pgUrl: 'https://sandbox.citruspay.com',
+        hostedFieldDomain: 'https://icp.citruspay.com'
     },
     prodConf: {
         blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
@@ -21,7 +22,8 @@ const apiConfMap = {
         adminUrl: 'https://admin.citruspay.com',
         MCPAPIUrl: 'https://mercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://mars.citruspay.com/dynamicpricing/dynamicpricing',
-        pgUrl: 'https://www.citruspay.com'
+        pgUrl: 'https://www.citruspay.com',
+        hostedFieldDomain: 'https://mocha.citruspay.com'
     },
     stagingConf: {
         blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
@@ -30,7 +32,8 @@ const apiConfMap = {
         adminUrl: 'https://stgadmin2.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://stgadmin2.citruspay.com/dynamic-pricing/dynamicpricing',
-        pgUrl: 'https://stgpg2.citruspay.com'
+        pgUrl: 'https://stgpg2.citruspay.com',
+        hostedFieldDomain: 'https://icp.citruspay.com'
     },
     olstagingConf: {
         blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
@@ -39,7 +42,8 @@ const apiConfMap = {
         adminUrl: 'https://sandboxadmin.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://stgadmin2.citruspay.com/dynamic-pricing/dynamicpricing',
-        pgUrl: 'https://stgpg2.citruspay.com'
+        pgUrl: 'https://stgpg2.citruspay.com',
+        hostedFieldDomain: ''
     },
     olsandboxConf: {
         blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
@@ -48,25 +52,29 @@ const apiConfMap = {
         adminUrl: 'https://sandboxadmin.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://stgadmin2.citruspay.com/dynamic-pricing/dynamicpricing',
-        pgUrl: 'https://stgpg2.citruspay.com'
+        pgUrl: 'https://stgpg2.citruspay.com',
+        hostedFieldDomain: ''
     },
     olprodConf: {
         blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl: 'https://sboxblazenet.citruspay.com',
         motoApiUrl: 'https://pay.citruspay.com/service/moto/authorize/struct',
         adminUrl: 'https://sandboxadmin.citruspay.com',
-        MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
-        dpApiUrl: 'https://stgadmin2.citruspay.com/dynamic-pricing/dynamicpricing',
-        pgUrl: 'https://stgpg2.citruspay.com'
+        MCPAPIUrl: '',
+        dpApiUrl: '',
+        pgUrl: '',
+        hostedFieldDomain: ''
     },
     localConf: {
         blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl: 'https://sboxblazenet.citruspay.com',
         motoApiUrl: 'http://localhost:8080/admin-site/service/moto/authorize/struct',
+        olUrl: 'https://sboxpay.citruspay.com/service/moto/authorize/struct',
         adminUrl: 'http://localhost:8080/admin-site',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'http://localhost:8080/dynamic-pricing/dynamicpricing',
-        pgUrl: 'https://stgpg2.citruspay.com'
+        pgUrl: 'https://sandbox.citruspay.com',
+        hostedFieldDomain: 'http://localhost'
     }
 };
 
@@ -99,10 +107,12 @@ const configMap = Object.assign({
 
 const setConfig = (configObj) => {
     configObj.env && (env = configObj.env);
-    // (configObj.isOl) ? configObj.env = 'ol' + configObj.env : configObj.isOl = false;
+    //todo: need to validate the configobj with accesskey and vanity url(to be kept mandatory)
+    // if(configObj.env) {
     Object.assign(configMap, apiConfMap[env + 'Conf'], configObj);
     //todo: later to be changed with prod return url
     configMap.dropInReturnUrl = "https://mocha.citruspay.com/" + "static/returnUrl.html";
+    // }
     return Object.assign({}, configMap);
 };
 
@@ -144,8 +154,8 @@ const init = () => {
     validate.validators.custFormat = custFormat;
     let deviceType = getDeviceType();
     setConfig({deviceType});
-    let page = "CJS";
-    setConfig({page});
+    // let page = "CJS";
+    // setConfig({page});
     let url = (window.location !== window.parent.location)
         ? document.referrer
         : document.location;
