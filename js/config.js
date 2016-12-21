@@ -95,12 +95,12 @@ const handlersMap = {
     }
 };
 
-let env = 'prod';
+let env = 'sandbox';
 
 const configMap = Object.assign({
         merchantAccessKey: '',
         vanityUrl: '',
-        env: 'prod'
+        env: env
     },
     apiConfMap[env + 'Conf']
 );

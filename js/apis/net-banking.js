@@ -179,6 +179,9 @@ const handlePayment = (resp,mode)=>{
                 }
                 isUrl(htmlStr) ? singleHopDropOutFunction(htmlStr) : handleOlResponse(htmlStr);
             }
+            else {
+                singleHopDropOutFunction(resp.redirectUrl);
+            }
         }
         else {
                 handleDropIn(resp,winRef);

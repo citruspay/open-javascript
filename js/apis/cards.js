@@ -216,6 +216,8 @@ const motoCardApiFunc = (confObj) => {
                                 window.location = resp.data.redirectUrl;
                             }
                             isUrl(htmlStr) ? singleHopDropOutFunction(htmlStr) : handleOlResponse(htmlStr);
+                        } else {
+                            singleHopDropOutFunction(resp.redirectUrl);
                         }
                     }
                     else {//the code will never reach this point for the time being (or at least should not reach)
