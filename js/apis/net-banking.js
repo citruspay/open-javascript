@@ -32,6 +32,8 @@ const NBAPIFunc = (confObj, apiUrl) => {
     delete reqConf.paymentDetails;
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
+    let isOl = (getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled && getConfig().isOlEnabled !== 'false');
+    //env.toLowerCase().contains('ol') ?  isOl = true :  isOl = false;
     cancelApiResp = getCancelResponse(reqConf);
     setConfig({cancelApiResp});
     //var winRef = openPopupWindow("");
@@ -41,10 +43,8 @@ const NBAPIFunc = (confObj, apiUrl) => {
     if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP) {
         reqConf.returnUrl = getConfig().dropInReturnUrl;
         winRef = openPopupWindowForDropIn(winRef);
-        
     }
     if (getConfig().page === PAGE_TYPES.ICP) {
-
         return custFetch(apiUrl, {
             method: 'post',
             headers: {
@@ -52,7 +52,6 @@ const NBAPIFunc = (confObj, apiUrl) => {
             },
             body: JSON.stringify(reqConf)
         });
-
     }
     else {
         return custFetch(apiUrl, {
@@ -151,7 +150,7 @@ const savedAPIFunc = (confObj, url) => {
         });
     }
     else {
-        return custFetch(url, {
+        return custFetch(apiUrl, {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json'
@@ -171,7 +170,6 @@ const handlePayment = (resp,mode)=>{
     if (resp.redirectUrl) {
         if (mode === "dropout") {
             // isV3Request(requestOrigin)?window.location = resp.redirectUrl:singleHopDropOutFunction(resp.redirectUrl);
-
             if (isV3Request(requestOrigin)) {
                 let htmlStr = resp.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"');
                 if (isUrl(htmlStr) && !(getConfig().isSingleHop)) {
