@@ -36,13 +36,7 @@ hostedFieldPaymentObjschema.mainObjectCheck.keysCheck.push('paymentDetails');
 let savedCardPaymentObjSchema =  Object.assign(cloneDeep(baseSchema), {
     paymentDetails: {
         presence: true,
-        keysCheck: ['cardScheme', 'cardNumber','paymentMode','token']
-    },
-     "paymentDetails.cardScheme": {
-        presence: true
-    },
-     "paymentDetails.cardNumber": {
-        presence: true
+        keysCheck: ['paymentMode','token']
     },
      "paymentDetails.paymentMode": {
         presence: true
@@ -86,12 +80,18 @@ const makeHostedFieldPayment = (paymentObj) => {
     }
 };
 
-const makeSavedCardHostedFieldPayment = (paymentObj) =>{
+const makeSavedCardHostedFieldPayment = (savedCardFrameId) =>{
+    const makeSavedCardHostedFieldPaymentInternal = (paymentObj)=>{
      doValidation(paymentObj,savedCardPaymentObjSchema);
     let cardSetupType = paymentObj.paymentDetails.type;
     let {cardNumber,cardScheme} = paymentObj.paymentDetails;
-    let hostedField = getHostedFieldForSavedCard({savedMaskedCardNumber:cardNumber,savedCardScheme:cardScheme});
-    let frameId = getCitrusFrameIdForSavedCard(hostedField);
+    let savedFrameUid;
+    if(savedCardFrameId)
+    {
+        savedFrameUid =  savedCardFrameId.split('citruscvv-savedCard-')[1]
+    }
+    let hostedField = getHostedFieldForSavedCard({savedMaskedCardNumber:cardNumber,savedCardScheme:cardScheme,_uid:savedFrameUid});
+    let frameId = savedCardFrameId?savedCardFrameId:getCitrusFrameIdForSavedCard(hostedField);
     //console.log('farmeId',frameId,hostedField);
     let element = getElement('#'+frameId);
     if (!element)
@@ -114,6 +114,8 @@ const makeSavedCardHostedFieldPayment = (paymentObj) =>{
     else {
         //handle invalid fields
     }
+    };
+    return makeSavedCardHostedFieldPaymentInternal;
 }
 
 //parent listener
@@ -230,12 +232,12 @@ const getHostedFieldByType = (fieldType, cardSetupType) => {
     }
 };
 
-const getHostedFieldForSavedCard = ({savedMaskedCardNumber,savedCardScheme})=>{
+const getHostedFieldForSavedCard = ({savedMaskedCardNumber,savedCardScheme,_uid})=>{
     let hostedFields = getAppData('hostedFields-savedCard');
     let hostedField;
     for(var i=0;i<hostedFields.length; ++i){
         hostedField = hostedFields[i];
-        if(hostedField.savedCardScheme===savedCardScheme&&hostedField.savedMaskedCardNumber===savedMaskedCardNumber)
+        if(hostedField._uid===_uid)
             return hostedField;
     }
 }
@@ -381,7 +383,7 @@ const validateSavedCardCvvDetails = (hostedField)=>{
                         });
 
     }
-    if (!validationResult) {
+    if (!validationResult&&hostedField.savedCardScheme) {
         postMessageToSavedCardFrame(hostedField, {
                         messageType: 'validate'
                     });
@@ -426,8 +428,8 @@ const getCitrusFrameId = (fieldType, cardType) => {
 
 const getCitrusFrameIdForSavedCard = (hostedField)=>{
     //var uid = getGuid();
-    return citrusSelectorPrefix+'cvv-savedCard-'+ getLastFourDigits(hostedField.savedMaskedCardNumber)+'-'+
-    hostedField.savedCardScheme;
+    return citrusSelectorPrefix+'cvv-savedCard-'+ hostedField._uid; //getLastFourDigits(hostedField.savedMaskedCardNumber)+'-'+
+    //hostedField.savedCardScheme;
 }
 
 const getLastFourDigits=(maskedCardNumber)=>{

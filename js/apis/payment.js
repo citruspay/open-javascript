@@ -21,7 +21,7 @@ const makePayment = (paymentObj) => {
             makeNetBankingPayment(paymentObj);
             break;
         case "savedCard":
-            makeSavedCardHostedFieldPayment(paymentObj);
+            makeSavedCardHostedFieldPayment(null)(paymentObj);
             break;
         case "savedNetbanking":
             makeSavedNBPayment(paymentObj);

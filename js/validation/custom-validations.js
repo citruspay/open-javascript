@@ -200,7 +200,7 @@ const validateCvv = (value,scheme) => {
 const isValidCvv=(length,scheme)=>{
     //both valid length cvv considered as valid for the time being.
     //console.log(length,scheme);
-    if(!scheme&&(length===3||length===4))
+    if(!scheme&&(length===3||length===4||length===0))
         return true;
     if(scheme==='amex'&&length===4)
         return true;
