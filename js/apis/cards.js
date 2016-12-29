@@ -176,13 +176,11 @@ const motoCardApiFunc = (confObj) => {
     let isOl = (getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled && getConfig().isOlEnabled !== 'false');
     //env.toLowerCase().contains('ol') ?  isOl = true :  isOl = false;
     cancelApiResp = getCancelResponse(reqConf);
-    // let corsString = 'cors';
-    // isOl ? corsString = 'no-cors' : corsString = 'cors';
     let url;
     isOl ? url = `${getConfig().olUrl}/${getConfig().vanityUrl}` : url = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
-    if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP ) {
+    if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP) {
         reqConf.returnUrl = getConfig().dropInReturnUrl;
-        if(getConfig().page!== PAGE_TYPES.HOSTED_FIELD)
+        if (getConfig().page !== PAGE_TYPES.HOSTED_FIELD)
             winRef = openPopupWindowForDropIn(winRef);
     }
     if (getConfig().page === PAGE_TYPES.ICP) {
@@ -191,18 +189,18 @@ const motoCardApiFunc = (confObj) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            // mode: 'cors',
+            mode: 'cors',
             body: JSON.stringify(reqConf)
         });
     }
     else {
         return custFetch(url, {
-        //     return custFetch(`${getConfig().motoApiUrl}/struct/${getConfig().vanityUrl}`, {
+            //     return custFetch(`${getConfig().motoApiUrl}/struct/${getConfig().vanityUrl}`, {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json'
             },
-            //  mode: corsString,
+            mode: 'cors',
             body: JSON.stringify(reqConf)
         }).then(function (resp) {
             if (getConfig().page === PAGE_TYPES.HOSTED_FIELD) return resp;
@@ -249,23 +247,25 @@ let winRef = null;
 const savedCardValidationSchema = Object.assign({}, savedNBValidationSchema);
 savedCardValidationSchema.mainObjectCheck.keysCheck.push('CVV');
 
-const makeSavedCardPayment = (paymentObj)=>{
+const makeSavedCardPayment = (paymentObj)=> {
     let paymentData = cloneDeep(paymentObj);
-    if(paymentObj.paymentDetails){
-        if(!paymentObj.token && paymentObj.paymentDetails.token)
+    if (paymentObj.paymentDetails) {
+        if (!paymentObj.token && paymentObj.paymentDetails.token)
             paymentData.token = paymentObj.paymentDetails.token;
         delete paymentData.paymentDetails;
-    } 
+    }
     let makeSavedCardPaymentInternal = validateAndCallbackify(savedCardValidationSchema, (paymentData)=> {
         const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
-        if(isCvvGenerationRequired(paymentData)) { paymentData.CVV = Math.floor(Math.random()*900) + 100; }
+        if (isCvvGenerationRequired(paymentData)) {
+            paymentData.CVV = Math.floor(Math.random() * 900) + 100;
+        }
         return savedAPIFunc(paymentData, apiUrl);
     });
     return makeSavedCardPaymentInternal(paymentData);
 };
 
-const isCvvGenerationRequired = (paymentData)=>{
-    if((isV3Request(paymentData.requestOrigin)||isIcpRequest())&&!paymentData.CVV)
+const isCvvGenerationRequired = (paymentData)=> {
+    if ((isV3Request(paymentData.requestOrigin) || isIcpRequest()) && !paymentData.CVV)
         return true;
     return false;
 };

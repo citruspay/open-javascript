@@ -1,10 +1,9 @@
 //import {fetch} from 'whatwg-fetch';
-import {handlersMap, getConfig} from './config';
+import {handlersMap} from "./config";
 
 const custFetch = function () {
     return fetch.apply(null, arguments).then(function checkStatus(response) {
         let promise;
-
         if (response.status >= 200 && response.status < 300) {
             if (response.headers.get('Content-Type').includes('application/json')) {
                 promise = response.json().then(function (val) {
