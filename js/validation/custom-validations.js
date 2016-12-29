@@ -1,8 +1,8 @@
-import isCardValid from './credit-card-validation';
-import some from '../../node_modules/lodash/some';
-import {validate as v} from 'validate.js';
-import {schemeFromNumber, getAppData} from '../utils';
-import {handlersMap,getConfig} from '../config'
+import isCardValid from "./credit-card-validation";
+import some from "../../node_modules/lodash/some";
+import {validate as v} from "validate.js";
+import {schemeFromNumber, getAppData} from "../utils";
+import {handlersMap, getConfig} from "../config";
 
 
 const keysCheck = (value, options, key, attributes) => {
@@ -73,7 +73,7 @@ const validateExpiryDate = (dateStr) => {
 const cardDate = (value) => {
     if(validateExpiryDate(value)){
         return value;
-    };
+    }
     if(!value){
         handlersMap['errorHandler']("Expiry date can not be blank.");
         throw("Expiry date can not be blank.")
@@ -113,7 +113,8 @@ const schemeMap = {
         aliases: ['discover']
     },
     JCB : {
-        aliases: ['jcb']
+        aliases: ['jcb', 'jcb card', 'jcbcard'],
+        serverAlias: 'JCB'
     },
     enRoute :{
         aliases : ['enroute', 'enrout']
@@ -209,14 +210,14 @@ const isValidCvv=(length,scheme)=>{
     if(scheme==='maestro'&&length===0)
         return true;
     return false;
-}
+};
 
 const isValidExpiry=(expiry,scheme)=>{
     var isValidExpiryDate = validateExpiryDate(expiry);
     if(scheme==='maestro'&!expiry)
         return true;
     return isValidExpiryDate;
-}
+};
 
 
 const cardCheck = (paymentDetails, options, key, attributes) => {

@@ -8,8 +8,8 @@ import {getmerchantCardSchemes, makeMotoCardPayment, makeSavedCardPayment} from 
 import {makeExtWalletsPayment} from "./apis/external-wallets";
 import {validateExpiryDate, validateScheme, validateCreditCard} from "./validation/custom-validations";
 import {init, handlersMap, setConfig, getConfig} from "./config";
-import {getCardCurrencyInfo} from "./apis/mcp";
-import {schemeFromNumber} from "./utils";
+import {getCardCurrencyInfo, makeMCPCardPayment} from "./apis/mcp";
+import {schemeFromNumber, isUrl} from "./utils";
 import {applyDynamicPricing, makeDPCardPayment} from "./apis/card-dp";
 import {applyNbDynamicPricing} from "./apis/net-banking-dp";
 import {makePayment} from "./apis/payment";
@@ -37,6 +37,7 @@ Object.assign(window.citrus, {
         validateCreditCard
     },
     utils: {
+        isUrl,
         schemeFromNumber
     },
     registerHandlers: (key, handler) => {
@@ -55,6 +56,7 @@ Object.assign(window.citrus, {
         makeMotoCardPayment,
         makeSavedCardPayment,
         getCardCurrencyInfo,
+        makeMCPCardPayment,
         getPaymentDetailsForMCP,
         getPaymentDetails,
         applyDynamicPricing,
