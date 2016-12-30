@@ -70,7 +70,7 @@ const apiConfMap = {
         blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl: 'https://sboxblazenet.citruspay.com',
         motoApiUrl: 'http://localhost:8080/admin-site/service/moto/authorize/struct',
-        olUrl: 'https://sboxpay.citruspay.com/service/moto/authorize/struct',
+        olUrl: 'http://localhost:8090/service/moto/authorize/struct',
         adminUrl: 'http://localhost:8080/admin-site',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'http://localhost:8080/dynamic-pricing/dynamicpricing',
