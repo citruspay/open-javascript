@@ -2,6 +2,7 @@ import {handlersMap, getConfig} from "./config";
 import {validate} from "validate.js";
 import flow from "lodash/flow";
 import {PAGE_TYPES, TRACKING_IDS} from "./constants";
+import {UUID} from './external/uuid.core';
 
 //Important: This should be defined as 'function' and not as ES6 arrow function
 //because arrow functions don't have 'arguments' object 
@@ -265,6 +266,10 @@ const isUrl = (data) => {
     return regexp.test(data);
 };
 
+const getUid = ()=>{
+    return UUID.generate();
+}
+
 export {
     validateAndCallbackify,
     getMerchantAccessKey,
@@ -280,5 +285,6 @@ export {
     isIcpRequest,
     isV3Request,
     isIOS,
-    isUrl
+    isUrl,
+    getUid
 };

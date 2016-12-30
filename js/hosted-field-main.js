@@ -282,7 +282,6 @@ const validateExpiry = (isCascadeFromNumberField) => {
     var ignoreValidationBroadcast =isCascadeFromNumberField;
     
     let validationResult = {fieldType:'expiry',messageType:'validation',hostedField,cardType,ignoreValidationBroadcast};
-     
     if(!scheme&&isEmpty)
     {
         validationResult.cardValidationResult = { "txMsg": 'Expiry date can not be empty.',isValid:false,isEmpty:true};
@@ -334,8 +333,9 @@ const validateCvv = (isCascadeFromNumberField) =>{
     var isValid = true;
      var isEmpty = !cvv;
      var ignoreValidationBroadcast =isCascadeFromNumberField;
+     //console.log('cardType',cardType);
      let validationResult = {fieldType:'cvv',messageType:'validation',hostedField,cardType,ignoreValidationBroadcast};
-     if(!scheme&&isEmpty)
+     if(!scheme&&isEmpty&& cardType!=="savedCard")
     {
         validationResult.cardValidationResult = {"txMsg": 'Cvv can not be empty.',isValid:false,isEmpty:true};
         isValid = false;

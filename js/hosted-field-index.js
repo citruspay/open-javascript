@@ -107,7 +107,9 @@ function listener(event) {
         let paymentData =  cloneDeep(data.paymentData);
         citrus.setConfig(data.config);
         paymentData.CVV = document.getElementsByTagName('input')[0].value;
-     
+        if(event.data.scheme==="MAESTRO"&&!paymentData.CVV){
+            paymentData.CVV = Math.floor(Math.random() * 900) + 100;
+        }
         makeSavedCardPayment(paymentData).then(function(response){
             response.responseType = "serverResponse";
             delete response.isValidRequest;
