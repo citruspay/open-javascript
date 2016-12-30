@@ -20,10 +20,11 @@ const makePayment = (paymentObj) => {
             setAppData('paymentObj', paymentObj);
             makeNetBankingPayment(paymentObj);
             break;
-        case "savedCard":
-            makeSavedCardHostedFieldPayment(null)(paymentObj);
-            break;
-        case "savedNetbanking":
+         //this will become endPoint for non-hosted cvv saved card integration point later   
+        // case "savedCard":
+        //     makeSavedCardHostedFieldPayment(null)(paymentObj);
+        //     break;
+        case "savedNetBanking":
             makeSavedNBPayment(paymentObj);
             break;
         //todo: message needs to be structured
