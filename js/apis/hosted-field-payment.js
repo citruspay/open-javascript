@@ -98,7 +98,7 @@ const makeSavedCardHostedFieldPayment = (savedCardFrameId) =>{
         throw new Error(`Either invalid paymentDetails type ${cardSetupType}, it should be either of these values ` + validPaymentTypes +
             ' or there was some problem in setting up hosted fields');
     const win = element.contentWindow;
-    let message = {messageType:'makeSavedCardPayment',cardType:'savedCard'};
+    let message = {messageType:'makeSavedCardPayment',cardType:'savedCard',scheme:hostedField.savedCardScheme};
     message.pgSettingsData = getAppData('pgSettingsData');
     message.config = getConfig();
     message.paymentData = paymentObj;
@@ -383,7 +383,7 @@ const validateSavedCardCvvDetails = (hostedField)=>{
                         });
 
     }
-    if (!validationResult&&hostedField.savedCardScheme) {
+    if (!validationResult&&hostedField.savedCardScheme&&hostedField.savedCardScheme!="MAESTRO") {
         postMessageToSavedCardFrame(hostedField, {
                         messageType: 'validate'
                     });
