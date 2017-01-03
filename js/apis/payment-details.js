@@ -1,7 +1,7 @@
-import {validateAndCallbackify, setAppData} from './../utils';
-import {getConfig} from '../config';
-import {validateScheme} from '../validation/custom-validations';
-import {custFetch} from '../interceptor';
+import {validateAndCallbackify, setAppData} from "./../utils";
+import {getConfig} from "../config";
+import {validateScheme} from "../validation/custom-validations";
+import {custFetch} from "../interceptor";
 
 const paymentDetailsSchema = {
     vanityUrl: {presence: true}
@@ -65,7 +65,7 @@ const pgSettingsAPIFunc = (config) =>{
 
                     let aliasedScheme = validateScheme(mcpScheme);
                     if(!aliasedScheme){
-                        throw 'scheme mapping not found!';
+                        throw 'Scheme mapping not found!';
                     }
                     pgData.creditCard.concat(pgData.debitCard).some(function(el){
                         if(el === aliasedScheme){
@@ -74,7 +74,6 @@ const pgSettingsAPIFunc = (config) =>{
                         }
                     }); //mcpScheme
                 });
-
                 return  resp.data;
             });
 
