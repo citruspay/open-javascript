@@ -53,6 +53,10 @@ const postPaymentData = () => {
     }
 };
 
+//in android browsers keypress does not fire
+//keydown fires but the charCode is not usable
+//so the input event is the one which prevent invalid entry in the case of android
+//for all input fields.
 const addEventListenersForHostedFields = (cardSetupType) => {
     //detect the ios user agent, since ios devices don't listen to blur events. ignore the microsoft user agent which also contains the ios keyword.
     let iOS = isIOS();
@@ -84,6 +88,9 @@ const addEventListenersForHostedFields = (cardSetupType) => {
                 _paymentField.setAttribute("type", "password");
                 addListener(_paymentField,'keypress', restrictNumeric, false);
                 addListener(_paymentField,'keypress', restrictCVC, false);
+                //this is specifically for android, as keypress does not fire
+                //on android
+                addListener(_paymentField,'input',formatCvv,false);
                 break;
         }
 };
@@ -119,7 +126,12 @@ const removeFocusAttributes =()=>{
 };
 const formatCardNumber = () => {
     let num = _paymentField.value;
-
+    num = num.replace(/\D/g, '');
+     var parts = num.match(/^\d{1,19}/);
+    if (!parts) {
+        _paymentField.value = '';
+        return;
+    }
     var card, groups, upperLength, _ref;
     card = cardFromNumber(num);
     if (!card) {
@@ -192,6 +204,7 @@ const restrictNumeric = (e) => {
         return true;
     }
     if (e.which === 32) {
+
         return false;
     }
     if (e.which === 0) {
@@ -204,6 +217,16 @@ const restrictNumeric = (e) => {
     if(!/[\d\s]/.test(input)) e.preventDefault();
     //return !!/[\d\s]/.test(input);
 };
+
+const formatCvv = ()=>{
+   let cvv = _paymentField.value;
+   cvv = cvv.replace(/\D/g, '');
+    let parts = cvv.match(/^\d{1,4}/);
+    if (!parts) {
+        _paymentField.value = '';
+        return;
+    } 
+}
 
 //to avoid the acceptance of one extra digit in the field,
 //and also formats the card number while pasting the number directly inside the field
