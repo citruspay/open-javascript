@@ -174,6 +174,7 @@ const handlePayment = (resp,mode)=>{
                 let htmlStr = resp.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"');
                 if (isUrl(htmlStr) && !(getConfig().isSingleHop)) {
                     window.location = resp.redirectUrl;
+                    return;
                 }
                 isUrl(htmlStr) ? singleHopDropOutFunction(htmlStr) : handleOlResponse(htmlStr);
             }

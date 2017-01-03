@@ -212,6 +212,7 @@ const motoCardApiFunc = (confObj) => {
                             let htmlStr = resp.data.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"');
                             if (isUrl(htmlStr) && !(getConfig().isSingleHop)) {
                                 window.location = resp.data.redirectUrl;
+                                return;
                             }
                             isUrl(htmlStr) ? singleHopDropOutFunction(htmlStr) : handleOlResponse(htmlStr);
                         } else {
