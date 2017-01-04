@@ -2,8 +2,8 @@
  * Created by nagamai on 9/9/2016.
  */
 import {cardFromNumber,schemeFromNumber,getAppData,addListener,postMessageWrapper,setAppData,isIOS} from "./utils";
-import {getConfigValue,validHostedFieldTypes} from './hosted-field-config';
-import {validateExpiryDate, validateCreditCard,isValidCvv,isValidExpiry} from './validation/custom-validations';
+import {getConfigValue} from './hosted-field-config';
+import { validateCreditCard,isValidCvv,isValidExpiry} from './validation/custom-validations';
 import {postMessageToChild} from './apis/hosted-field-payment';
 import {MIN_VALID_CARD_LENGTH} from './constants';
 
@@ -48,6 +48,10 @@ const postPaymentData = () => {
     }
 };
 
+//in android browsers keypress does not fire
+//keydown fires but the charCode is not usable
+//so the input event is the one which prevent invalid entry in the case of android
+//for all input fields.
 const addEventListenersForHostedFields = (cardSetupType) => {
     //detect the ios user agent, since ios devices don't listen to blur events. ignore the microsoft user agent which also contains the ios keyword.
     let iOS = isIOS();
@@ -79,6 +83,9 @@ const addEventListenersForHostedFields = (cardSetupType) => {
                 _paymentField.setAttribute("type", "password");
                 addListener(_paymentField,'keypress', restrictNumeric, false);
                 addListener(_paymentField,'keypress', restrictCVC, false);
+                //this is specifically for android, as keypress does not fire
+                //on android
+                addListener(_paymentField,'input',formatCvv,false);
                 break;
         }
 };
@@ -99,7 +106,7 @@ const detectScheme = ()=>{
         setAppData(setupType+'scheme',scheme);
         postMessageWrapper(parent,schemeChangeMessage,getParentUrl());
     }
-}
+};
 
 const addFocusAttributes=()=>{
     var hostedField = getAppData('hostedField');
@@ -114,7 +121,12 @@ const removeFocusAttributes =()=>{
 };
 const formatCardNumber = () => {
     let num = _paymentField.value;
-
+    num = num.replace(/\D/g, '');
+     var parts = num.match(/^\d{1,19}/);
+    if (!parts) {
+        _paymentField.value = '';
+        return;
+    }
     var card, groups, upperLength, _ref;
     card = cardFromNumber(num);
     if (!card) {
@@ -187,6 +199,7 @@ const restrictNumeric = (e) => {
         return true;
     }
     if (e.which === 32) {
+
         return false;
     }
     if (e.which === 0) {
@@ -199,6 +212,16 @@ const restrictNumeric = (e) => {
     if(!/[\d\s]/.test(input)) e.preventDefault();
     //return !!/[\d\s]/.test(input);
 };
+
+const formatCvv = ()=>{
+   let cvv = _paymentField.value;
+   cvv = cvv.replace(/\D/g, '');
+    let parts = cvv.match(/^\d{1,4}/);
+    if (!parts) {
+        _paymentField.value = '';
+        return;
+    } 
+}
 
 //to avoid the acceptance of one extra digit in the field,
 //and also formats the card number while pasting the number directly inside the field
@@ -237,11 +260,10 @@ const restrictCardNumber = function(e) {
 
 //todo: change the value of these two fields
 //if the card number does not require cvv or field;
-let isExpiryRequired = true;
-let isCvvRequired = true;
+
 const validateCardEventListener=()=>{
     validateCard();
-}
+};
 const validateCard = () => {
     const num = _paymentField.value.replace(/\s+/g, '');
     var cardType = getAppData('cardType');
@@ -270,7 +292,7 @@ const validateCard = () => {
 
 const validateExpiryEventListener=()=>{
     validateExpiry(false);
-}
+};
 const validateExpiry = (isCascadeFromNumberField) => {
     var hostedField = getAppData('hostedField');
     var cardType = getAppData('cardType');
@@ -282,7 +304,6 @@ const validateExpiry = (isCascadeFromNumberField) => {
     var ignoreValidationBroadcast =isCascadeFromNumberField;
     
     let validationResult = {fieldType:'expiry',messageType:'validation',hostedField,cardType,ignoreValidationBroadcast};
-     
     if(!scheme&&isEmpty)
     {
         validationResult.cardValidationResult = { "txMsg": 'Expiry date can not be empty.',isValid:false,isEmpty:true};
@@ -322,7 +343,7 @@ const toggleValidity = (isValid)=>{
 };
 const validateCvvEventListener = () =>{
     validateCvv(false);
-}
+};
 
 
 const validateCvv = (isCascadeFromNumberField) =>{
@@ -334,8 +355,9 @@ const validateCvv = (isCascadeFromNumberField) =>{
     var isValid = true;
      var isEmpty = !cvv;
      var ignoreValidationBroadcast =isCascadeFromNumberField;
+     //console.log('cardType',cardType);
      let validationResult = {fieldType:'cvv',messageType:'validation',hostedField,cardType,ignoreValidationBroadcast};
-     if(!scheme&&isEmpty)
+     if(!scheme&&isEmpty&& cardType!=="savedCard")
     {
         validationResult.cardValidationResult = {"txMsg": 'Cvv can not be empty.',isValid:false,isEmpty:true};
         isValid = false;
@@ -346,9 +368,9 @@ const validateCvv = (isCascadeFromNumberField) =>{
         isValid = true;
     }
     else{
-        let txMsg = 'Cvv can not be empty.'
+         let txMsg = 'Cvv can not be empty.';
         if(!isEmpty)
-        txMsg = 'Cvv is invalid.'
+            txMsg = 'Cvv is invalid.';
         validationResult.cardValidationResult = {"txMsg": txMsg,isValid:false,length:cvv.length};
         isValid = false;
     }
@@ -376,7 +398,7 @@ const restrictCVC = (e) => {
 const getParentUrl = ()=>{
   let url =  (window.location != window.parent.location)
             ? document.referrer
-            : document.location.protocol+'//'+document.location.host;//getAppData('parentUrl');     
+      : document.location.protocol + '//' + document.location.host;     
   return url;
 };
 

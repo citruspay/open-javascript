@@ -1,4 +1,4 @@
-import {urlReEx} from '../constants';
+import {urlReEx} from "../constants";
 
 const regEXMap = {
     url : urlReEx
@@ -10,7 +10,7 @@ export const baseSchema = {
     'mainObjectCheck':{
         keysCheck: ['merchantTxnId', 'amount', 'currency', 'userDetails', 'returnUrl',
             'notifyUrl', 'requestSignature', 'merchantAccessKey', 'customParameters',
-            'requestOrigin', 'mode', 'offerToken', 'currencyToken', 'targetMcpCurrency', 'dpSignature']
+            'requestOrigin', 'mode', 'offerToken', 'currencyToken', 'targetMcpCurrency', 'dpSignature', 'ctx']
     },
     returnUrl: {
         presence: true,

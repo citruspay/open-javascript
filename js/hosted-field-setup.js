@@ -5,11 +5,13 @@ import {
     supportedStyleKeys,
     specialStyleKeys
 } from "./hosted-field-config";
-import {setAppData, getElement,getAppData} from "./utils";
+import {setAppData, getElement,getAppData,getUid} from "./utils";
 import {postMessageToChild, getCitrusFrameId,getCitrusFrameIdForSavedCard,postMessageToSavedCardFrame} from "./apis/hosted-field-payment";
-import {addEventListenersForHostedFields} from './hosted-field-main'
+import {addEventListenersForHostedFields} from './hosted-field-main';
+import {makeSavedCardHostedFieldPayment} from './apis/hosted-field-payment';
+import some from '../node_modules/lodash/some';
 
-const create = (setUpConfig) => {
+const create = (setUpConfig,callback) => {
     "use strict";
     let {
         hostedFields,
@@ -18,41 +20,66 @@ const create = (setUpConfig) => {
     } = setUpConfig;
     if (validCardSetupTypes.indexOf(setupType) === -1)
         throw new Error(`invalid setupType "${setupType}", setupType should have one of these values ` + validCardSetupTypes); 
-   
-    for (var i = 0, length = hostedFields.length; i < length; ++i) {
+   let hostedFieldsCopy = hostedFields.map((hostedField)=>hostedField);
+  
+    for (var i = 0, length = hostedFieldsCopy.length; i < length; ++i) {
         let {
             fieldType,
             selector
-        } = hostedFields[i];
+        } = hostedFieldsCopy[i];
         if (validHostedFieldTypes.indexOf(fieldType) !== -1) {
-            addIframe(hostedFields[i], setupType, style);
+            let newUid = getNewUid(setupType);
+            hostedFieldsCopy[i]._uid = newUid;
+            addIframe(hostedFieldsCopy[i], setupType, style, callback);
+            setHostedFieldsInAppData(hostedFieldsCopy[i],setupType);
         } else {
             throw new Error(`invalid fieldType "${fieldType}", fieldType should have one of these values ` + validHostedFieldTypes);
         }
     }
-     
-    if(setupType==='savedCard'){
-        var savedCardHostedFields = getAppData('hostedFields' + '-' + setupType);
-        if(savedCardHostedFields)
-        {
-            hostedFields = savedCardHostedFields.concat(hostedFields);
-        }
-
-    }
-    setAppData('hostedFields' + '-' + setupType, hostedFields);
     //setStyle(style,hostedFields,cardType);
 };
 
+const setHostedFieldsInAppData=(hostedField,setupType)=>{
+    var hostedFields = getAppData('hostedFields' + '-' + setupType);
+    if(hostedFields)
+    {
+        hostedFields = hostedFields.filter((hostedFieldInternal)=>{
+                return hostedField.selector !== hostedFieldInternal.selector;
+        });
+        hostedFields.push(hostedField)
+    }else
+    {
+        hostedFields = [hostedField];
+    }
+    setAppData('hostedFields' + '-' + setupType, hostedFields);
+};
 
-const addIframe = (hostedField, cardType, style) => {
+const getNewUid = (setupType)=>{
+     //if(setupType==='savedCard'){
+        var hostedFields = getAppData('hostedFields' + '-' + setupType);
+        var newUid; 
+        var isExistingId;
+       do{
+
+           newUid = getUid();
+           isExistingId = some(hostedFields,(hostedField)=>{
+                return hostedField._uid === newUid;
+            });
+       }while(isExistingId); 
+   //}
+   return newUid;
+};
+
+
+const addIframe = (hostedField, cardType, style,callback) => {
     "use strict";
     if(cardType==="savedCard")
     {
-        if(!hostedField.savedMaskedCardNumber){
+        /*if(!hostedField.savedMaskedCardNumber){
             throw new Error(`savedMaskedCardNumber property is required in hostedField for setupType ${cardType}`);
-        }
+        }*/
         if(!hostedField.savedCardScheme){
-             throw new Error(`savedCardScheme property is required in hostedField for setupType ${cardType}`);
+             console.warn(`savedCardScheme property is required in hostedField for setupType ${cardType}`);
         }
     }
     let {selector, fieldType} = hostedField;
@@ -92,6 +119,15 @@ const addIframe = (hostedField, cardType, style) => {
     iframe.onload = () => {
         //console.log('inside iframe onload');
         passAttributesToHostedField(style, hostedField, cardType);
+        let hostedFieldInstance = Object.create(Object.prototype,{makePayment:{
+            value:makeSavedCardHostedFieldPayment(iframe.id),
+            writable:false,
+            configurable:false,
+            enumerable:false
+            }});
+        if(callback)
+            callback(hostedFieldInstance);   
+
     };
     //todo:check is it really doing anything otherwise remove it.
     iframe.onfocus = ()=> {
@@ -105,7 +141,7 @@ const addIframe = (hostedField, cardType, style) => {
         element.appendChild(iframe);
         element.className += ' citrus-hosted-field';
     }
-   
+       
 }
 //todo:rename to setStyle and other attributes
 const passAttributesToHostedField = (attributes, hostedField, cardType) => {
