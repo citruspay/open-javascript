@@ -9,6 +9,7 @@ import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../hoste
 import {handleDropIn, openPopupWindowForDropIn} from "./drop-in";
 
 let winRef = null;
+let _dpCallback;
 //let cancelApiResp;
 const citrusSelectorPrefix = 'citrus';
 const regExMap = {
@@ -144,6 +145,12 @@ const listener = (event) => {
                 setAppData(validationKeyPrefix+ '-ignore-validation', event.data.ignoreValidationBroadcast);
                 handleSchemeChange(event);
                 return;
+            case 'fetchDynamicPricingToken':
+                handleFetchDynamicPricingToken(event.data);
+                return;
+            case 'dynamicPriceToken':
+                _dpCallback(event.data.dynamicPriceResponse);
+                return;   
             case 'errorHandler':
             case 'serverErrorHandler':
                 if(winRef)
@@ -182,6 +189,33 @@ const listener = (event) => {
         console.log(e);
     }
 };
+
+const handleFetchDynamicPricingToken = (data)=>{
+    let dynamicPriceHandler = handlersMap['dynamicPriceHandlder'];
+    let hostedField = event.data.hostedField;
+    let cardType = event.data.cardType;
+    const applyDynamicPricing = (dynamicPricingData,callback)=>{
+        let frameId = getFrameId(hostedField,cardType);
+        let data = cloneDeep(dynamicPricingData);
+        data.paymentMode = (dynamicPricingData.paymentMode==="credit")?"CREDIT_CARD":"DEBIT_CARD";
+        data.merchantAccessKey = getConfig().merchantAccessKey;
+        let message = {messageType:'fetchDynamicPricingToken',dynamicPricingData:data,cardType,hostedField};
+        message.config = getConfig(); 
+        _dpCallback = callback;
+        postMessage(frameId,message);
+    };
+    let dynamicPriceHandlerInstance = Object.create(Object.prototype,{applyDynamicPricing:{
+        value:applyDynamicPricing,
+        writable:false,
+        configurable:false,
+        enumerable:false
+        }
+    });
+    if(dynamicPriceHandler)
+        dynamicPriceHandler(dynamicPriceHandlerInstance);
+};
+
+
 
 const handleSchemeChange = (event)=>{
     postMessageToChild('cvv',event.data.cardType,event.data,false);
@@ -430,6 +464,13 @@ const getCitrusFrameIdForSavedCard = (hostedField)=>{
     hostedField.savedCardScheme;
 }
 
+const getFrameId=(hostedField,cardType)=>{
+    if(cardType==='savedCard')
+        return getCitrusFrameIdForSavedCard(hostedField);
+     else
+        return getCitrusFrameId(hostedField.fieldType,cardType);
+}
+
 const getLastFourDigits=(maskedCardNumber)=>{
     return maskedCardNumber.substring(maskedCardNumber.length-4);
 }
@@ -442,5 +483,6 @@ export {
     postMessageToChild,
     postMessageToSavedCardFrame,
     getCitrusFrameId,
-    getCitrusFrameIdForSavedCard
+    getCitrusFrameIdForSavedCard,
+    getFrameId
 };

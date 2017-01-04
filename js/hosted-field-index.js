@@ -15,6 +15,8 @@ import {init, setConfig, handlersMap} from "./config";
 import {applyAttributes} from "./hosted-field-setup";
 import cloneDeep from 'lodash/cloneDeep';
 import {PAGE_TYPES} from './constants';
+//import {fetchDynamicPricingToken} from './hosted-field-dp'
+import {applyDynamicPricing} from './apis/card-dp';
 
 init(); //initializes custom validators
 
@@ -40,6 +42,7 @@ function listener(event) {
         applyAttributes(event.data);
         return;
     }
+   
     if (event.data.messageType === "validation") {
        /* if (event.data.fieldType === "number") {
             setAppData('scheme', event.data.cardValidationResult.scheme);
@@ -79,6 +82,10 @@ function listener(event) {
     //for making payment then only go ahead
     if (!(event.data.cardType === fieldType[1] || event.data.cardType === "card"||event.data.cardType=='savedCard' || event.data.messageType==="makePayment" ))
         return;
+     if(event.data.messageType==="fetchDynamicPricingToken"){
+        fetchDynamicPricingToken(event.data);
+        return;
+    }    
     if (event.origin === getConfigValue('hostedFieldDomain')&&event.data.messageType==="cardData") {
         let cardData = event.data.cardData;
         let requiredPaymentData = {};
@@ -94,6 +101,10 @@ function listener(event) {
         citrus.setConfig(data.config);
         let paymentData = data.paymentData;
         Object.assign(paymentData.paymentDetails, paymentDetails);
+        let offerToken = getAppData('dynamicPriceToken');
+        if(offerToken){
+            paymentData.offerToken = offerToken;
+        }
         delete paymentData.paymentDetails.paymentMode;
         delete paymentData.paymentDetails.cardType;
         citrus.cards.makeMotoCardPayment(paymentData).then(function (response) {
@@ -114,6 +125,24 @@ function listener(event) {
             response.data.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
             let message = {messageType:'serverResponse',response:response.data};
             postMessageWrapper(parent, message, parentUrl);
+        });
+    }
+}
+
+const fetchDynamicPricingToken = (data) => {
+    let dynamicPricingData = data.dynamicPricingData;
+    let hostedField = data.hostedField;
+    let fieldElement = document.getElementsByTagName('input')[0];
+    citrus.setConfig(data.config);
+    parentUrl = getAppData('parentUrl');
+    if(hostedField.fieldType === "number"){
+        dynamicPricingData.cardNo = fieldElement.value.replace(/\s+/g, '');
+        return applyDynamicPricing(dynamicPricingData).then(function(resp){
+            let message = {messageType:'dynamicPriceToken',hostedField:data.hostedField,cardType:data.cardType,dynamicPriceResponse:resp};
+            if(resp&&resp.resultCode===0){
+                setAppData('dynamicPriceToken',resp.offerToken);
+            }
+            postMessageWrapper(parent,message,parentUrl);
         });
     }
 }

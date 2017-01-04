@@ -21,5 +21,6 @@ const supportedStyleKeys = [
     "-moz-transition","-webkit-font-smoothing","-webkit-tap-highlight-color","-webkit-transition"
 ];
 const specialStyleKeys = [':focus','.valid','.invalid','.valid:focus','.invalid:focus'
-,'::-webkit-input-placeholder',':-moz-placeholder',':-ms-input-placeholder','::-moz-placeholder'];
+,'::-webkit-input-placeholder',':-moz-placeholder',':-ms-input-placeholder','::-ms-input-placeholder','::-moz-placeholder',
+':placeholder-shown' ];
 export {getConfigValue,validHostedFieldTypes,validCardSetupTypes,validPaymentTypes,supportedStyleKeys,specialStyleKeys};

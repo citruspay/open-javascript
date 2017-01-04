@@ -31,4 +31,5 @@ const PAGE_TYPES = {
     'ICP':'ICP',
     'HOSTED_FIELD':'HOSTED_FIELD'
 };
-export {urlReEx, currencyMap,TRACKING_IDS,PAGE_TYPES}
+const MIN_VALID_CARD_LENGTH = 12;
+export {urlReEx, currencyMap,TRACKING_IDS,PAGE_TYPES,MIN_VALID_CARD_LENGTH}

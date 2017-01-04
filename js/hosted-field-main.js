@@ -5,6 +5,7 @@ import {cardFromNumber,schemeFromNumber,getAppData,addListener,postMessageWrappe
 import {getConfigValue,validHostedFieldTypes} from './hosted-field-config';
 import {validateExpiryDate, validateCreditCard,isValidCvv,isValidExpiry} from './validation/custom-validations';
 import {postMessageToChild} from './apis/hosted-field-payment';
+import {MIN_VALID_CARD_LENGTH} from './constants';
 
 let _paymentField;
 let field;
@@ -22,6 +23,7 @@ const addField = () => {
     document.body.appendChild(_paymentField);
     //addEventListenersForHostedFields();
 };
+
 
 const postPaymentData = () => {
     //Send value of the field to the cardnumber iframe
@@ -51,9 +53,9 @@ const addEventListenersForHostedFields = (cardSetupType) => {
     let iOS = isIOS();
     let eventStr;
     iOS ? eventStr = "input" : eventStr = "blur";
-        //add the event listeners for ui validations of those fields.
         if(cardSetupType==="credit"||cardSetupType==="debit"||cardSetupType==="card")
             addListener(_paymentField,eventStr, postPaymentData, false);
+         //add the event listeners for ui validations of those fields.    
         addListener(_paymentField,"focus", addFocusAttributes, false);
         addListener(_paymentField,"blur", removeFocusAttributes, false);
         addListener(_paymentField,'paste', restrictPaste, false);        
@@ -260,6 +262,10 @@ const validateCard = () => {
     parentUrl = getAppData('parentUrl');
     toggleValidity(isValidCard);
     postMessageWrapper(parent, validationResult, parentUrl);
+    if(isValidCard&&num.length>=MIN_VALID_CARD_LENGTH){
+        let dynamicPricingMessage = {fieldType:'number',messageType:'fetchDynamicPricingToken',hostedField,cardType };
+        postMessageWrapper(parent,dynamicPricingMessage,parentUrl);
+    }
 };
 
 const validateExpiryEventListener=()=>{

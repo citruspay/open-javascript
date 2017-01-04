@@ -123,6 +123,7 @@ function getDeviceType() {
  
 //todo:ideally we don't need to set the config url three times
 //as we are calling setConfig three times we are setting it three times
+//add our own custom validators to validate.validators object
 const init = () => {
     validate.validators.keysCheck = keysCheck;
     validate.validators.cardDate = cardDate;
@@ -137,6 +138,7 @@ const init = () => {
         ? document.referrer
         : document.location;
     setAppData('parentUrl', url);
+    //todo:remove these three lines below later, it seems not to be used anywhere
     setAppData('isValidCard', {"isValidCard": false, "txMsg": "Invalid card number"});
     setAppData('isValidExpiry', {"isValidExpiry" : false, "txMsg": "Invalid expiry date"});
     setAppData('isValidCvv', {"isValidCvv" : false, "txMsg": "Invalid cvv"});
