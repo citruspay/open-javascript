@@ -212,6 +212,7 @@ const motoCardApiFunc = (confObj) => {
                             let htmlStr = resp.data.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"');
                             if (isUrl(htmlStr) && !(getConfig().isSingleHop)) {
                                 window.location = resp.data.redirectUrl;
+                                return;
                             }
                             isUrl(htmlStr) ? singleHopDropOutFunction(htmlStr) : handleOlResponse(htmlStr);
                         } else {
@@ -220,6 +221,7 @@ const motoCardApiFunc = (confObj) => {
                     }
                     else {//the code will never reach this point for the time being (or at least should not reach)
                         if (winRef && winRef.closed) {
+                            //need to call get txn model API instead of returning the cancel api response.
                             handlersMap["serverErrorHandler"](cancelApiResp);
                             return;
                         }
