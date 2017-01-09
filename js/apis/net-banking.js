@@ -7,6 +7,7 @@ import {getCancelResponse, refineMotoResponse} from "./response";
 import {singleHopDropOutFunction} from "./singleHop";
 import {TRACKING_IDS, PAGE_TYPES} from "../constants";
 import {handleDropIn, openPopupWindowForDropIn, handleOlResponse} from "./drop-in";
+import {handlePayment} from "./payment-handler";
 let cancelApiResp;
 let requestOrigin;
 const NBAPIFunc = (confObj, apiUrl) => {
@@ -32,38 +33,7 @@ const NBAPIFunc = (confObj, apiUrl) => {
     delete reqConf.paymentDetails;
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
-    let isOl = (getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled && getConfig().isOlEnabled !== 'false');
-    //env.toLowerCase().contains('ol') ?  isOl = true :  isOl = false;
-    cancelApiResp = getCancelResponse(reqConf);
-    setConfig({cancelApiResp});
-    //var winRef = openPopupWindow("");
-    //var winRef = window.open("",'PromoteFirefoxWindowName', 'scrollbars=yes, top= 1000, left= 1000 ,visible=none;');
-    //if (mode === 'dropout' || getConfig().page === PAGE_TYPES.ICP) {
-    //} else {
-    if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP) {
-        reqConf.returnUrl = getConfig().dropInReturnUrl;
-        winRef = openPopupWindowForDropIn(winRef);
-    }
-    if (getConfig().page === PAGE_TYPES.ICP) {
-        return custFetch(apiUrl, {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(reqConf)
-        });
-    }
-    else {
-        return custFetch(apiUrl, {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(reqConf)
-        }).then(function (resp) {
-            handlePayment(resp.data, mode);
-        });
-    }
+    return handlePayment(reqConf,mode,apiUrl);
 };
 
 let winRef = null;
@@ -80,17 +50,9 @@ netBankingValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 
 
 const makeNetBankingPayment = validateAndCallbackify(netBankingValidationSchema, (confObj) => {
-    let isOl = (getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled && getConfig().isOlEnabled !== 'false');
-    let apiUrl;
-    isOl ? apiUrl = `${getConfig().olUrl}/${getConfig().vanityUrl}` : apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
-    //isOl ? const apiUrl = `${getConfig().olUrl}/${getConfig().vanityUrl}` : const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
-    return NBAPIFunc(confObj, apiUrl);
+    return NBAPIFunc(confObj);
 });
-//wrapper function call
-const netbanking = validateAndCallbackify(netBankingValidationSchema, (confObj) => {
-    const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
-    return NBAPIFunc(confObj, apiUrl);
-});
+
 
 //------------------- makeBlazeNBPayment ----------------//
 
@@ -131,67 +93,7 @@ const savedAPIFunc = (confObj, url) => {
     delete reqConf.CVV;
     const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
     delete reqConf.mode;
-    if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP ) {
-        reqConf.returnUrl = getConfig().dropInReturnUrl;
-        if(getConfig().page!== PAGE_TYPES.HOSTED_FIELD)
-            winRef = openPopupWindowForDropIn(winRef);
-        
-    }
-    let isOl = (getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled && getConfig().isOlEnabled !== 'false');
-    let apiUrl;
-    isOl ? apiUrl = `${getConfig().olUrl}/${getConfig().vanityUrl}` : apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
-    if (getConfig().page === PAGE_TYPES.ICP) {
-        return custFetch(url, {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(reqConf)
-        });
-    }
-    else {
-        return custFetch(apiUrl, {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(reqConf)
-        }).then(function (resp) {
-            if (getConfig().page !== PAGE_TYPES.ICP) {
-                if(getConfig().page!== PAGE_TYPES.HOSTED_FIELD)
-                    handlePayment(resp.data,mode);
-                else
-                    return resp;
-            }
-        });
-    }
-};
-const handlePayment = (resp,mode)=>{
-    if (resp.redirectUrl) {
-        if (mode === "dropout") {
-            // isV3Request(requestOrigin)?window.location = resp.redirectUrl:singleHopDropOutFunction(resp.redirectUrl);
-            if (isV3Request(requestOrigin)) {
-                let htmlStr = resp.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"');
-                if (isUrl(htmlStr) && !(getConfig().isSingleHop)) {
-                    window.location = resp.redirectUrl;
-                    return;
-                }
-                isUrl(htmlStr) ? singleHopDropOutFunction(htmlStr) : handleOlResponse(htmlStr);
-            }
-            else {
-                singleHopDropOutFunction(resp.redirectUrl);
-            }
-        }
-        else {
-                handleDropIn(resp,winRef);
-            }
-    } else {
-        if (winRef) {
-            winRef.close();
-        }
-        const response = refineMotoResponse(resp);
-        handlersMap['serverErrorHandler'](response);
-    }
+    return handlePayment(reqConf,mode);
 };
 
 const makeSavedNBPayment = (paymentObj)=>{
@@ -213,6 +115,5 @@ export {
     makeSavedNBPayment,
     makeBlazeNBPayment,
     savedAPIFunc,
-    savedNBValidationSchema,
-    netbanking
+    savedNBValidationSchema
 }

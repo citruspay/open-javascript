@@ -1,8 +1,0 @@
-
-const walletPayment = (confObj) => {
-
-    console.log(confObj);
-
-};
-
-export {walletPayment};

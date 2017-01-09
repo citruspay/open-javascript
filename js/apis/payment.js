@@ -1,6 +1,7 @@
 import {handlersMap} from "../config";
-import {setAppData} from "./../utils";
+import {setAppData, isPciRequest} from "./../utils";
 import {makeNetBankingPayment, makeSavedNBPayment} from "./net-banking";
+import {makeMotoCardPayment, makeSavedCardPayment} from "./cards";
 import {makeHostedFieldPayment, makeSavedCardHostedFieldPayment} from "./hosted-field-payment";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -14,16 +15,19 @@ const makePayment = (paymentObj) => {
     switch (paymentObj.paymentDetails.paymentMode) {
         //todo : needs to be checked for PCI compliant merchants
         case "card" :
-            makeHostedFieldPayment(paymentObj);
+            if(isPciRequest())
+                makeMotoCardPayment(paymentObj);
+            else
+                makeHostedFieldPayment(paymentObj);
             break;
         case "netBanking" :
             setAppData('paymentObj', paymentObj);
             makeNetBankingPayment(paymentObj);
             break;
          //this will become endPoint for non-hosted cvv saved card integration point later   
-        // case "savedCard":
-        //     makeSavedCardHostedFieldPayment(null)(paymentObj);
-        //     break;
+        case "savedCard":
+            makeSavedCardPayment(paymentObj);
+            break;
         case "savedNetBanking":
             makeSavedNBPayment(paymentObj);
             break;

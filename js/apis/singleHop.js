@@ -18,12 +18,12 @@ const singleHopDropOutFunction = (url) => {
         let form = el.getElementsByTagName('form');
         try{
             let paymentForm = document.createElement('form');
-                    paymentForm.setAttribute("action", form[0].action),
-                        paymentForm.setAttribute("method", form[0].method),
-                        paymentForm.innerHTML = form[0].innerHTML,
-                        document.documentElement.appendChild(paymentForm),
-                        paymentForm.submit(),
-                        document.documentElement.removeChild(paymentForm);
+            paymentForm.setAttribute("action", form[0].action);
+            paymentForm.setAttribute("method", form[0].method);
+            paymentForm.innerHTML = form[0].innerHTML;
+            document.documentElement.appendChild(paymentForm);
+            paymentForm.submit();
+            document.documentElement.removeChild(paymentForm);
         }catch(e){
             console.log(e);
         }

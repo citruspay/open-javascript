@@ -173,7 +173,7 @@ const listener = (event) => {
                 // winRef.document.close();
                 // return;
                 /*End of OL integration logic*/
-                handleDropIn(motoResponse,winRef);
+                handleDropIn(motoResponse,winRef,paymentObj);
 
         }
     } else {

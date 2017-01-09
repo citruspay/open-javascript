@@ -256,6 +256,10 @@ const isV3Request = (requestOrigin)=>{
    return (requestOrigin === TRACKING_IDS.SSLV3Guest || requestOrigin === TRACKING_IDS.SSLV3Wallet || requestOrigin === TRACKING_IDS.SSLV3Nitro);
 };
 
+const isPciRequest = ()=>{
+    return getConfig().page === PAGE_TYPES.PCI;
+}
+
 const isIOS = ()=>{
     return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 };
@@ -286,5 +290,6 @@ export {
     isV3Request,
     isIOS,
     isUrl,
-    getUid
+    getUid,
+    isPciRequest
 };

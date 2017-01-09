@@ -17,6 +17,7 @@ import {urlReEx, TRACKING_IDS, PAGE_TYPES} from "../constants";
 import {getCancelResponse, refineMotoResponse} from "./response";
 import {singleHopDropOutFunction} from "./singleHop";
 import {handleDropIn, openPopupWindowForDropIn, handleOlResponse} from "./drop-in";
+import {handlePayment} from "./payment-handler";
 //import $ from 'jquery';
 
 const regExMap = {
@@ -173,72 +174,16 @@ const motoCardApiFunc = (confObj) => {
     delete reqConf.mode;
     reqConf.deviceType = getConfig().deviceType;
     //const env = `${getConfig().isOl}`;
-    let isOl = (getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled && getConfig().isOlEnabled !== 'false');
-    //env.toLowerCase().contains('ol') ?  isOl = true :  isOl = false;
-    cancelApiResp = getCancelResponse(reqConf);
-    let url;
-    isOl ? url = `${getConfig().olUrl}/${getConfig().vanityUrl}` : url = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
-    if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP) {
-        reqConf.returnUrl = getConfig().dropInReturnUrl;
-        if (getConfig().page !== PAGE_TYPES.HOSTED_FIELD)
-            winRef = openPopupWindowForDropIn(winRef);
-    }
-    if (getConfig().page === PAGE_TYPES.ICP) {
-        return custFetch(url, {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            mode: 'cors',
-            body: JSON.stringify(reqConf)
-        });
-    }
-    else {
-        return custFetch(url, {
-            //     return custFetch(`${getConfig().motoApiUrl}/struct/${getConfig().vanityUrl}`, {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            mode: 'cors',
-            body: JSON.stringify(reqConf)
-        }).then(function (resp) {
-            if (getConfig().page === PAGE_TYPES.HOSTED_FIELD) return resp;
-            if (getConfig().page !== PAGE_TYPES.ICP) {
-                if (resp.data.redirectUrl) {
-                    if (mode === "dropout") {
-                        //logic for OL
-                        if (isV3Request(reqConf.requestOrigin)) {
-                            let htmlStr = resp.data.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"');
-                            if (isUrl(htmlStr) && !(getConfig().isSingleHop)) {
-                                window.location = resp.data.redirectUrl;
-                                return;
-                            }
-                            isUrl(htmlStr) ? singleHopDropOutFunction(htmlStr) : handleOlResponse(htmlStr);
-                        } else {
-                            singleHopDropOutFunction(resp.data.redirectUrl);
-                        }
-                    }
-                    else {//the code will never reach this point for the time being (or at least should not reach)
-                        if (winRef && winRef.closed) {
-                            handlersMap["serverErrorHandler"](cancelApiResp);
-                            return;
-                        }
-                        handleDropIn(resp.data, winRef);
-                    }
-                } else {
-                    if (winRef) {
-                        winRef.close();
-                    }
-                    const response = refineMotoResponse(resp.data);
-                    handlersMap['serverErrorHandler'](response);
-                }
-            }
-        });
-    }
+    return handlePayment(reqConf,mode);
+    
 };
 
-const makeMotoCardPayment = validateAndCallbackify(motoCardValidationSchema, motoCardApiFunc);
+const makeMotoCardPayment = (paymentObj)=>{
+    let paymentData = cloneDeep(paymentObj);
+    delete paymentData.paymentDetails.paymentMode;
+    const makeMotoCardPaymentInternal = validateAndCallbackify(motoCardValidationSchema, motoCardApiFunc);
+    return makeMotoCardPaymentInternal(paymentData);
+}
 
 //this variable is not being assigned anywhere for the time being
 //after changes were made for hosted fields in this file, although
@@ -253,13 +198,16 @@ const makeSavedCardPayment = (paymentObj)=> {
     if (paymentObj.paymentDetails) {
         if (!paymentObj.token && paymentObj.paymentDetails.token)
             paymentData.token = paymentObj.paymentDetails.token;
+        if(!paymentObj.CVV && paymentObj.paymentDetails.cvv)
+            paymentObj.CVV = paymentObj.paymentDetails.cvv;
         delete paymentData.paymentDetails;
+    }
+    if (isCvvGenerationRequired(paymentData)) {
+            paymentData.CVV = Math.floor(Math.random() * 900) + 100;
     }
     let makeSavedCardPaymentInternal = validateAndCallbackify(savedCardValidationSchema, (paymentData)=> {
         const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
-        if (isCvvGenerationRequired(paymentData)) {
-            paymentData.CVV = Math.floor(Math.random() * 900) + 100;
-        }
+        
         return savedAPIFunc(paymentData, apiUrl);
     });
     return makeSavedCardPaymentInternal(paymentData);
