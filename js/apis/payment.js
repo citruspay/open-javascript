@@ -16,7 +16,11 @@ const makePayment = (paymentObj) => {
         //todo : needs to be checked for PCI compliant merchants
         case "card" :
             if(isPciRequest())
+            {
+                setAppData('paymentObj', paymentObj);
+                makeCardPaymentWrapper(paymentObj);
                 makeMotoCardPayment(paymentObj);
+            }
             else
                 makeHostedFieldPayment(paymentObj);
             break;

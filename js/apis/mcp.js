@@ -1,9 +1,8 @@
-import {validateAndCallbackify, getMerchantAccessKey} from './../utils';
-import {getConfig} from '../config';
-import {validateCardType, validateScheme} from '../validation/custom-validations';
+import {validateAndCallbackify} from './../utils';
+import {validateScheme} from '../validation/custom-validations';
 import {custFetch} from '../interceptor';
 import {motoCardValidationSchema, motoCardApiFunc} from './cards';
-import {MCPData, pgSettingsData} from './payment-details';
+import {MCPData} from './payment-details';
 import cloneDeep from 'lodash/cloneDeep';
 import {currencyMap} from '../constants';
 
@@ -11,7 +10,7 @@ const MCPCardSchema = cloneDeep(motoCardValidationSchema);
 
 const countryCurrencyMap =  currencyMap;
 
-MCPCardSchema.mainObjectCheck.keysCheck.push('targetMcpCurrency');
+//MCPCardSchema.mainObjectCheck.keysCheck.push('targetMcpCurrency');
 
 
 const makeMCPCardPayment = validateAndCallbackify(MCPCardSchema, (confObj) => {
