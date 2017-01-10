@@ -170,7 +170,6 @@ const motoCardApiFunc = (confObj) => {
     reqConf.deviceType = getConfig().deviceType;
     //const env = `${getConfig().isOl}`;
     return handlePayment(reqConf,mode);
-    
 };
 
 const makeMotoCardPayment = (paymentObj)=>{

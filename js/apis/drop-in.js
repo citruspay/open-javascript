@@ -60,7 +60,6 @@ const getTransactionResponse = (paymentData) => {
     //todo:remove getAppData from here once sure it will work without it.
     let paymentObj = paymentData||getAppData('paymentObj');
     let amount = paymentObj.amount.value||paymentObj.amount;
-
     let param = `accessKey=${getConfig().merchantAccessKey}&txnId=${paymentObj.merchantTxnId}&amount=${amount}&signature=${paymentObj.requestSignature}`;
     const url = `${getConfig().adminUrl}/service/v0/redis/api/getTxnModel`;
     return custFetch(url, {
