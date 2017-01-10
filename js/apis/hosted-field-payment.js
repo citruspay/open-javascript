@@ -291,7 +291,6 @@ const validateCardDetails = (cardSetupType) => {
     let validationResultKey = requiredValidationFieldType + '-' + cardSetupType + '-validation';
     let validationResult = getAppData(validationResultKey);
     let hostedField = getHostedFieldByType(requiredValidationFieldType, cardSetupType);
-    let scheme;
     if (!validationResult) {
         postMessageToChild(requiredValidationFieldType, cardSetupType, {
             messageType: 'validate'
@@ -461,9 +460,7 @@ const getCitrusFrameId = (fieldType, cardType) => {
 };
 
 const getCitrusFrameIdForSavedCard = (hostedField)=>{
-    //var uid = getGuid();
-    return citrusSelectorPrefix+'cvv-savedCard-'+ hostedField._uid; //getLastFourDigits(hostedField.savedMaskedCardNumber)+'-'+
-    //hostedField.savedCardScheme;
+    return citrusSelectorPrefix+'cvv-savedCard-'+ hostedField._uid; 
 }
 
 const getFrameId=(hostedField,cardType)=>{
@@ -472,11 +469,6 @@ const getFrameId=(hostedField,cardType)=>{
      else
         return getCitrusFrameId(hostedField.fieldType,cardType);
 }
-
-const getLastFourDigits=(maskedCardNumber)=>{
-    return maskedCardNumber.substring(maskedCardNumber.length-4);
-}
-
 
 export {
     makeHostedFieldPayment,

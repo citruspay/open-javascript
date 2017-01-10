@@ -279,8 +279,7 @@ const custFormat = function(value, options) {
     options = v.extend({}, this.options, options);
 
     var message = options.message  || "is invalid"
-        , pattern = options.pattern
-        , match;
+        , pattern = options.pattern;
 
     // Empty values are allowed
     if (v.isEmpty(value)) {
@@ -294,10 +293,6 @@ const custFormat = function(value, options) {
         pattern = new RegExp(options.pattern, options.flags);
     }
 
-    /*match = pattern.exec(value);
-    if (!match || match[0].length != value.length) {
-        return message;
-    }*/
     if(!pattern.test(value)){
         return message;
     }

@@ -4,12 +4,10 @@
 import {cardFromNumber,schemeFromNumber,getAppData,addListener,postMessageWrapper,setAppData,isIOS} from "./utils";
 import {getConfigValue} from './hosted-field-config';
 import { validateCreditCard,isValidCvv,isValidExpiry} from './validation/custom-validations';
-import {postMessageToChild} from './apis/hosted-field-payment';
 import {MIN_VALID_CARD_LENGTH} from './constants';
 
 let _paymentField;
 let field;
-let cvvLen = 4;
 //todo:change its name later
 let digit;
 let parentUrl = getAppData('parentUrl');

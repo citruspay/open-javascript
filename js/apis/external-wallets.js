@@ -1,14 +1,11 @@
 /**
  * Created by nagamai on 11/9/2016.
  */
-import {custFetch} from "../interceptor";
 import {validateAndCallbackify, getMerchantAccessKey} from "./../utils";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
-import {handlersMap, getConfig} from "../config";
-import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
-import {TRACKING_IDS,PAGE_TYPES} from '../constants';
-import {handleDropIn, openPopupWindowForDropIn, handleOlResponse} from "./drop-in";
+import { getConfig} from "../config";
+import {TRACKING_IDS} from '../constants';
 import {handlePayment} from "./payment-handler";
 
 const extWalletValidationSchema = Object.assign(cloneDeep(baseSchema), {

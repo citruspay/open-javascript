@@ -14,9 +14,6 @@ import {handlersMap, getConfig} from "../config";
 import {validateCardType, validateScheme, cardDate, validateCvv} from "../validation/custom-validations";
 import {custFetch} from "../interceptor";
 import {urlReEx, TRACKING_IDS, PAGE_TYPES} from "../constants";
-import {getCancelResponse, refineMotoResponse} from "./response";
-import {singleHopDropOutFunction} from "./singleHop";
-import {handleDropIn, openPopupWindowForDropIn, handleOlResponse} from "./drop-in";
 import {handlePayment} from "./payment-handler";
 //import $ from 'jquery';
 
@@ -26,8 +23,6 @@ const regExMap = {
     'CVV': /^[0-9]{3,4}$/, //todo: handle cases for amex
     url: urlReEx
 };
-
-let cancelApiResp;
 
 const blazeCardValidationSchema = {
     mainObjectCheck: {
@@ -184,11 +179,6 @@ const makeMotoCardPayment = (paymentObj)=>{
     const makeMotoCardPaymentInternal = validateAndCallbackify(motoCardValidationSchema, motoCardApiFunc);
     return makeMotoCardPaymentInternal(paymentData);
 }
-
-//this variable is not being assigned anywhere for the time being
-//after changes were made for hosted fields in this file, although
-//the variable is used in unreachable portions of code for the time being.
-let winRef = null;
 
 const savedCardValidationSchema = Object.assign({}, savedNBValidationSchema);
 savedCardValidationSchema.mainObjectCheck.keysCheck.push('CVV');
