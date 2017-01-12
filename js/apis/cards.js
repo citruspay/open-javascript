@@ -5,7 +5,9 @@ import {
     getAppData,
     isV3Request,
     isIcpRequest,
-    isUrl
+    isUrl,
+    isExternalJsConsumer,
+    doValidation
 } from "./../utils";
 import {savedNBValidationSchema, savedAPIFunc} from "./net-banking";
 import {baseSchema} from "./../validation/validation-schema";
@@ -184,11 +186,24 @@ savedCardValidationSchema.mainObjectCheck.keysCheck.push('CVV');
 
 const makeSavedCardPayment = (paymentObj)=> {
     let paymentData = cloneDeep(paymentObj);
+    //validate can only check regex against strings so need to convert cvv to string
+    //if it was being set as number
+    if(paymentData.paymentDetails.cvv)
+        paymentData.paymentDetails.cvv = paymentData.paymentDetails.cvv.toString();
+    if(isExternalJsConsumer(paymentData.requestOrigin)){
+         var additionalConstraints = {
+             paymentDetails:{presence:true},
+             "paymentDetails.cvv": {presence: true, format: regExMap.CVV},
+             "paymentDetails.token": {presence: true}
+            };
+            doValidation(paymentData,additionalConstraints);
+    }
+    
     if (paymentObj.paymentDetails) {
         if (!paymentObj.token && paymentObj.paymentDetails.token)
             paymentData.token = paymentObj.paymentDetails.token;
         if(!paymentObj.CVV && paymentObj.paymentDetails.cvv)
-            paymentObj.CVV = paymentObj.paymentDetails.cvv;
+            paymentData.CVV = paymentObj.paymentDetails.cvv;
         delete paymentData.paymentDetails;
     }
     if (isCvvGenerationRequired(paymentData)) {

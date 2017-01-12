@@ -258,7 +258,11 @@ const isV3Request = (requestOrigin)=>{
 
 const isPciRequest = ()=>{
     return getConfig().page === PAGE_TYPES.PCI;
-}
+};
+
+const isExternalJsConsumer=(requestOrigin)=>{
+    return !isIcpRequest()&&!isV3Request(requestOrigin);
+};
 
 const isIOS = ()=>{
     return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -291,5 +295,6 @@ export {
     isIOS,
     isUrl,
     getUid,
-    isPciRequest
+    isPciRequest,
+    isExternalJsConsumer
 };

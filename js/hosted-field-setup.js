@@ -10,6 +10,7 @@ import {postMessageToChild, getCitrusFrameId,getCitrusFrameIdForSavedCard,postMe
 import {addEventListenersForHostedFields} from './hosted-field-main';
 import {makeSavedCardHostedFieldPayment} from './apis/hosted-field-payment';
 import some from '../node_modules/lodash/some';
+import {validateScheme} from "./validation/custom-validations";
 
 const create = (setUpConfig,callback) => {
     "use strict";
@@ -29,6 +30,9 @@ const create = (setUpConfig,callback) => {
         if (validHostedFieldTypes.indexOf(fieldType) !== -1) {
             let newUid = getNewUid(setupType);
             hostedFieldsCopy[i]._uid = newUid;
+            //this condition is specific to hosted field with saved card
+            if(hostedFieldsCopy[i].savedCardScheme)  
+                hostedFieldsCopy[i].savedCardScheme = validateScheme(hostedFieldsCopy[i].savedCardScheme,true);
             addIframe(hostedFieldsCopy[i], setupType, style, callback);
             setHostedFieldsInAppData(hostedFieldsCopy[i],setupType);
         } else {

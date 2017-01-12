@@ -117,9 +117,9 @@ function listener(event) {
     } else if(event.data.messageType==="makeSavedCardPayment"){
         let paymentData =  cloneDeep(data.paymentData);
         citrus.setConfig(data.config);
-        paymentData.CVV = document.getElementsByTagName('input')[0].value;
-        if(event.data.scheme==="MAESTRO"&&!paymentData.CVV){
-            paymentData.CVV = Math.floor(Math.random() * 900) + 100;
+        paymentData.paymentDetails.cvv = document.getElementsByTagName('input')[0].value;
+        if(event.data.scheme==="Maestro"&&!paymentData.paymentDetails.cvv){
+            paymentData.paymentDetails.cvv = Math.floor(Math.random() * 900) + 100;
         }
         makeSavedCardPayment(paymentData).then(function(response){
             response.responseType = "serverResponse";

@@ -1,4 +1,5 @@
-import {validateAndCallbackify, getMerchantAccessKey, getAppData, setAppData, isV3Request, isUrl} from "./../utils";
+import {validateAndCallbackify, getMerchantAccessKey, getAppData, setAppData, isV3Request, isUrl,isExternalJsConsumer,
+    doValidation} from "./../utils";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {getConfig, setConfig} from "../config";
@@ -89,6 +90,13 @@ const savedAPIFunc = (confObj, url) => {
 
 const makeSavedNBPayment = (paymentObj)=>{
     let paymentData = cloneDeep(paymentObj);
+    if(isExternalJsConsumer(paymentData.requestOrigin)){
+         var additionalConstraints = {
+             paymentDetails:{presence:true},
+             "paymentDetails.token": {presence: true}
+            };
+            doValidation(paymentData,additionalConstraints);
+    }
     if(paymentObj.paymentDetails){
         if(!paymentObj.token && paymentObj.paymentDetails.token)
             paymentData.token = paymentObj.paymentDetails.token;

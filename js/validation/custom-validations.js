@@ -5,10 +5,19 @@ import {schemeFromNumber, getAppData} from "../utils";
 import {handlersMap, getConfig} from "../config";
 
 
+//value is the value need to be validated
+//options are if any options are passed while calling validate in the format of {key:{keysCheck:"some options"}}
+//the whole array of keysCheck is options
+//key is the key whose value need to be validated
+//attributes is the whole object which needs to validated 
+//(the name should be extraKeysCheck )checks if any extra properties other then expected are present in the object if yes then returns false;
+//it does not check for keys defined to be present so the keys defined in keyscheck are not mandatory
+//error is only for one property at a time
 const keysCheck = (value, options, key, attributes) => {
     //bit hackish as validate.js doesn't provide option to do main object checks
     if(key === 'mainObjectCheck') value = attributes;
-
+    //this code is most relevant when key is not mainObjectCheck 
+    //(in case of mainObjectCheck key the object itself should be null for this case)
     if(!value) return; // if field is not mandatory then do nothing
 
     const inputKeys = Object.keys(value);
@@ -199,7 +208,7 @@ const validateCvv = (value,scheme) => {
 };
 
 const isValidCvv=(length,scheme)=>{
-    //both valid length cvv considered as valid for the time being.
+    //all valid length(0,3,4) cvv considered as valid for the time being.
     //console.log(length,scheme);
     scheme = scheme?scheme.toLowerCase():scheme;
     if(!scheme&&(length===3||length===4||length===0))
