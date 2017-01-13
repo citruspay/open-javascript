@@ -236,7 +236,7 @@ const cardCheck = (paymentDetails, options, key, attributes) => {
         if(!getConfig().fastForward && getAppData('pgSettingsData')[validatedCardType+'Card'].indexOf( validateScheme(scheme, false)) < 0 ){
             return ':cardscheme is not supported';
         }
-
+        //Check for Maestro cards, Since it does not pass the Luhn's algorithm.
         if(scheme !== 'Maestro'){
             if (!isCardValid(paymentDetails.number)){
                 return ' :invalid credit card number';

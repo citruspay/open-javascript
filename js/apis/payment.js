@@ -1,9 +1,8 @@
 import {handlersMap} from "../config";
 import {setAppData, isPciRequest} from "./../utils";
 import {makeNetBankingPayment, makeSavedNBPayment} from "./net-banking";
-import {makeMotoCardPayment, makeSavedCardPayment} from "./cards";
-import {makeHostedFieldPayment, makeSavedCardHostedFieldPayment} from "./hosted-field-payment";
-import cloneDeep from "lodash/cloneDeep";
+import {makeCardPaymentWrapper, makeSavedCardPayment} from "./cards";
+import {makeHostedFieldPayment} from "./hosted-field-payment";
 
 
 const makePayment = (paymentObj) => {
@@ -17,9 +16,9 @@ const makePayment = (paymentObj) => {
         case "card" :
             if(isPciRequest())
             {
-                setAppData('paymentObj', paymentObj);
+                //setAppData('paymentObj', paymentObj);
                 makeCardPaymentWrapper(paymentObj);
-                makeMotoCardPayment(paymentObj);
+                //makeMotoCardPayment(paymentObj);
             }
             else
                 makeHostedFieldPayment(paymentObj);
