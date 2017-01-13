@@ -84,14 +84,13 @@ const makeHostedFieldPayment = (paymentObj) => {
 const makeSavedCardHostedFieldPayment = (savedCardFrameId) =>{
     const makeSavedCardHostedFieldPaymentInternal = (paymentObj)=>{
      doValidation(paymentObj,savedCardPaymentObjSchema);
-    let cardSetupType = paymentObj.paymentDetails.type;
-    let {cardNumber,cardScheme} = paymentObj.paymentDetails;
+    let cardSetupType = "savedCard";
     let savedFrameUid;
     if(savedCardFrameId)
     {
         savedFrameUid =  savedCardFrameId.split('citruscvv-savedCard-')[1]
     }
-    let hostedField = getHostedFieldForSavedCard({savedMaskedCardNumber:cardNumber,savedCardScheme:cardScheme,_uid:savedFrameUid});
+    let hostedField = getHostedFieldForSavedCard({_uid:savedFrameUid});
     let frameId = savedCardFrameId?savedCardFrameId:getCitrusFrameIdForSavedCard(hostedField);
     //console.log('farmeId',frameId,hostedField);
     let element = getElement('#'+frameId);
@@ -266,7 +265,7 @@ const getHostedFieldByType = (fieldType, cardSetupType) => {
     }
 };
 
-const getHostedFieldForSavedCard = ({savedMaskedCardNumber,savedCardScheme,_uid})=>{
+const getHostedFieldForSavedCard = ({_uid})=>{
     let hostedFields = getAppData('hostedFields-savedCard');
     let hostedField;
     for(var i=0;i<hostedFields.length; ++i){
@@ -291,7 +290,6 @@ const validateCardDetails = (cardSetupType) => {
     let validationResultKey = requiredValidationFieldType + '-' + cardSetupType + '-validation';
     let validationResult = getAppData(validationResultKey);
     let hostedField = getHostedFieldByType(requiredValidationFieldType, cardSetupType);
-    let scheme;
     if (!validationResult) {
         postMessageToChild(requiredValidationFieldType, cardSetupType, {
             messageType: 'validate'
@@ -417,7 +415,7 @@ const validateSavedCardCvvDetails = (hostedField)=>{
                         });
 
     }
-    if (!validationResult&&hostedField.savedCardScheme&&hostedField.savedCardScheme!="MAESTRO") {
+    if (!validationResult&&hostedField.savedCardScheme&& hostedField.savedCardScheme!="Maestro") {
         postMessageToSavedCardFrame(hostedField, {
                         messageType: 'validate'
                     });
@@ -461,9 +459,7 @@ const getCitrusFrameId = (fieldType, cardType) => {
 };
 
 const getCitrusFrameIdForSavedCard = (hostedField)=>{
-    //var uid = getGuid();
-    return citrusSelectorPrefix+'cvv-savedCard-'+ hostedField._uid; //getLastFourDigits(hostedField.savedMaskedCardNumber)+'-'+
-    //hostedField.savedCardScheme;
+    return citrusSelectorPrefix+'cvv-savedCard-'+ hostedField._uid; 
 }
 
 const getFrameId=(hostedField,cardType)=>{
@@ -472,11 +468,6 @@ const getFrameId=(hostedField,cardType)=>{
      else
         return getCitrusFrameId(hostedField.fieldType,cardType);
 }
-
-const getLastFourDigits=(maskedCardNumber)=>{
-    return maskedCardNumber.substring(maskedCardNumber.length-4);
-}
-
 
 export {
     makeHostedFieldPayment,

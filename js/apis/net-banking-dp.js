@@ -2,7 +2,6 @@ import cloneDeep from 'lodash/cloneDeep';
 import {motoCardValidationSchema, motoCardApiFunc} from './cards';
 import {applyDynamicPricing,baseDynamicPricingSchema} from './dynamic-pricing';
 import {validateAndCallbackify} from './../utils';
-import {getConfig} from '../config';
 
 const dynamicPricingSchema = Object.assign({},baseDynamicPricingSchema, {
     bankCode: { presence : true }

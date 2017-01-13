@@ -4,16 +4,19 @@ import {
     schemeFromNumber,
     getAppData,
     isV3Request,
-    isIcpRequest
+    isIcpRequest,
+    isUrl,
+    isExternalJsConsumer,
+    doValidation
 } from "./../utils";
 import {savedNBValidationSchema, savedAPIFunc} from "./net-banking";
 import {makeMCPCardPayment} from "./mcp"
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
-import {getConfig} from "../config";
+import {handlersMap, getConfig} from "../config";
 import {validateCardType, validateScheme, cardDate, validateCvv} from "../validation/custom-validations";
 import {custFetch} from "../interceptor";
-import {urlReEx, TRACKING_IDS} from "../constants";
+import {urlReEx, TRACKING_IDS, PAGE_TYPES} from "../constants";
 import {handlePayment} from "./payment-handler";
 //import $ from 'jquery';
 
@@ -23,8 +26,6 @@ const regExMap = {
     'CVV': /^[0-9]{3,4}$/, //todo: handle cases for amex
     url: urlReEx
 };
-
-let cancelApiResp;
 
 const blazeCardValidationSchema = {
     mainObjectCheck: {
@@ -171,40 +172,47 @@ const motoCardApiFunc = (confObj) => {
     delete reqConf.mode;
     reqConf.deviceType = getConfig().deviceType;
     //const env = `${getConfig().isOl}`;
-    return handlePayment(reqConf, mode);
-
+    return handlePayment(reqConf,mode);
 };
 
-const makeMotoCardPayment = (paymentObj)=> {
+const makeMotoCardPayment = (paymentObj)=>{
     let paymentData = cloneDeep(paymentObj);
     delete paymentData.paymentDetails.paymentMode;
     const makeMotoCardPaymentInternal = validateAndCallbackify(motoCardValidationSchema, motoCardApiFunc);
     return makeMotoCardPaymentInternal(paymentData);
 }
 
-//this variable is not being assigned anywhere for the time being
-//after changes were made for hosted fields in this file, although
-//the variable is used in unreachable portions of code for the time being.
-let winRef = null;
-
 const savedCardValidationSchema = Object.assign({}, savedNBValidationSchema);
 savedCardValidationSchema.mainObjectCheck.keysCheck.push('CVV');
 
 const makeSavedCardPayment = (paymentObj)=> {
     let paymentData = cloneDeep(paymentObj);
+    //validate can only check regex against strings so need to convert cvv to string
+    //if it was being set as number
+    if(paymentData.paymentDetails.cvv)
+        paymentData.paymentDetails.cvv = paymentData.paymentDetails.cvv.toString();
+    if(isExternalJsConsumer(paymentData.requestOrigin)){
+         var additionalConstraints = {
+             paymentDetails:{presence:true},
+             "paymentDetails.cvv": {presence: true, format: regExMap.CVV},
+             "paymentDetails.token": {presence: true}
+            };
+            doValidation(paymentData,additionalConstraints);
+    }
+    
     if (paymentObj.paymentDetails) {
         if (!paymentObj.token && paymentObj.paymentDetails.token)
             paymentData.token = paymentObj.paymentDetails.token;
-        if (!paymentObj.CVV && paymentObj.paymentDetails.cvv)
-            paymentObj.CVV = paymentObj.paymentDetails.cvv;
+        if(!paymentObj.CVV && paymentObj.paymentDetails.cvv)
+            paymentData.CVV = paymentObj.paymentDetails.cvv;
         delete paymentData.paymentDetails;
     }
     if (isCvvGenerationRequired(paymentData)) {
-        paymentData.CVV = Math.floor(Math.random() * 900) + 100;
+            paymentData.CVV = Math.floor(Math.random() * 900) + 100;
     }
     let makeSavedCardPaymentInternal = validateAndCallbackify(savedCardValidationSchema, (paymentData)=> {
         const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
-
+        
         return savedAPIFunc(paymentData, apiUrl);
     });
     return makeSavedCardPaymentInternal(paymentData);

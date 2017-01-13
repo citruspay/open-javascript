@@ -1,4 +1,3 @@
-var ccErrorNo = 0;
 var ccErrors = new Array ()
 
 ccErrors [0] = "Unknown card type";

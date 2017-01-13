@@ -10,6 +10,7 @@ import {postMessageToChild, getCitrusFrameId,getCitrusFrameIdForSavedCard,postMe
 import {addEventListenersForHostedFields} from './hosted-field-main';
 import {makeSavedCardHostedFieldPayment} from './apis/hosted-field-payment';
 import some from '../node_modules/lodash/some';
+import {validateScheme} from "./validation/custom-validations";
 
 const create = (setUpConfig,callback) => {
     "use strict";
@@ -24,12 +25,14 @@ const create = (setUpConfig,callback) => {
   
     for (var i = 0, length = hostedFieldsCopy.length; i < length; ++i) {
         let {
-            fieldType,
-            selector
-        } = hostedFieldsCopy[i];
+                fieldType
+            } = hostedFieldsCopy[i];
         if (validHostedFieldTypes.indexOf(fieldType) !== -1) {
             let newUid = getNewUid(setupType);
             hostedFieldsCopy[i]._uid = newUid;
+            //this condition is specific to hosted field with saved card
+            if(hostedFieldsCopy[i].savedCardScheme)  
+                hostedFieldsCopy[i].savedCardScheme = validateScheme(hostedFieldsCopy[i].savedCardScheme,true);
             addIframe(hostedFieldsCopy[i], setupType, style, callback);
             setHostedFieldsInAppData(hostedFieldsCopy[i],setupType);
         } else {
@@ -228,7 +231,6 @@ const convertStyleToCssString = (selector, style)=> {
     //console.log(style);
     var keys = Object.keys(style);
     var cssText = selector + ' {';
-    var specialStyles = [];
     for (var i = 0; i < keys.length; ++i) {
         let key = keys[i];
         if (supportedStyleKeys.indexOf(key) !== -1) {

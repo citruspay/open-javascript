@@ -1,18 +1,13 @@
-import {validateAndCallbackify, getMerchantAccessKey, getAppData, setAppData, isV3Request, isUrl} from "./../utils";
+import {validateAndCallbackify, getMerchantAccessKey, getAppData, setAppData, isV3Request, isUrl,isExternalJsConsumer,
+    doValidation} from "./../utils";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
-import {handlersMap, getConfig, setConfig} from "../config";
-import {custFetch} from "../interceptor";
-import {getCancelResponse, refineMotoResponse} from "./response";
-import {singleHopDropOutFunction} from "./singleHop";
-import {TRACKING_IDS, PAGE_TYPES} from "../constants";
-import {handleDropIn, openPopupWindowForDropIn, handleOlResponse} from "./drop-in";
+import {getConfig, setConfig} from "../config";
+import {TRACKING_IDS} from "../constants";
 import {handlePayment} from "./payment-handler";
-let cancelApiResp;
-let requestOrigin;
+
 const NBAPIFunc = (confObj, apiUrl) => {
     if(getAppData('net_banking')) confObj.offerToken = getAppData('net_banking')['offerToken'];
-    requestOrigin = confObj.requestOrigin ||TRACKING_IDS.CitrusGuest;
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: 'INR',
@@ -35,8 +30,6 @@ const NBAPIFunc = (confObj, apiUrl) => {
     delete reqConf.mode;
     return handlePayment(reqConf,mode,apiUrl);
 };
-
-let winRef = null;
 
 const netBankingValidationSchema = Object.assign(cloneDeep(baseSchema), {
     paymentDetails: {
@@ -72,7 +65,6 @@ savedNBValidationSchema.mainObjectCheck.keysCheck.push('token');
 const savedAPIFunc = (confObj, url) => {
     setAppData('paymentObj',confObj);
     if(getAppData('citrus_wallet')) confObj.offerToken = getAppData('citrus_wallet')['offerToken'];
-    requestOrigin = confObj.requestOrigin || TRACKING_IDS.CitrusWallet;
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: confObj.currency,
@@ -98,6 +90,13 @@ const savedAPIFunc = (confObj, url) => {
 
 const makeSavedNBPayment = (paymentObj)=>{
     let paymentData = cloneDeep(paymentObj);
+    if(isExternalJsConsumer(paymentData.requestOrigin)){
+         var additionalConstraints = {
+             paymentDetails:{presence:true},
+             "paymentDetails.token": {presence: true}
+            };
+            doValidation(paymentData,additionalConstraints);
+    }
     if(paymentObj.paymentDetails){
         if(!paymentObj.token && paymentObj.paymentDetails.token)
             paymentData.token = paymentObj.paymentDetails.token;

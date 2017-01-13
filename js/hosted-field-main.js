@@ -4,12 +4,10 @@
 import {cardFromNumber,schemeFromNumber,getAppData,addListener,postMessageWrapper,setAppData,isIOS} from "./utils";
 import {getConfigValue} from './hosted-field-config';
 import { validateCreditCard,isValidCvv,isValidExpiry} from './validation/custom-validations';
-import {postMessageToChild} from './apis/hosted-field-payment';
 import {MIN_VALID_CARD_LENGTH} from './constants';
 
 let _paymentField;
 let field;
-let cvvLen = 4;
 //todo:change its name later
 let digit;
 let parentUrl = getAppData('parentUrl');
@@ -36,15 +34,10 @@ const postPaymentData = () => {
     //todo:IMPORTANT, change * to citrus server url,
     //also if possible use name instead of index as index will be unreliable
     //if there are other iframes on merchant's page
-    /*let fieldTypesToPostData = validHostedFieldTypes.filter((value,index,arr)=>{
-        return value!==field[0];
-    });
-    for(var i=0;i<fieldTypesToPostData.length;++i)
-    postMessageToChild(fieldTypesToPostData[i],field[1],cardData,getConfigValue('hostedFieldDomain'));*/
+
     for(var i=0;i<parent.window.frames.length;i++)
     {
         postMessageWrapper(parent.window.frames[i], message, getConfigValue('hostedFieldDomain'));
-        //console.log(parent.window.frames[i].id,'test');
     }
 };
 
@@ -100,7 +93,6 @@ const detectScheme = ()=>{
         return;
     var lastDetectedScheme = getAppData(setupType+'scheme');
     let schemeChangeMessage = {messageType:'schemeChange',scheme:scheme,hostedField, cardType:setupType};
-    //console.log(lastDetectedScheme,scheme,setupType,'detectScheme');
     if(lastDetectedScheme!==scheme)
     {
         setAppData(setupType+'scheme',scheme);
