@@ -7,11 +7,11 @@ import {
 } from "./hosted-field-config";
 import {setAppData, getElement,getAppData,getUid} from "./utils";
 import {postMessageToChild, getCitrusFrameId,getCitrusFrameIdForSavedCard,postMessageToSavedCardFrame} from "./apis/hosted-field-payment";
-import {addEventListenersForHostedFields} from './hosted-field-main';
 import {makeSavedCardHostedFieldPayment} from './apis/hosted-field-payment';
 import some from '../node_modules/lodash/some';
 import {validateScheme} from "./validation/custom-validations";
 
+//parent call
 const create = (setUpConfig,callback) => {
     "use strict";
     let {
@@ -42,6 +42,7 @@ const create = (setUpConfig,callback) => {
     //setStyle(style,hostedFields,cardType);
 };
 
+//parent call
 const setHostedFieldsInAppData=(hostedField,setupType)=>{
     var hostedFields = getAppData('hostedFields' + '-' + setupType);
     if(hostedFields)
@@ -57,6 +58,7 @@ const setHostedFieldsInAppData=(hostedField,setupType)=>{
     setAppData('hostedFields' + '-' + setupType, hostedFields);
 };
 
+//parent call
 const getNewUid = (setupType)=>{
      //if(setupType==='savedCard'){
         var hostedFields = getAppData('hostedFields' + '-' + setupType);
@@ -74,6 +76,7 @@ const getNewUid = (setupType)=>{
 };
 
 
+//parent call
 const addIframe = (hostedField, cardType, style,callback) => {
     "use strict";
     if(cardType==="savedCard")
@@ -147,6 +150,7 @@ const addIframe = (hostedField, cardType, style,callback) => {
        
 }
 //todo:rename to setStyle and other attributes
+//parent call
 const passAttributesToHostedField = (attributes, hostedField, cardType) => {
 
     let hostedFrameAttributes = {
@@ -176,114 +180,8 @@ const passAttributesToHostedField = (attributes, hostedField, cardType) => {
 
 }
 
-const applyAttributes = (attributes) => {
-    //console.log(attributes,'inside applyAttributes');
-    if (!attributes)
-        return;
-    let applicableStyle = {};
-
-    function createSytleObject(styleParam) {
-        if (!styleParam)
-            return;
-        let keys = Object.keys(styleParam);
-        for (var i = 0; i < keys.length; ++i) {
-            let key = keys[i];
-            if (supportedStyleKeys.indexOf(key) !== -1) {
-                applicableStyle[convertHyphenFormatToCamelCase(key)] = styleParam[key];
-            } else if (specialStyleKeys.indexOf(key) !== -1) {
-                //todo:handle :focus,.valid,.invalid here
-
-            } else {
-                console.warn(`${key} is not supported`);
-            }
-        }
-    }
-
-    setAppData('hostedField', attributes.hostedField);
-    setAppData('cardType', attributes.cardType);
-    if(attributes.cardType.toLowerCase()==='savedcard')
-    {
-        setAppData(attributes.cardType+'scheme',attributes.hostedField.savedCardScheme);
-    }
-    addEventListenersForHostedFields(attributes.cardType);
-    createSytleObject(attributes.commonStyle);
-    createSytleObject(attributes.specificStyle);
-    var inputElement = document.getElementsByTagName('input')[0];
-    if (attributes.hostedField && attributes.hostedField.placeholder) {
-        inputElement.setAttribute('placeholder', attributes.hostedField.placeholder);
-    }
-    Object.assign(inputElement.style, applicableStyle);
-    var cssText = '';
-    for (var i = 0; i < specialStyleKeys.length; ++i) {
-        var specialStyleKey = specialStyleKeys[i];
-        if (attributes['input' + specialStyleKey]) {
-            cssText += convertStyleToCssString('input' + specialStyleKey, attributes['input' + specialStyleKey]);
-        }
-        
-        //if(attributes[])
-    }
-    addStyleTag(cssText);
-}
-
-const convertStyleToCssString = (selector, style)=> {
-    if (!style)
-        return;
-    //console.log(style);
-    var keys = Object.keys(style);
-    var cssText = selector + ' {';
-    for (var i = 0; i < keys.length; ++i) {
-        let key = keys[i];
-        if (supportedStyleKeys.indexOf(key) !== -1) {
-            cssText += key + ':' + style[key] + ';'
-            //applicableStyle[convertHyphenFormatToCamelCase(key)] = styleParam[key];
-        } else {
-            console.warn(`${key} is not supported`);
-        }
-    }
-    cssText += '}';
-    return cssText;
-}
-
-function addCSSRule(selector, rules, sheet, index) {
-    if (!sheet && document.styleSheets.length > 0)
-        sheet = document.styleSheets[document.styleSheets.length - 1];
-    else
-        addStyleTag()
-    if ("insertRule" in sheet) {
-        sheet.insertRule(selector + "{" + rules + "}", index);
-    }
-    else if ("addRule" in sheet) {
-        sheet.addRule(selector, rules, index);
-    }
-}
-const addStyleTag = (css)=> {
-    //var css = 'h1 { background: red; }',
-    var head = document.head || document.getElementsByTagName('head')[0],
-        style = document.createElement('style');
-    style.type = 'text/css';
-    if (style.styleSheet) {
-        style.styleSheet.cssText = css;
-    } else {
-        style.appendChild(document.createTextNode(css));
-    }
-    head.appendChild(style);
-}
-
-/*function styleHyphenFormat(propertyName) {
- function upperToHyphenLower(match) {
- return '-' + match.toLowerCase();
- }
- return propertyName.replace(/[A-Z]/g, upperToHyphenLower);
- }*/
-function convertHyphenFormatToCamelCase(propertyName) {
-    function hyphenLowerToUpper(match) {
-        return match[1].toUpperCase();
-    }
-    return propertyName.replace(/-[a-z]/g, hyphenLowerToUpper);
-}
 
 
 export {
-    create,
-    applyAttributes
+    create
 };

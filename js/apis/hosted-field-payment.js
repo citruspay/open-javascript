@@ -18,7 +18,6 @@ const regExMap = {
     'CVV': /^[0-9]{3,4}$/, //todo: handle cases for amex
     url: urlReEx
 };
-let txnId;
 
 const hostedFieldPaymentObjschema = Object.assign(cloneDeep(baseSchema), {
     paymentDetails: {
@@ -48,8 +47,9 @@ let savedCardPaymentObjSchema =  Object.assign(cloneDeep(baseSchema), {
     mode:{presence:true,inclusion:{within:["dropOut","dropIn"],message:"invalid mode %{value} it should have one of these values dropIn, dropOut"}}
 });
 savedCardPaymentObjSchema.mainObjectCheck.keysCheck.push('paymentDetails');
+
+//parent call
 const makeHostedFieldPayment = (paymentObj) => {
-    txnId = paymentObj.merchantTxnId;
     // const paymentMode = paymentObj.paymentDetails.paymentMode.toLowerCase().replace(/\s+/g, '');
     //todo:remove dependency on paymentDetails.type, this code can cause problems late on.
     let cardSetupType = paymentObj.paymentDetails.type ? paymentObj.paymentDetails.type.toLowerCase() :'';
@@ -81,6 +81,7 @@ const makeHostedFieldPayment = (paymentObj) => {
     }
 };
 
+//parent call
 const makeSavedCardHostedFieldPayment = (savedCardFrameId) =>{
     const makeSavedCardHostedFieldPaymentInternal = (paymentObj)=>{
      doValidation(paymentObj,savedCardPaymentObjSchema);
@@ -118,6 +119,7 @@ const makeSavedCardHostedFieldPayment = (savedCardFrameId) =>{
     return makeSavedCardHostedFieldPaymentInternal;
 }
 
+//parent call
 //parent listener
 const listener = (event) => {
     try {
@@ -191,6 +193,7 @@ const listener = (event) => {
     }
 };
 
+//parent call
 const handleFetchDynamicPricingToken = (data)=>{
     let dynamicPriceHandler = handlersMap['dynamicPriceHandlder'];
     let hostedField = event.data.hostedField;
@@ -279,141 +282,86 @@ const getHostedFieldForSavedCard = ({_uid})=>{
 //assumed if the validationResult is not present for a hostedField
 //it is invalid
 const validateCardDetails = (cardSetupType) => {
-    let err = {
-        type: "errorHandler",
-        messageType: "validation"
-    };
-    err.errors = [];
     let isValidCard = true;
-    let validationResults = [];
-    let requiredValidationFieldType = 'number';
-    let validationResultKey = requiredValidationFieldType + '-' + cardSetupType + '-validation';
-    let validationResult = getAppData(validationResultKey);
-    let hostedField = getHostedFieldByType(requiredValidationFieldType, cardSetupType);
-    if (!validationResult) {
-        postMessageToChild(requiredValidationFieldType, cardSetupType, {
-            messageType: 'validate'
-        });
-        /*err.error = 'Card number can not be blank.';
-         err.hostedField = hostedField;
-         toggleValidationClass(hostedField,{isValid:false});*/
+    //scheme does not matter while checking for validation of number field, simply passing false as the first parameter
+    let fieldValidationResult = checkSingleFieldValidationResult(false,'number',cardSetupType);
+    console.log(fieldValidationResult);
+    if(!fieldValidationResult.isValidField)
         return false;
-    }
-    if (!validationResult.isValid) {
-        err.error = validationResult.txMsg;
-        err.hostedField = hostedField;
-        toggleValidationClass(hostedField, {
-            isValid: false
-        });
-        return false;
-    }
-    if (validationResult.isValid) {
-        let validHostedFieldTypesWithoutNumber = validHostedFieldTypes.filter((val) => {
-            return val !== "number";
-        });
-        let hostedFieldsWithoutNumber = [];
-        let ignoreValidationBroadcast;
-        let validationKeyPrefix;
-        if (validationResult.scheme === "maestro") {
-            let isValidField = true;
-            //validate other keys if present
-            for (var i = 0; i < validHostedFieldTypesWithoutNumber.length; ++i) {
-                validationKeyPrefix = validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType;
-                validationResultKey = validationKeyPrefix + '-validation';
-                validationResult = getAppData(validationResultKey);
-                ignoreValidationBroadcast = getAppData(validationKeyPrefix + '-ignore-validation');
-                //console.log('validation result for key ', validationResultKey, validationResult, i,ignoreValidationBroadcast);
-                hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i], cardSetupType);
-                hostedFieldsWithoutNumber.push(hostedField);
-                if (validationResult)
-                    validationResults.push(validationResult);
-
-
-                if (validationResult /*&& !validationResult.isEmpty*/ ) {
-                    err.error = validationResult.txMsg;
-                    err.errors.push[validationResult.txMsg];
-                    if (!validationResult.isValid) {
-                        isValidCard = false;
-                        isValidField = false;
-                    }
-                    if (!ignoreValidationBroadcast)
-                        toggleValidationClass(hostedField, {
-                            isValid: validationResult.isValid
-                        });
-                    else
-                        postMessageToChild(validHostedFieldTypesWithoutNumber[i], cardSetupType, {
-                            messageType: 'validate'
-                        });
-                }
-                if (!validationResult)
-                    postMessageToChild(validHostedFieldTypesWithoutNumber[i], cardSetupType, {
-                        messageType: 'validate'
-                    });
-
-            }
+    else{
+        if (fieldValidationResult.validationResult.scheme === "maestro") {
+                isValidCard = validateCardFieldsOtherThenNumber(true,cardSetupType);
         } else {
-            for (var i = 0; i < validHostedFieldTypesWithoutNumber.length; ++i) {
-                validationKeyPrefix = validHostedFieldTypesWithoutNumber[i] + '-' + cardSetupType;
-                validationResultKey = validationKeyPrefix+ '-validation';
-                validationResult = getAppData(validationResultKey);
-                ignoreValidationBroadcast = getAppData(validationKeyPrefix + '-ignore-validation');
-                //console.log('validation result for key ', validationResultKey, validationResult, i,ignoreValidationBroadcast);
-                hostedField = getHostedFieldByType(validHostedFieldTypesWithoutNumber[i], cardSetupType);
-                if (validationResult)
-                    validationResults.push(validationResult);
-                if (validationResult) {
-                    err.error = validationResult.txMsg;
-                    err.errors.push[validationResult.txMsg];
-                    if (!validationResult.isValid)
-                        isValidCard = false;
-                    if (!ignoreValidationBroadcast)
-                        toggleValidationClass(hostedField, {
-                            isValid: validationResult.isValid
-                        });
-                    else
-                        postMessageToChild(validHostedFieldTypesWithoutNumber[i], cardSetupType, {
-                            messageType: 'validate'
-                        });
-
-                }
-                if (!validationResult) {
-                    /*err.error = validHostedFieldTypesWithoutNumber[i] + ' can not be blank.';
-                     err.errors.push[validHostedFieldTypesWithoutNumber[i] + ' can not be blank.'];
-                     isValidCard = isValidCard && false;
-                     toggleValidationClass(hostedField,{isValid:false});*/
-                    postMessageToChild(validHostedFieldTypesWithoutNumber[i], cardSetupType, {
-                        messageType: 'validate'
-                    });
-                    isValidCard = false;
-                }
-            }
-
+           isValidCard = validateCardFieldsOtherThenNumber(false,cardSetupType);
         }
     }
-
     return isValidCard;
 };
+
+function validateCardFieldsOtherThenNumber(isMaestro,cardSetupType){
+    let isValidCard = true;
+    let isValidField = true;
+    let fieldValidationResult;
+    let validHostedFieldTypesWithoutNumber = validHostedFieldTypes.filter((val) => {
+        return val !== "number";
+    });
+    for(var i = 0; i < validHostedFieldTypesWithoutNumber.length; ++i) {
+       fieldValidationResult = checkSingleFieldValidationResult(isMaestro,validHostedFieldTypesWithoutNumber[i],cardSetupType);
+       if(!fieldValidationResult.isValidField)
+        isValidCard = false;
+    }
+    return isValidCard;
+}
+
+const checkSingleFieldValidationResult=(isMaestro,hostedFieldType, cardSetupType)=>{
+    let validationKeyPrefix = hostedFieldType + '-'+cardSetupType;
+    let validationResultKey = validationKeyPrefix+ '-validation';
+    let ignoreValidationBroadcast = getAppData(validationKeyPrefix + '-ignore-validation');
+    let hostedField = getHostedFieldByType(hostedFieldType, cardSetupType);
+    let validationResult = getAppData(validationResultKey);
+    console.log(validationKeyPrefix,validationResultKey,validationResult,hostedField,validationResult);
+    let isValidField = true;
+    if (validationResult) {
+        if (!validationResult.isValid)
+                isValidField = false;
+        if (!ignoreValidationBroadcast)
+            toggleValidationClass(hostedField, {
+                            isValid: validationResult.isValid
+            });
+        else
+            postMessageToChild(hostedFieldType, cardSetupType, {
+                            messageType: 'validate'
+            });
+    }
+    if (!validationResult) {
+        postMessageToChild(hostedFieldType, cardSetupType, {
+                        messageType: 'validate'
+        }); 
+        //if the card is Maestro and we don't have validationResult for the field
+        //it means nothing has been entered into this field, as expiry, cvv is not reqiured for Maestro
+        //treat those fields as valid, as Card number is always required so in that case empty should be invalid
+        if(!isMaestro||hostedFieldType==="number")
+            isValidField = false;
+    }
+    return {validationResult,isValidField};
+}
 const validateSavedCardCvvDetails = (hostedField)=>{
     let validationKeyPrefix = getCitrusFrameIdForSavedCard(hostedField);
     let validationResultKey = validationKeyPrefix+'-validation';
     let validationResult = getAppData(validationResultKey);
     let ignoreValidationBroadcast = getAppData(validationKeyPrefix + '-ignore-validation');
     let isValidCard = true;
-                //console.log('validation result for key ', validationResultKey, validationResult, i,ignoreValidationBroadcast);
-    //if (validationResult)
-    //    validationResults.push(validationResult);
     if (validationResult) {
         if (!validationResult.isValid)
             isValidCard = false;
         if (!ignoreValidationBroadcast)
             toggleValidationClass(hostedField, {
                             isValid: validationResult.isValid
-                        });
+            });
         else
             postMessageToSavedCardFrame(hostedField, {
                             messageType: 'validate'
-                        });
-
+            });
     }
     if (!validationResult&&hostedField.savedCardScheme&& hostedField.savedCardScheme!="Maestro") {
         postMessageToSavedCardFrame(hostedField, {
@@ -423,6 +371,8 @@ const validateSavedCardCvvDetails = (hostedField)=>{
     }
     return isValidCard;         
 }
+
+
 
 
 const postMessageToChild = (fieldType, cardType, message, isSetTimeoutRequired) => {

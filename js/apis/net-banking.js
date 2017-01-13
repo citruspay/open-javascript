@@ -5,6 +5,7 @@ import cloneDeep from "lodash/cloneDeep";
 import {getConfig, setConfig} from "../config";
 import {TRACKING_IDS} from "../constants";
 import {handlePayment} from "./payment-handler";
+import {savedAPIFunc,savedPaymentValidationSchema} from './common-saved-payment';
 
 const NBAPIFunc = (confObj, apiUrl) => {
     if(getAppData('net_banking')) confObj.offerToken = getAppData('net_banking')['offerToken'];
@@ -56,38 +57,6 @@ const makeBlazeNBPayment = validateAndCallbackify(netBankingValidationSchema, (c
 
 //------------------- makeSavedNBPayment ----------------//
 
-const savedNBValidationSchema = Object.assign(cloneDeep(baseSchema), {
-    token: {presence: true}
-});
-
-savedNBValidationSchema.mainObjectCheck.keysCheck.push('token');
-
-const savedAPIFunc = (confObj, url) => {
-    setAppData('paymentObj',confObj);
-    if(getAppData('citrus_wallet')) confObj.offerToken = getAppData('citrus_wallet')['offerToken'];
-    const reqConf = Object.assign({}, confObj, {
-        amount: {
-            currency: confObj.currency,
-            value: confObj.amount
-        },
-        paymentToken: {
-            type: 'paymentOptionIdToken',
-            id: confObj.token
-        },
-        merchantAccessKey: getMerchantAccessKey(confObj),
-        requestOrigin: confObj.requestOrigin || TRACKING_IDS.CitrusWallet
-    });
-
-    confObj.CVV && (reqConf.paymentToken.cvv = confObj.CVV);
-
-    delete reqConf.currency;
-    delete reqConf.token;
-    delete reqConf.CVV;
-    const mode = (reqConf.mode) ? reqConf.mode.toLowerCase() : "";
-    delete reqConf.mode;
-    return handlePayment(reqConf,mode);
-};
-
 const makeSavedNBPayment = (paymentObj)=>{
     let paymentData = cloneDeep(paymentObj);
     if(isExternalJsConsumer(paymentData.requestOrigin)){
@@ -102,7 +71,7 @@ const makeSavedNBPayment = (paymentObj)=>{
             paymentData.token = paymentObj.paymentDetails.token;
         delete paymentData.paymentDetails;
     }
-    let makeSavedNBPaymentInternal = validateAndCallbackify(savedNBValidationSchema, (confObj)=> {
+    let makeSavedNBPaymentInternal = validateAndCallbackify(savedPaymentValidationSchema, (confObj)=> {
     const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
     return savedAPIFunc(confObj, apiUrl);
     });
@@ -112,7 +81,5 @@ const makeSavedNBPayment = (paymentObj)=>{
 export {
     makeNetBankingPayment,
     makeSavedNBPayment,
-    makeBlazeNBPayment,
-    savedAPIFunc,
-    savedNBValidationSchema
+    makeBlazeNBPayment
 }

@@ -9,7 +9,7 @@ import {
     isExternalJsConsumer,
     doValidation
 } from "./../utils";
-import {savedNBValidationSchema, savedAPIFunc} from "./net-banking";
+import {savedPaymentValidationSchema, savedAPIFunc} from "./common-saved-payment";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {handlersMap, getConfig} from "../config";
@@ -181,7 +181,7 @@ const makeMotoCardPayment = (paymentObj)=>{
     return makeMotoCardPaymentInternal(paymentData);
 }
 
-const savedCardValidationSchema = Object.assign({}, savedNBValidationSchema);
+const savedCardValidationSchema = Object.assign({}, savedPaymentValidationSchema);
 savedCardValidationSchema.mainObjectCheck.keysCheck.push('CVV');
 
 const makeSavedCardPayment = (paymentObj)=> {
