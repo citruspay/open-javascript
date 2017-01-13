@@ -5,11 +5,16 @@ import {
     supportedStyleKeys,
     specialStyleKeys
 } from "./hosted-field-config";
-import {setAppData, getElement,getAppData,getUid} from "./utils";
-import {postMessageToChild, getCitrusFrameId,getCitrusFrameIdForSavedCard,postMessageToSavedCardFrame} from "./apis/hosted-field-payment";
-import {addEventListenersForHostedFields} from './hosted-field-main';
-import {makeSavedCardHostedFieldPayment} from './apis/hosted-field-payment';
-import some from '../node_modules/lodash/some';
+import {setAppData, getElement, getAppData, getUid} from "./utils";
+import {
+    postMessageToChild,
+    getCitrusFrameId,
+    getCitrusFrameIdForSavedCard,
+    postMessageToSavedCardFrame,
+    makeSavedCardHostedFieldPayment
+} from "./apis/hosted-field-payment";
+import {addEventListenersForHostedFields} from "./hosted-field-main";
+import some from "../node_modules/lodash/some";
 import {validateScheme} from "./validation/custom-validations";
 
 const create = (setUpConfig,callback) => {
@@ -25,14 +30,14 @@ const create = (setUpConfig,callback) => {
   
     for (var i = 0, length = hostedFieldsCopy.length; i < length; ++i) {
         let {
-                fieldType
-            } = hostedFieldsCopy[i];
+            fieldType
+        } = hostedFieldsCopy[i];
         if (validHostedFieldTypes.indexOf(fieldType) !== -1) {
             let newUid = getNewUid(setupType);
             hostedFieldsCopy[i]._uid = newUid;
             //this condition is specific to hosted field with saved card
-            if(hostedFieldsCopy[i].savedCardScheme)  
-                hostedFieldsCopy[i].savedCardScheme = validateScheme(hostedFieldsCopy[i].savedCardScheme,true);
+            if (hostedFieldsCopy[i].savedCardScheme)
+                hostedFieldsCopy[i].savedCardScheme = validateScheme(hostedFieldsCopy[i].savedCardScheme, true);
             addIframe(hostedFieldsCopy[i], setupType, style, callback);
             setHostedFieldsInAppData(hostedFieldsCopy[i],setupType);
         } else {
@@ -144,8 +149,8 @@ const addIframe = (hostedField, cardType, style,callback) => {
         element.appendChild(iframe);
         element.className += ' citrus-hosted-field';
     }
-       
-}
+
+};
 //todo:rename to setStyle and other attributes
 const passAttributesToHostedField = (attributes, hostedField, cardType) => {
 
@@ -174,7 +179,7 @@ const passAttributesToHostedField = (attributes, hostedField, cardType) => {
     else
     postMessageToSavedCardFrame(hostedField,hostedFrameAttributes);
 
-}
+};
 
 const applyAttributes = (attributes) => {
     //console.log(attributes,'inside applyAttributes');
@@ -223,7 +228,7 @@ const applyAttributes = (attributes) => {
         //if(attributes[])
     }
     addStyleTag(cssText);
-}
+};
 
 const convertStyleToCssString = (selector, style)=> {
     if (!style)
@@ -234,7 +239,7 @@ const convertStyleToCssString = (selector, style)=> {
     for (var i = 0; i < keys.length; ++i) {
         let key = keys[i];
         if (supportedStyleKeys.indexOf(key) !== -1) {
-            cssText += key + ':' + style[key] + ';'
+            cssText += key + ':' + style[key] + ';';
             //applicableStyle[convertHyphenFormatToCamelCase(key)] = styleParam[key];
         } else {
             console.warn(`${key} is not supported`);
@@ -242,13 +247,13 @@ const convertStyleToCssString = (selector, style)=> {
     }
     cssText += '}';
     return cssText;
-}
+};
 
 function addCSSRule(selector, rules, sheet, index) {
     if (!sheet && document.styleSheets.length > 0)
         sheet = document.styleSheets[document.styleSheets.length - 1];
     else
-        addStyleTag()
+        addStyleTag();
     if ("insertRule" in sheet) {
         sheet.insertRule(selector + "{" + rules + "}", index);
     }
@@ -267,7 +272,7 @@ const addStyleTag = (css)=> {
         style.appendChild(document.createTextNode(css));
     }
     head.appendChild(style);
-}
+};
 
 /*function styleHyphenFormat(propertyName) {
  function upperToHyphenLower(match) {

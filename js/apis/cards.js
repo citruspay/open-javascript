@@ -5,18 +5,17 @@ import {
     getAppData,
     isV3Request,
     isIcpRequest,
-    isUrl,
     isExternalJsConsumer,
     doValidation
 } from "./../utils";
 import {savedNBValidationSchema, savedAPIFunc} from "./net-banking";
-import {makeMCPCardPayment} from "./mcp"
+import {makeMCPCardPayment} from "./mcp";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
-import {handlersMap, getConfig} from "../config";
+import {getConfig} from "../config";
 import {validateCardType, validateScheme, cardDate, validateCvv} from "../validation/custom-validations";
 import {custFetch} from "../interceptor";
-import {urlReEx, TRACKING_IDS, PAGE_TYPES} from "../constants";
+import {urlReEx, TRACKING_IDS} from "../constants";
 import {handlePayment} from "./payment-handler";
 //import $ from 'jquery';
 
@@ -142,6 +141,7 @@ const motoCardApiFunc = (confObj) => {
             cvv: validateCvv(confObj.paymentDetails.cvv, cardScheme)
         });
     }
+
     if (confObj.paymentDetails.expiry) {
         var d = confObj.paymentDetails.expiry.slice(3);
         if (d.length == 2) {
@@ -172,15 +172,14 @@ const motoCardApiFunc = (confObj) => {
     delete reqConf.mode;
     reqConf.deviceType = getConfig().deviceType;
     //const env = `${getConfig().isOl}`;
-    return handlePayment(reqConf,mode);
+    return handlePayment(reqConf, mode);
 };
 
-const makeMotoCardPayment = (paymentObj)=>{
-    let paymentData = cloneDeep(paymentObj);
-    delete paymentData.paymentDetails.paymentMode;
+const makeMotoCardPayment = (paymentData)=> {
+    // delete paymentData.paymentDetails.paymentMode;
     const makeMotoCardPaymentInternal = validateAndCallbackify(motoCardValidationSchema, motoCardApiFunc);
     return makeMotoCardPaymentInternal(paymentData);
-}
+};
 
 const savedCardValidationSchema = Object.assign({}, savedNBValidationSchema);
 savedCardValidationSchema.mainObjectCheck.keysCheck.push('CVV');
@@ -189,30 +188,30 @@ const makeSavedCardPayment = (paymentObj)=> {
     let paymentData = cloneDeep(paymentObj);
     //validate can only check regex against strings so need to convert cvv to string
     //if it was being set as number
-    if(paymentData.paymentDetails.cvv)
+    if (paymentData.paymentDetails.cvv)
         paymentData.paymentDetails.cvv = paymentData.paymentDetails.cvv.toString();
-    if(isExternalJsConsumer(paymentData.requestOrigin)){
-         var additionalConstraints = {
-             paymentDetails:{presence:true},
-             "paymentDetails.cvv": {presence: true, format: regExMap.CVV},
-             "paymentDetails.token": {presence: true}
-            };
-            doValidation(paymentData,additionalConstraints);
+    if (isExternalJsConsumer(paymentData.requestOrigin)) {
+        var additionalConstraints = {
+            paymentDetails: {presence: true},
+            "paymentDetails.cvv": {presence: true, format: regExMap.CVV},
+            "paymentDetails.token": {presence: true}
+        };
+        doValidation(paymentData, additionalConstraints);
     }
     
     if (paymentObj.paymentDetails) {
         if (!paymentObj.token && paymentObj.paymentDetails.token)
             paymentData.token = paymentObj.paymentDetails.token;
-        if(!paymentObj.CVV && paymentObj.paymentDetails.cvv)
+        if (!paymentObj.CVV && paymentObj.paymentDetails.cvv)
             paymentData.CVV = paymentObj.paymentDetails.cvv;
         delete paymentData.paymentDetails;
     }
     if (isCvvGenerationRequired(paymentData)) {
-            paymentData.CVV = Math.floor(Math.random() * 900) + 100;
+        paymentData.CVV = Math.floor(Math.random() * 900) + 100;
     }
     let makeSavedCardPaymentInternal = validateAndCallbackify(savedCardValidationSchema, (paymentData)=> {
         const apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
-        
+
         return savedAPIFunc(paymentData, apiUrl);
     });
     return makeSavedCardPaymentInternal(paymentData);
@@ -225,7 +224,9 @@ const isCvvGenerationRequired = (paymentData)=> {
 };
 //Function to identify if the payment request requires MCP or not
 //It can be used to check for other features such as EMI, subscription etc. in future.
-const makeCardPaymentWrapper = (paymentData)=> {
+const makeCardPaymentWrapper = (paymentObj)=> {
+    let paymentData = cloneDeep(paymentObj);
+    delete paymentData.paymentDetails.paymentMode;
     if (paymentData.targetMcpCurrency)
         makeMCPCardPayment(paymentData);
     else

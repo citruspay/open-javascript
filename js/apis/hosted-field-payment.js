@@ -84,13 +84,13 @@ const makeHostedFieldPayment = (paymentObj) => {
 const makeSavedCardHostedFieldPayment = (savedCardFrameId) =>{
     const makeSavedCardHostedFieldPaymentInternal = (paymentObj)=>{
      doValidation(paymentObj,savedCardPaymentObjSchema);
-    let cardSetupType = "savedCard";
+        let cardSetupType = "savedCard";
     let savedFrameUid;
     if(savedCardFrameId)
     {
         savedFrameUid =  savedCardFrameId.split('citruscvv-savedCard-')[1]
     }
-    let hostedField = getHostedFieldForSavedCard({_uid:savedFrameUid});
+        let hostedField = getHostedFieldForSavedCard({_uid: savedFrameUid});
     let frameId = savedCardFrameId?savedCardFrameId:getCitrusFrameIdForSavedCard(hostedField);
     //console.log('farmeId',frameId,hostedField);
     let element = getElement('#'+frameId);
@@ -116,7 +116,7 @@ const makeSavedCardHostedFieldPayment = (savedCardFrameId) =>{
     }
     };
     return makeSavedCardHostedFieldPaymentInternal;
-}
+};
 
 //parent listener
 const listener = (event) => {
@@ -265,7 +265,7 @@ const getHostedFieldByType = (fieldType, cardSetupType) => {
     }
 };
 
-const getHostedFieldForSavedCard = ({_uid})=>{
+const getHostedFieldForSavedCard = ({_uid})=> {
     let hostedFields = getAppData('hostedFields-savedCard');
     let hostedField;
     for(var i=0;i<hostedFields.length; ++i){
@@ -273,7 +273,7 @@ const getHostedFieldForSavedCard = ({_uid})=>{
         if(hostedField._uid===_uid)
             return hostedField;
     }
-}
+};
 
 //todo:refactor this code later
 //assumed if the validationResult is not present for a hostedField
@@ -415,14 +415,14 @@ const validateSavedCardCvvDetails = (hostedField)=>{
                         });
 
     }
-    if (!validationResult&&hostedField.savedCardScheme&& hostedField.savedCardScheme!="Maestro") {
+    if (!validationResult && hostedField.savedCardScheme && hostedField.savedCardScheme != "Maestro") {
         postMessageToSavedCardFrame(hostedField, {
                         messageType: 'validate'
                     });
         isValidCard = false;
     }
-    return isValidCard;         
-}
+    return isValidCard;
+};
 
 
 const postMessageToChild = (fieldType, cardType, message, isSetTimeoutRequired) => {
@@ -445,7 +445,7 @@ const postMessageToSavedCardFrame=(hostedField,message,isSetTimeoutRequired)=>{
     } else {
         postMessage(frameId, message);
     }
-}
+};
 
 const postMessage = (frameId, message) => {
     let childFrameDomain = getConfigValue('hostedFieldDomain');
@@ -459,15 +459,15 @@ const getCitrusFrameId = (fieldType, cardType) => {
 };
 
 const getCitrusFrameIdForSavedCard = (hostedField)=>{
-    return citrusSelectorPrefix+'cvv-savedCard-'+ hostedField._uid; 
-}
+    return citrusSelectorPrefix + 'cvv-savedCard-' + hostedField._uid;
+};
 
 const getFrameId=(hostedField,cardType)=>{
     if(cardType==='savedCard')
         return getCitrusFrameIdForSavedCard(hostedField);
      else
         return getCitrusFrameId(hostedField.fieldType,cardType);
-}
+};
 
 export {
     makeHostedFieldPayment,

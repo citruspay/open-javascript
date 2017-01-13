@@ -2,7 +2,7 @@ import {handlersMap, getConfig} from "./config";
 import {validate} from "validate.js";
 import flow from "lodash/flow";
 import {PAGE_TYPES, TRACKING_IDS} from "./constants";
-import {UUID} from './external/uuid.core';
+import {UUID} from "./external/uuid.core";
 
 //Important: This should be defined as 'function' and not as ES6 arrow function
 //because arrow functions don't have 'arguments' object 
@@ -260,8 +260,8 @@ const isPciRequest = ()=>{
     return getConfig().page === PAGE_TYPES.PCI;
 };
 
-const isExternalJsConsumer=(requestOrigin)=>{
-    return !isIcpRequest()&&!isV3Request(requestOrigin);
+const isExternalJsConsumer = (requestOrigin)=> {
+    return !isIcpRequest() && !isV3Request(requestOrigin);
 };
 
 const isIOS = ()=>{
@@ -276,7 +276,7 @@ const isUrl = (data) => {
 
 const getUid = ()=>{
     return UUID.generate();
-}
+};
 
 export {
     validateAndCallbackify,

@@ -10,13 +10,13 @@ import {makePayment} from "./apis/payment";
 import {addField, validateCvv, validateExpiry, validateCard} from "./hosted-field-main";
 import {getConfigValue} from "./hosted-field-config";
 import {validateExpiryDate, validateScheme, validateCreditCard} from "./validation/custom-validations";
-import {makeMotoCardPayment,motoCardValidationSchema,makeSavedCardPayment} from "./apis/cards";
+import {makeMotoCardPayment, makeSavedCardPayment} from "./apis/cards";
 import {init, setConfig, handlersMap} from "./config";
 import {applyAttributes} from "./hosted-field-setup";
-import cloneDeep from 'lodash/cloneDeep';
-import {PAGE_TYPES} from './constants';
+import cloneDeep from "lodash/cloneDeep";
+import {PAGE_TYPES} from "./constants";
+import {applyDynamicPricing} from "./apis/card-dp";
 //import {fetchDynamicPricingToken} from './hosted-field-dp'
-import {applyDynamicPricing} from './apis/card-dp';
 
 init(); //initializes custom validators
 
@@ -118,7 +118,7 @@ function listener(event) {
         let paymentData =  cloneDeep(data.paymentData);
         citrus.setConfig(data.config);
         paymentData.paymentDetails.cvv = document.getElementsByTagName('input')[0].value;
-        if(event.data.scheme==="Maestro"&&!paymentData.paymentDetails.cvv){
+        if (event.data.scheme === "Maestro" && !paymentData.paymentDetails.cvv) {
             paymentData.paymentDetails.cvv = Math.floor(Math.random() * 900) + 100;
         }
         makeSavedCardPayment(paymentData).then(function(response){
@@ -147,7 +147,7 @@ const fetchDynamicPricingToken = (data) => {
             postMessageWrapper(parent,message,parentUrl);
         });
     }
-}
+};
 Object.assign(window.citrus, {
     setConfig,
     validators: {

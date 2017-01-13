@@ -4,8 +4,8 @@
 import {validateAndCallbackify, getMerchantAccessKey} from "./../utils";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
-import { getConfig} from "../config";
-import {TRACKING_IDS} from '../constants';
+import {getConfig} from "../config";
+import {TRACKING_IDS} from "../constants";
 import {handlePayment} from "./payment-handler";
 
 const extWalletValidationSchema = Object.assign(cloneDeep(baseSchema), {

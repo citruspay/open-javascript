@@ -1,10 +1,18 @@
 /**
  * Created by nagamai on 9/9/2016.
  */
-import {cardFromNumber,schemeFromNumber,getAppData,addListener,postMessageWrapper,setAppData,isIOS} from "./utils";
-import {getConfigValue} from './hosted-field-config';
-import { validateCreditCard,isValidCvv,isValidExpiry} from './validation/custom-validations';
-import {MIN_VALID_CARD_LENGTH} from './constants';
+import {
+    cardFromNumber,
+    schemeFromNumber,
+    getAppData,
+    addListener,
+    postMessageWrapper,
+    setAppData,
+    isIOS
+} from "./utils";
+import {getConfigValue} from "./hosted-field-config";
+import {validateCreditCard, isValidCvv, isValidExpiry} from "./validation/custom-validations";
+import {MIN_VALID_CARD_LENGTH} from "./constants";
 
 let _paymentField;
 let field;
@@ -211,9 +219,9 @@ const formatCvv = ()=>{
     let parts = cvv.match(/^\d{1,4}/);
     if (!parts) {
         _paymentField.value = '';
-        return;
-    } 
-}
+
+    }
+};
 
 //to avoid the acceptance of one extra digit in the field,
 //and also formats the card number while pasting the number directly inside the field
