@@ -4,15 +4,10 @@ import {
     validCardSetupTypes,
     specialStyleKeys
 } from "./hosted-field-config";
-import {setAppData, getElement, getAppData, getUid} from "./utils";
-import {
-    postMessageToChild,
-    getCitrusFrameId,
-    getCitrusFrameIdForSavedCard,
-    postMessageToSavedCardFrame,
-    makeSavedCardHostedFieldPayment
-} from "./apis/hosted-field-payment";
-import some from "../node_modules/lodash/some";
+import {setAppData, getElement,getAppData,getUid} from "./utils";
+import {postMessageToChild, getCitrusFrameId,getCitrusFrameIdForSavedCard,postMessageToSavedCardFrame} from "./apis/hosted-field-payment";
+import {makeSavedCardHostedFieldPayment} from './apis/hosted-field-payment';
+import some from '../node_modules/lodash/some';
 import {validateScheme} from "./validation/custom-validations";
 
 //parent call
