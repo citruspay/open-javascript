@@ -93,7 +93,6 @@ const makeSavedCardHostedFieldPayment = (savedCardFrameId) =>{
     }
         let hostedField = getHostedFieldForSavedCard({_uid: savedFrameUid});
     let frameId = savedCardFrameId?savedCardFrameId:getCitrusFrameIdForSavedCard(hostedField);
-    //console.log('farmeId',frameId,hostedField);
     let element = getElement('#'+frameId);
     if (!element)
         throw new Error(`Either invalid paymentDetails type ${cardSetupType}, it should be either of these values ` + validPaymentTypes +
@@ -140,7 +139,6 @@ const listener = (event) => {
                 }
                 setAppData(validationKeyPrefix + '-validation', event.data.cardValidationResult);
                 setAppData(validationKeyPrefix + '-ignore-validation', event.data.ignoreValidationBroadcast);
-                //console.log('set event data for ' +validationKeyPrefix + '-validation');
                 handleValidationMessage(event);
                 return;
             case 'schemeChange':
@@ -228,7 +226,6 @@ const handleSchemeChange = (event)=>{
 
 const handleValidationMessage = (event) => {
     var hostedField = event.data.hostedField, cardValidationResult = event.data.cardValidationResult;
-    //console.log(hostedField,cardValidationResult,'test');
     //don't put invalid class and don't broadcast it to
     //the client either in case this boolean is true
     if (!event.data.ignoreValidationBroadcast) {
@@ -285,7 +282,6 @@ const validateCardDetails = (cardSetupType) => {
     let isValidCard = true;
     //scheme does not matter while checking for validation of number field, simply passing false as the first parameter
     let fieldValidationResult = checkSingleFieldValidationResult(false,'number',cardSetupType);
-    console.log(fieldValidationResult);
     if(!fieldValidationResult.isValidField)
         return false;
     else{
@@ -319,7 +315,6 @@ const checkSingleFieldValidationResult=(isMaestro,hostedFieldType, cardSetupType
     let ignoreValidationBroadcast = getAppData(validationKeyPrefix + '-ignore-validation');
     let hostedField = getHostedFieldByType(hostedFieldType, cardSetupType);
     let validationResult = getAppData(validationResultKey);
-    console.log(validationKeyPrefix,validationResultKey,validationResult,hostedField,validationResult);
     let isValidField = true;
     if (validationResult) {
         if (!validationResult.isValid)
