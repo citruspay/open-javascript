@@ -1,18 +1,10 @@
-import {
-    validateAndCallbackify,
-    getMerchantAccessKey,
-    schemeFromNumber,
-    getAppData,
-    isV3Request,
-    isIcpRequest,
-    isUrl
-} from "./../utils";
-import {urlReEx, TRACKING_IDS, PAGE_TYPES} from "../constants";
+import {isV3Request, isUrl} from "./../utils";
+import {PAGE_TYPES} from "../constants";
 import {singleHopDropOutFunction} from "./singleHop";
 import {handleDropIn, openPopupWindowForDropIn, handleOlResponse} from "./drop-in";
 import {handlersMap, getConfig} from "../config";
 import {custFetch} from "../interceptor";
-import {getCancelResponse, refineMotoResponse} from "./response";
+import {refineMotoResponse} from "./response";
 
 let winRef;
 const handlePayment = (reqConf,mode,url) => {
@@ -21,7 +13,6 @@ const handlePayment = (reqConf,mode,url) => {
         reqConf.returnUrl = getConfig().dropInReturnUrl;
         if(getConfig().page!== PAGE_TYPES.HOSTED_FIELD)
             winRef = openPopupWindowForDropIn(winRef);
-        
     }
     if (getConfig().page === PAGE_TYPES.ICP) {
         return custFetch(url, {
@@ -70,13 +61,13 @@ const handlePayment = (reqConf,mode,url) => {
             }
         });
     }
-}
+};
 
 const getBaseUrlForPayment = ()=>{
     let isOl = (getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled===true);
     let url;
     isOl ? url = `${getConfig().olUrl}/${getConfig().vanityUrl}` : url = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
     return url;
-}
+};
 
 export {handlePayment}
