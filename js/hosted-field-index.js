@@ -125,6 +125,7 @@ const fetchDynamicPricingToken = (data) => {
     citrus.setConfig(data.config);
     parentUrl = getAppData('parentUrl');
     if(hostedField.fieldType === "number"){
+        setAppData('dynamicPriceToken',null);
         dynamicPricingData.cardNo = fieldElement.value.replace(/\s+/g, '');
         return applyDynamicPricing(dynamicPricingData).then(function(resp){
             let message = {messageType:'dynamicPriceToken',hostedField:data.hostedField,cardType:data.cardType,dynamicPriceResponse:resp};
