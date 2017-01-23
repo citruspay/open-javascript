@@ -1,6 +1,6 @@
-import {custFetch} from '../interceptor';
-import {getConfig} from '../config';
-import  {setAppData} from './../utils';
+import {custFetch} from "../interceptor";
+import {getConfig} from "../config";
+import {setAppData} from "./../utils";
 
 const dynamicPricingFunction = (confObj) => {
     let dpAction;
@@ -13,7 +13,7 @@ const dynamicPricingFunction = (confObj) => {
     else {
         dpAction = '/validateRuleForPayment';
     }
-
+    setAppData(confObj.paymentInfo.paymentMode.toLowerCase(), {'offerToken': ''});
     return custFetch(`${getConfig().dpApiUrl}${dpAction}`, {
         method: 'post',
         headers: {
