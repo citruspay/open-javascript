@@ -1,7 +1,6 @@
-import {custFetch} from '../interceptor';
-import {getConfig} from '../config';
-import  {setAppData} from './../utils';
-import {validateAndCallbackify, schemeFromNumber} from './../utils';
+import {custFetch} from "../interceptor";
+import {getConfig} from "../config";
+import {setAppData, validateAndCallbackify, schemeFromNumber} from "./../utils";
 
 const baseDynamicPricingSchema = {
     email: { presence : false, email : true },
@@ -22,6 +21,7 @@ const dynamicPricingFunction = (confObj) => {
     else {
         dpAction = '/validateRuleForPayment';
     }
+    setAppData(confObj.paymentInfo.paymentMode.toLowerCase(), {'offerToken': ''});
     return custFetch(`${getConfig().dpApiUrl}${dpAction}`, {
         method: 'post',
         headers: {
@@ -57,7 +57,7 @@ const dynamicPricingFunction = (confObj) => {
 
 };
 
-const applyDynamicPricing = (isWallet,dynamicPricingSchema)=>{ 
+const applyDynamicPricing = (isWallet, dynamicPricingSchema) => {
   return  validateAndCallbackify(dynamicPricingSchema,(data)=>{
  const reqConf = Object.assign({}, data, {
         originalAmount: {

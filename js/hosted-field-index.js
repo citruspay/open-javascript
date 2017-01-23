@@ -7,14 +7,19 @@ import "core-js/fn/promise";
 import "core-js/fn/string/includes";
 import {setAppData, getAppData, postMessageWrapper, schemeFromNumber} from "./utils";
 import {validateExpiryDate, validateScheme, validateCreditCard} from "./validation/custom-validations";
-import {makeMotoCardPayment,motoCardValidationSchema,makeSavedCardPayment} from "./apis/cards";
+import {makeMotoCardPayment, makeSavedCardPayment} from "./apis/cards";
 import {init, setConfig, handlersMap} from "./config";
-import {addField, validateCvv, validateExpiry, validateCard,addEventListenersForHostedFields} from "./hosted-field-main";
-import {getConfigValue,specialStyleKeys,supportedStyleKeys} from "./hosted-field-config";
-import cloneDeep from 'lodash/cloneDeep';
-import {PAGE_TYPES} from './constants';
-//import {fetchDynamicPricingToken} from './hosted-field-dp'
-import {applyDynamicPricing} from './apis/card-dp';
+import {
+    addField,
+    validateCvv,
+    validateExpiry,
+    validateCard,
+    addEventListenersForHostedFields
+} from "./hosted-field-main";
+import {getConfigValue, specialStyleKeys, supportedStyleKeys} from "./hosted-field-config";
+import cloneDeep from "lodash/cloneDeep";
+import {PAGE_TYPES} from "./constants";
+import {applyDynamicPricing} from "./apis/card-dp";
 
 init(); //initializes custom validators
 
@@ -135,16 +140,15 @@ const fetchDynamicPricingToken = (data) => {
             postMessageWrapper(parent,message,parentUrl);
         });
     }
-}
+};
 /*copied from hosted-field-set-up start*/
 //child code
 const applyAttributes = (attributes) => {
-    //console.log(attributes,'inside applyAttributes');
     if (!attributes)
         return;
     let applicableStyle = {};
 
-    function createSytleObject(styleParam) {
+    function createStyleObject(styleParam) {
         if (!styleParam)
             return;
         let keys = Object.keys(styleParam);
@@ -154,7 +158,6 @@ const applyAttributes = (attributes) => {
                 applicableStyle[convertHyphenFormatToCamelCase(key)] = styleParam[key];
             } else if (specialStyleKeys.indexOf(key) !== -1) {
                 //todo:handle :focus,.valid,.invalid here
-
             } else {
                 console.warn(`${key} is not supported`);
             }
@@ -168,8 +171,8 @@ const applyAttributes = (attributes) => {
         setAppData(attributes.cardType+'scheme',attributes.hostedField.savedCardScheme);
     }
     addEventListenersForHostedFields(attributes.cardType);
-    createSytleObject(attributes.commonStyle);
-    createSytleObject(attributes.specificStyle);
+    createStyleObject(attributes.commonStyle);
+    createStyleObject(attributes.specificStyle);
     var inputElement = document.getElementsByTagName('input')[0];
     if (attributes.hostedField && attributes.hostedField.placeholder) {
         inputElement.setAttribute('placeholder', attributes.hostedField.placeholder);
@@ -185,7 +188,7 @@ const applyAttributes = (attributes) => {
         //if(attributes[])
     }
     addStyleTag(cssText);
-}
+};
 
 const convertStyleToCssString = (selector, style)=> {
     if (!style)
@@ -196,28 +199,15 @@ const convertStyleToCssString = (selector, style)=> {
     for (var i = 0; i < keys.length; ++i) {
         let key = keys[i];
         if (supportedStyleKeys.indexOf(key) !== -1) {
-            cssText += key + ':' + style[key] + ';'
-            //applicableStyle[convertHyphenFormatToCamelCase(key)] = styleParam[key];
+            cssText += key + ':' + style[key] + ';';
         } else {
             console.warn(`${key} is not supported`);
         }
     }
     cssText += '}';
     return cssText;
-}
+};
 
-function addCSSRule(selector, rules, sheet, index) {
-    if (!sheet && document.styleSheets.length > 0)
-        sheet = document.styleSheets[document.styleSheets.length - 1];
-    else
-        addStyleTag()
-    if ("insertRule" in sheet) {
-        sheet.insertRule(selector + "{" + rules + "}", index);
-    }
-    else if ("addRule" in sheet) {
-        sheet.addRule(selector, rules, index);
-    }
-}
 const addStyleTag = (css)=> {
     //var css = 'h1 { background: red; }',
     var head = document.head || document.getElementsByTagName('head')[0],
@@ -229,7 +219,7 @@ const addStyleTag = (css)=> {
         style.appendChild(document.createTextNode(css));
     }
     head.appendChild(style);
-}
+};
 
 /*function styleHyphenFormat(propertyName) {
  function upperToHyphenLower(match) {

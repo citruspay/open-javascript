@@ -21,7 +21,7 @@ let digit;
 let parentUrl = getAppData('parentUrl');
 const addField = () => {
     let fieldType = document.location.href.split("#");
-    if(fieldType.length<2)
+    if (fieldType.length < 2)
         return;
     field = fieldType[1].split("-");
     _paymentField = document.createElement("input");
@@ -33,7 +33,7 @@ const addField = () => {
 
 const postPaymentData = () => {
     //Send value of the field to the cardnumber iframe
-    let message = {messageType:'cardData'};
+    let message = {messageType: 'cardData'};
     let cardData = {};
     cardData.value = _paymentField.value;
     cardData.key = field[0];
@@ -43,8 +43,7 @@ const postPaymentData = () => {
     //also if possible use name instead of index as index will be unreliable
     //if there are other iframes on merchant's page
 
-    for(var i=0;i<parent.window.frames.length;i++)
-    {
+    for (var i = 0; i < parent.window.frames.length; i++) {
         postMessageWrapper(parent.window.frames[i], message, getConfigValue('hostedFieldDomain'));
     }
 };
@@ -58,71 +57,70 @@ const addEventListenersForHostedFields = (cardSetupType) => {
     let iOS = isIOS();
     let eventStr;
     iOS ? eventStr = "input" : eventStr = "blur";
-        if(cardSetupType==="credit"||cardSetupType==="debit"||cardSetupType==="card")
-            addListener(_paymentField,eventStr, postPaymentData, false);
-         //add the event listeners for ui validations of those fields.    
-        addListener(_paymentField,"focus", addFocusAttributes, false);
-        addListener(_paymentField,"blur", removeFocusAttributes, false);
-        addListener(_paymentField,'paste', restrictPaste, false);        
-        switch (field[0]) {
-            case "number" :
-                addListener(_paymentField,eventStr, validateCardEventListener, false);
-                addListener(_paymentField,'input',detectScheme);
-                addListener(_paymentField,'keypress', restrictNumeric, false);
-                addListener(_paymentField,'keypress', restrictCardNumber, false);
-                addListener(_paymentField,'keypress', formatCardNumber, false);
-                addListener(_paymentField,'input', reFormatCardNumber, false);
-                break;
-            case "expiry" :
-                addListener(_paymentField,eventStr, validateExpiryEventListener, false);
-                addListener(_paymentField,'keypress', restrictNumeric, false);
-                addListener(_paymentField,'keypress', formatExpiry, false);
-                addListener(_paymentField,'input', reformatExpiry, false);
-                break;
-            case "cvv"    :
-                addListener(_paymentField,eventStr, validateCvvEventListener, false);
-                _paymentField.setAttribute("type", "password");
-                addListener(_paymentField,'keypress', restrictNumeric, false);
-                addListener(_paymentField,'keypress', restrictCVC, false);
-                //this is specifically for android, as keypress does not fire
-                //on android
-                addListener(_paymentField,'input',formatCvv,false);
-                break;
-        }
+    if (cardSetupType === "credit" || cardSetupType === "debit" || cardSetupType === "card")
+        addListener(_paymentField, eventStr, postPaymentData, false);
+    //add the event listeners for ui validations of those fields.
+    addListener(_paymentField, "focus", addFocusAttributes, false);
+    addListener(_paymentField, "blur", removeFocusAttributes, false);
+    addListener(_paymentField, 'paste', restrictPaste, false);
+    switch (field[0]) {
+        case "number" :
+            addListener(_paymentField, eventStr, validateCardEventListener, false);
+            addListener(_paymentField, 'input', detectScheme);
+            addListener(_paymentField, 'keypress', restrictNumeric, false);
+            addListener(_paymentField, 'keypress', restrictCardNumber, false);
+            addListener(_paymentField, 'keypress', formatCardNumber, false);
+            addListener(_paymentField, 'input', reFormatCardNumber, false);
+            break;
+        case "expiry" :
+            addListener(_paymentField, eventStr, validateExpiryEventListener, false);
+            addListener(_paymentField, 'keypress', restrictNumeric, false);
+            addListener(_paymentField, 'keypress', formatExpiry, false);
+            addListener(_paymentField, 'input', reformatExpiry, false);
+            break;
+        case "cvv"    :
+            addListener(_paymentField, eventStr, validateCvvEventListener, false);
+            _paymentField.setAttribute("type", "password");
+            addListener(_paymentField, 'keypress', restrictNumeric, false);
+            addListener(_paymentField, 'keypress', restrictCVC, false);
+            //this is specifically for android, as keypress does not fire
+            //on android
+            addListener(_paymentField, 'input', formatCvv, false);
+            break;
+    }
 };
 
 
-const detectScheme = ()=>{
+const detectScheme = ()=> {
     const num = _paymentField.value.replace(/\s+/g, '');
     const scheme = schemeFromNumber(num);
     var setupType = getAppData('cardType');
     var hostedField = getAppData('hostedField');
-    if(!scheme)
+    if (!scheme)
         return;
-    var lastDetectedScheme = getAppData(setupType+'scheme');
-    let schemeChangeMessage = {messageType:'schemeChange',scheme:scheme,hostedField, cardType:setupType};
-    if(lastDetectedScheme!==scheme)
-    {
-        setAppData(setupType+'scheme',scheme);
-        postMessageWrapper(parent,schemeChangeMessage,getParentUrl());
+    var lastDetectedScheme = getAppData(setupType + 'scheme');
+    let schemeChangeMessage = {messageType: 'schemeChange', scheme: scheme, hostedField, cardType: setupType};
+    if (lastDetectedScheme !== scheme) {
+        setAppData(setupType + 'scheme', scheme);
+        postMessageWrapper(parent, schemeChangeMessage, getParentUrl());
     }
 };
 
-const addFocusAttributes=()=>{
+const addFocusAttributes = ()=> {
     var hostedField = getAppData('hostedField');
-    let focusReceivedMessage = {messageType:'focusReceived',fieldType:field[0],hostedField};
+    let focusReceivedMessage = {messageType: 'focusReceived', fieldType: field[0], hostedField};
     postMessageWrapper(parent, focusReceivedMessage, getParentUrl());
 };
 
-const removeFocusAttributes =()=>{
-     var hostedField = getAppData('hostedField');
-    let focusLostMessage = {messageType:'focusLost',fieldType:field[0],hostedField};
+const removeFocusAttributes = ()=> {
+    var hostedField = getAppData('hostedField');
+    let focusLostMessage = {messageType: 'focusLost', fieldType: field[0], hostedField};
     postMessageWrapper(parent, focusLostMessage, getParentUrl());
 };
 const formatCardNumber = () => {
     let num = _paymentField.value;
     num = num.replace(/\D/g, '');
-     var parts = num.match(/^\d{1,19}/);
+    var parts = num.match(/^\d{1,19}/);
     if (!parts) {
         _paymentField.value = '';
         return;
@@ -184,10 +182,9 @@ const formatExpiry = (e) => {
         sep = ' / ';
     }
     //check added for backspace key
-    if(e.which<57) digit = e.which;
-    if (digit< 57 && mon.length === 2)
-    {
-         sep = ' / ';
+    if (e.which < 57) digit = e.which;
+    if (digit < 57 && mon.length === 2) {
+        sep = ' / ';
         digit = 60;
     }
     _paymentField.value = mon + sep + year;
@@ -209,13 +206,13 @@ const restrictNumeric = (e) => {
         return true;
     }
     input = String.fromCharCode(e.which);
-    if(!/[\d\s]/.test(input)) e.preventDefault();
+    if (!/[\d\s]/.test(input)) e.preventDefault();
     //return !!/[\d\s]/.test(input);
 };
 
-const formatCvv = ()=>{
-   let cvv = _paymentField.value;
-   cvv = cvv.replace(/\D/g, '');
+const formatCvv = ()=> {
+    let cvv = _paymentField.value;
+    cvv = cvv.replace(/\D/g, '');
     let parts = cvv.match(/^\d{1,4}/);
     if (!parts) {
         _paymentField.value = '';
@@ -238,7 +235,7 @@ const reformatExpiry = () => {
     });
 };
 
-const restrictCardNumber = function(e) {
+const restrictCardNumber = function (e) {
     let card,
         digit,
         value;
@@ -252,25 +249,25 @@ const restrictCardNumber = function(e) {
     value = (_paymentField.value + digit).replace(/\D/g, '');
     card = cardFromNumber(value);
     if (card) {
-        if(value.length > card.length[card.length.length - 1]) e.preventDefault();
+        if (value.length > card.length[card.length.length - 1]) e.preventDefault();
     } else {
-        if(value.length > 16) e.preventDefault();
+        if (value.length > 16) e.preventDefault();
     }
 };
 
 //todo: change the value of these two fields
 //if the card number does not require cvv or field;
 
-const validateCardEventListener=()=>{
+const validateCardEventListener = ()=> {
     validateCard();
 };
 const validateCard = () => {
     const num = _paymentField.value.replace(/\s+/g, '');
     var cardType = getAppData('cardType');
     var hostedField = getAppData('hostedField');
-    let validationResult = {fieldType:'number',messageType:'validation',hostedField,cardType};
-    if(!num){
-        validationResult.cardValidationResult = {"txMsg": 'Card nubmer can not be empty.',isValid:false};
+    let validationResult = {fieldType: 'number', messageType: 'validation', hostedField, cardType};
+    if (!num) {
+        validationResult.cardValidationResult = {"txMsg": 'Card number can not be empty.', isValid: false};
         toggleValidity(false);
         postMessageWrapper(parent, validationResult, getParentUrl());
         return;
@@ -279,107 +276,120 @@ const validateCard = () => {
     //todo : add check for maestro and rupay
     const isValidCard = validateCreditCard(num, scheme);
     let txMsg = "";
-    if(!isValidCard) txMsg = "Invalid card number";
-    validationResult.cardValidationResult = {"txMsg": txMsg,isValid:isValidCard,scheme:scheme};
+    if (!isValidCard) txMsg = "Invalid card number";
+    validationResult.cardValidationResult = {"txMsg": txMsg, isValid: isValidCard, scheme: scheme};
     parentUrl = getAppData('parentUrl');
     toggleValidity(isValidCard);
     postMessageWrapper(parent, validationResult, parentUrl);
-    if(isValidCard&&num.length>=MIN_VALID_CARD_LENGTH){
-        let dynamicPricingMessage = {fieldType:'number',messageType:'fetchDynamicPricingToken',hostedField,cardType };
-        postMessageWrapper(parent,dynamicPricingMessage,parentUrl);
+    if (isValidCard && num.length >= MIN_VALID_CARD_LENGTH) {
+        let dynamicPricingMessage = {
+            fieldType: 'number',
+            messageType: 'fetchDynamicPricingToken',
+            hostedField,
+            cardType
+        };
+        postMessageWrapper(parent, dynamicPricingMessage, parentUrl);
     }
 };
 
-const validateExpiryEventListener=()=>{
+const validateExpiryEventListener = ()=> {
     validateExpiry(false);
 };
 const validateExpiry = (isCascadeFromNumberField) => {
     var hostedField = getAppData('hostedField');
     var cardType = getAppData('cardType');
-    var scheme = getAppData(cardType+'scheme');
+    var scheme = getAppData(cardType + 'scheme');
     const exp = _paymentField.value.replace(/\s+/g, '');
     //console.log(scheme,exp,'test');
     let isEmpty = !exp;
     let isValid;
-    var ignoreValidationBroadcast =isCascadeFromNumberField;
-    
-    let validationResult = {fieldType:'expiry',messageType:'validation',hostedField,cardType,ignoreValidationBroadcast};
-    if(!scheme&&isEmpty)
-    {
-        validationResult.cardValidationResult = { "txMsg": 'Expiry date can not be empty.',isValid:false,isEmpty:true};
+    var ignoreValidationBroadcast = isCascadeFromNumberField;
+
+    let validationResult = {
+        fieldType: 'expiry',
+        messageType: 'validation',
+        hostedField,
+        cardType,
+        ignoreValidationBroadcast
+    };
+    if (!scheme && isEmpty) {
+        validationResult.cardValidationResult = {
+            "txMsg": 'Expiry date can not be empty.',
+            isValid: false,
+            isEmpty: true
+        };
         isValid = false;
     }
-    else if(isValidExpiry(exp,scheme)){
-        validationResult.cardValidationResult = {txMsg:"",isValid:true};
+    else if (isValidExpiry(exp, scheme)) {
+        validationResult.cardValidationResult = {txMsg: "", isValid: true};
         isValid = true;
     }
-    else{
+    else {
         let txMsg = 'Invalid Expiry date.';
-        if(!exp){ 
+        if (!exp) {
             txMsg = 'Expiry date can not be empty.'
         }
-        validationResult.cardValidationResult = {txMsg:txMsg,isValid:false};
+        validationResult.cardValidationResult = {txMsg: txMsg, isValid: false};
         isValid = false;
-    
+
     }
     parentUrl = getAppData('parentUrl');
-    if(!isCascadeFromNumberField)
-    {
+    if (!isCascadeFromNumberField) {
         toggleValidity(isValid);
     }
-    postMessageWrapper(parent,validationResult,getParentUrl());
+    postMessageWrapper(parent, validationResult, getParentUrl());
 };
 
-const toggleValidity = (isValid)=>{
-    let classNameToAdd = ' invalid',classNameToRemove = ' valid';
-    if(isValid)
-    {
-        classNameToAdd=' valid';
+const toggleValidity = (isValid)=> {
+    let classNameToAdd = ' invalid', classNameToRemove = ' valid';
+    if (isValid) {
+        classNameToAdd = ' valid';
         classNameToRemove = ' invalid';
     }
-    _paymentField.className = _paymentField.className.replace(classNameToRemove,'');
-    if(_paymentField.className.indexOf(classNameToAdd)===-1)
+    _paymentField.className = _paymentField.className.replace(classNameToRemove, '');
+    if (_paymentField.className.indexOf(classNameToAdd) === -1)
         _paymentField.className += classNameToAdd;
 };
-const validateCvvEventListener = () =>{
+const validateCvvEventListener = () => {
     validateCvv(false);
 };
 
 
-const validateCvv = (isCascadeFromNumberField) =>{
+const validateCvv = (isCascadeFromNumberField) => {
     var hostedField = getAppData('hostedField');
     var cardType = getAppData('cardType');
-    var scheme = getAppData(cardType+'scheme');
+    var scheme = getAppData(cardType + 'scheme');
     const cvv = _paymentField.value.replace(/\s+/g, '');
-    //console.log(scheme,cvv,'inside validateCvv');
     var isValid = true;
-     var isEmpty = !cvv;
-     var ignoreValidationBroadcast =isCascadeFromNumberField;
-     //console.log('cardType',cardType);
-     let validationResult = {fieldType:'cvv',messageType:'validation',hostedField,cardType,ignoreValidationBroadcast};
-     if(!scheme&&isEmpty&& cardType!=="savedCard")
-    {
-        validationResult.cardValidationResult = {"txMsg": 'Cvv can not be empty.',isValid:false,isEmpty:true};
+    var isEmpty = !cvv;
+    var ignoreValidationBroadcast = isCascadeFromNumberField;
+    let validationResult = {
+        fieldType: 'cvv',
+        messageType: 'validation',
+        hostedField,
+        cardType,
+        ignoreValidationBroadcast
+    };
+    if (!scheme && isEmpty && cardType !== "savedCard") {
+        validationResult.cardValidationResult = {"txMsg": 'Cvv can not be empty.', isValid: false, isEmpty: true};
         isValid = false;
     }
-    else if(isValidCvv(cvv.length,scheme))
-    {
-        validationResult.cardValidationResult = { "txMsg": '',isValid:true,length:cvv.length};
+    else if (isValidCvv(cvv.length, scheme)) {
+        validationResult.cardValidationResult = {"txMsg": '', isValid: true, length: cvv.length};
         isValid = true;
     }
-    else{
-         let txMsg = 'Cvv can not be empty.';
-        if(!isEmpty)
+    else {
+        let txMsg = 'Cvv can not be empty.';
+        if (!isEmpty)
             txMsg = 'Cvv is invalid.';
-        validationResult.cardValidationResult = {"txMsg": txMsg,isValid:false,length:cvv.length};
+        validationResult.cardValidationResult = {"txMsg": txMsg, isValid: false, length: cvv.length};
         isValid = false;
     }
-    if(!isCascadeFromNumberField)
-    {
+    if (!isCascadeFromNumberField) {
         toggleValidity(isValid);
     }
     postMessageWrapper(parent, validationResult, getParentUrl());
-    
+
 };
 
 const restrictCVC = (e) => {
@@ -392,18 +402,18 @@ const restrictCVC = (e) => {
         return;
     }
     val = _paymentField.value + digit;
-    if(val.length > 4)  e.preventDefault();
+    if (val.length > 4)  e.preventDefault();
 };
 
-const getParentUrl = ()=>{
-  let url =  (window.location != window.parent.location)
-            ? document.referrer
-      : document.location.protocol + '//' + document.location.host;     
-  return url;
+const getParentUrl = ()=> {
+    let url = (window.location != window.parent.location)
+        ? document.referrer
+        : document.location.protocol + '//' + document.location.host;
+    return url;
 };
 
 const restrictPaste = (e) => {
     e.preventDefault();
 };
 
-export {addField, formatExpiry,validateCvv,validateExpiry,validateCard,addEventListenersForHostedFields}
+export {addField, formatExpiry, validateCvv, validateExpiry, validateCard, addEventListenersForHostedFields}

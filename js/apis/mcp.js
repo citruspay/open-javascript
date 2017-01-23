@@ -1,17 +1,16 @@
-import {validateAndCallbackify} from './../utils';
-import {validateScheme} from '../validation/custom-validations';
-import {custFetch} from '../interceptor';
-import {motoCardValidationSchema, motoCardApiFunc} from './cards';
-import {MCPData} from './payment-details';
-import cloneDeep from 'lodash/cloneDeep';
-import {currencyMap} from '../constants';
+import {validateAndCallbackify} from "./../utils";
+import {validateScheme} from "../validation/custom-validations";
+import {custFetch} from "../interceptor";
+import {motoCardValidationSchema, motoCardApiFunc} from "./cards";
+import {MCPData} from "./payment-details";
+import cloneDeep from "lodash/cloneDeep";
+import {currencyMap} from "../constants";
 
 const MCPCardSchema = cloneDeep(motoCardValidationSchema);
 
 const countryCurrencyMap =  currencyMap;
 
 //MCPCardSchema.mainObjectCheck.keysCheck.push('targetMcpCurrency');
-
 
 const makeMCPCardPayment = validateAndCallbackify(MCPCardSchema, (confObj) => {
     MCPData.MCPWrapperAPIData.mcpConversionBeans.some((el) => {
@@ -29,7 +28,7 @@ const binServiceSchema = {
 
 const getCardCurrencyInfo = validateAndCallbackify(binServiceSchema, (confObj) => {
     const sixDigitCardNum = ''+confObj.cardNumber.substr(0,6);
-    return custFetch( `https://citrusapi.citruspay.com/binservice/v2/bin/${sixDigitCardNum}`, {
+    return custFetch(`https://bin.citruspay.com/binservice/v1/bin/${sixDigitCardNum}`, {
         method: 'get'
     }).then((resp)=>{
         let aliasedScheme;
@@ -41,11 +40,19 @@ const getCardCurrencyInfo = validateAndCallbackify(binServiceSchema, (confObj) =
         }else{
             throw 'Not valid card!'
         }
-        let cardCurrency = countryCurrencyMap[resp.data.country];
+        let cardCurrency;
+        resp.data.currency_code ? cardCurrency = resp.data.currency_code : cardCurrency = "";
 
         if(MCPData.calculatedMCPSchemes.indexOf(aliasedScheme) > -1){
-            if(cardCurrency === MCPData.baseCurrency || cardCurrency === undefined){
+            if (cardCurrency === MCPData.baseCurrency) {
                 return [];
+            } else if (!cardCurrency) {
+                return MCPData.MCPWrapperAPIData.mcpConversionBeans.map((el)=> {
+                    return {
+                        currency: el.targetCurrency,
+                        amount: el.amount
+                    }
+                });
             }else{
                 return MCPData.MCPWrapperAPIData.mcpConversionBeans.map((el)=>{
                     return {

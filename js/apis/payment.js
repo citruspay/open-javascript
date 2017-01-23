@@ -6,16 +6,14 @@ import {makeHostedFieldPayment} from "./hosted-field-payment";
 
 
 const makePayment = (paymentObj) => {
-    //console.log(paymentObj,'inside make payment');
-    if(!paymentObj.paymentDetails)
+    if (!paymentObj.paymentDetails)
         throw new Error('Missing paymentDetails object');
-    if(!paymentObj.paymentDetails.paymentMode)
+    if (!paymentObj.paymentDetails.paymentMode)
         throw new Error('Missing paymentMode property inside paymentDetails object');
     switch (paymentObj.paymentDetails.paymentMode) {
         //todo : needs to be checked for PCI compliant merchants
         case "card" :
-            if(isPciRequest())
-            {
+            if (isPciRequest()) {
                 //setAppData('paymentObj', paymentObj);
                 makeCardPaymentWrapper(paymentObj);
                 //makeMotoCardPayment(paymentObj);
@@ -27,7 +25,7 @@ const makePayment = (paymentObj) => {
             setAppData('paymentObj', paymentObj);
             makeNetBankingPayment(paymentObj);
             break;
-         //this will become endPoint for non-hosted cvv saved card integration point later   
+        //this will become endPoint for non-hosted cvv saved card integration point later
         case "savedCard":
             makeSavedCardPayment(paymentObj);
             break;

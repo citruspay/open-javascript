@@ -120,8 +120,6 @@ const motoCardValidationSchema = Object.assign(cloneDeep(baseSchema), {
 
 motoCardValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 
-//this code has become hosted-field-specific for dropin case
-//for the time being, look into it later
 const motoCardApiFunc = (confObj) => {
     const cardScheme = schemeFromNumber(confObj.paymentDetails.number);
     let paymentDetails;
@@ -217,10 +215,10 @@ const makeSavedCardPayment = (paymentObj)=> {
     return makeSavedCardPaymentInternal(paymentData);
 };
 
+/*If the request coming from V3 or ICP, if the CVV value is not sent, this function will return true.*/
 const isCvvGenerationRequired = (paymentData)=> {
-    if ((isV3Request(paymentData.requestOrigin) || isIcpRequest()) && !paymentData.CVV)
-        return true;
-    return false;
+    return !!((isV3Request(paymentData.requestOrigin) || isIcpRequest()) && !paymentData.CVV);
+
 };
 //Function to identify if the payment request requires MCP or not
 //It can be used to check for other features such as EMI, subscription etc. in future.

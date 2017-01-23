@@ -193,6 +193,7 @@ const listener = (event) => {
 
 //parent call
 const handleFetchDynamicPricingToken = (data)=>{
+    //Not sure where this data argument is being used
     let dynamicPriceHandler = handlersMap['dynamicPriceHandlder'];
     let hostedField = event.data.hostedField;
     let cardType = event.data.cardType;
@@ -296,7 +297,8 @@ const validateCardDetails = (cardSetupType) => {
 
 function validateCardFieldsOtherThenNumber(isMaestro,cardSetupType){
     let isValidCard = true;
-    let isValidField = true;
+    /*removing the below variable since it is not being used*/
+    //let isValidField = true;
     let fieldValidationResult;
     let validHostedFieldTypesWithoutNumber = validHostedFieldTypes.filter((val) => {
         return val !== "number";
@@ -339,7 +341,7 @@ const checkSingleFieldValidationResult=(isMaestro,hostedFieldType, cardSetupType
             isValidField = false;
     }
     return {validationResult,isValidField};
-}
+};
 const validateSavedCardCvvDetails = (hostedField)=>{
     let validationKeyPrefix = getCitrusFrameIdForSavedCard(hostedField);
     let validationResultKey = validationKeyPrefix+'-validation';

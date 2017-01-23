@@ -1,5 +1,5 @@
 import {handlersMap, getConfig} from "./config";
-import {validate} from "validate.js";
+import validate from "validate.js";
 import flow from "lodash/flow";
 import {PAGE_TYPES, TRACKING_IDS} from "./constants";
 import {UUID} from "./external/uuid.core";
@@ -240,7 +240,7 @@ const postMessageWrapper = (win, messageObj, url) => {
     win.postMessage(JSON.parse(JSON.stringify(messageObj)), url);
 };
 
-const doValidation = (confObj,schema)=>{
+const doValidation = (confObj, schema) => {
     const validationResult = custValidate(confObj, schema);
         if (validationResult) {
             handlersMap['errorHandler'](validationResult);
