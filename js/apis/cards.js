@@ -151,8 +151,11 @@ const motoCardApiFunc = (confObj) => {
             confObj.paymentDetails.expiry = confObj.paymentDetails.expiry.toString().slice(0, 3) + year + d;
         }
     }
-    if (getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "credit") confObj.offerToken = getAppData('credit_card')['offerToken'];
-    if (getAppData('debit_card') && confObj.paymentDetails.type.toLowerCase() === "debit") confObj.offerToken = getAppData('debit_card')['offerToken'];
+    //if MCP is applied on the transaction DP won't be applicable for V3 transactions
+    if (getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "credit" && !(confObj.currencyToken))
+        confObj.offerToken = getAppData('credit_card')['offerToken'];
+    if (getAppData('debit_card') && confObj.paymentDetails.type.toLowerCase() === "debit" && !(confObj.currencyToken))
+        confObj.offerToken = getAppData('debit_card')['offerToken'];
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: confObj.currency || 'INR',
