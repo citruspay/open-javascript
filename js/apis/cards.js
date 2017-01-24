@@ -151,7 +151,8 @@ const motoCardApiFunc = (confObj) => {
             confObj.paymentDetails.expiry = confObj.paymentDetails.expiry.toString().slice(0, 3) + year + d;
         }
     }
-    //if MCP is applied on the transaction DP won't be applicable for V3 transactions
+    //if MCP is applied on the transaction DP won't be applicable for V3 transactions, this is a temporary fix.
+    //This code needs to be changed corresponding to v3, since ICP and JS clients need a flexible approach over here.
     if (getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "credit" && !(confObj.currencyToken))
         confObj.offerToken = getAppData('credit_card')['offerToken'];
     if (getAppData('debit_card') && confObj.paymentDetails.type.toLowerCase() === "debit" && !(confObj.currencyToken))
