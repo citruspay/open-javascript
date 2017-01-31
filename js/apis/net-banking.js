@@ -141,7 +141,7 @@ const savedAPIFunc = (confObj, url) => {
     let apiUrl;
     isOl ? apiUrl = `${getConfig().olUrl}/${getConfig().vanityUrl}` : apiUrl = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
     if (getConfig().page === PAGE_TYPES.ICP) {
-        return custFetch(url, {
+        return custFetch(apiUrl, {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json'
