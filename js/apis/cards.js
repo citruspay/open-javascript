@@ -8,7 +8,6 @@ import {
     isExternalJsConsumer,
     doValidation
 } from "./../utils";
-
 import {makeMCPCardPayment} from "./mcp";
 import {savedPaymentValidationSchema, savedAPIFunc} from "./common-saved-payment";
 import {baseSchema} from "./../validation/validation-schema";
@@ -199,7 +198,7 @@ const makeSavedCardPayment = (paymentObj)=> {
         };
         doValidation(paymentData, additionalConstraints);
     }
-    
+
     if (paymentObj.paymentDetails) {
         if (!paymentObj.token && paymentObj.paymentDetails.token)
             paymentData.token = paymentObj.paymentDetails.token;
@@ -228,6 +227,7 @@ const isCvvGenerationRequired = (paymentData)=> {
 const makeCardPaymentWrapper = (paymentObj)=> {
     let paymentData = cloneDeep(paymentObj);
     delete paymentData.paymentDetails.paymentMode;
+    //The parameter to identify the mcp request.
     if (paymentData.targetMcpCurrency)
         makeMCPCardPayment(paymentData);
     else
