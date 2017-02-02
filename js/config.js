@@ -149,11 +149,7 @@ function getDeviceType() {
 //as we are calling setConfig three times we are setting it three times
 //add our own custom validators to validate.validators object
 const init = () => {
-    validate.validators.keysCheck = keysCheck;
-    validate.validators.cardDate = cardDate;
-    validate.validators.cardCheck = cardCheck;
-    validate.validators.blazeCardCheck = blazeCardCheck;
-    validate.validators.custFormat = custFormat;
+    initValidators();
     let deviceType = getDeviceType();
     setConfig({deviceType});
     // let page = "CJS";
@@ -182,4 +178,12 @@ const init = () => {
     }
 };
 
-export {init, handlersMap, configMap, setConfig, getConfig};
+const initValidators = ()=>{
+    validate.validators.keysCheck = keysCheck;
+    validate.validators.cardDate = cardDate;
+    validate.validators.cardCheck = cardCheck;
+    validate.validators.blazeCardCheck = blazeCardCheck;
+    validate.validators.custFormat = custFormat;
+};
+
+export {init, initValidators, handlersMap, configMap, setConfig, getConfig};

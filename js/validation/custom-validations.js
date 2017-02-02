@@ -13,6 +13,7 @@ import {handlersMap, getConfig} from "../config";
 //(the name should be extraKeysCheck )checks if any extra properties other then expected are present in the object if yes then returns false;
 //it does not check for keys defined to be present so the keys defined in keyscheck are not mandatory
 //error is only for one property at a time
+//if validation passes return null or undefined, otherwise return string
 const keysCheck = (value, options, key, attributes) => {
     //bit hackish as validate.js doesn't provide option to do main object checks
     if(key === 'mainObjectCheck') value = attributes;
@@ -37,7 +38,7 @@ const keysCheck = (value, options, key, attributes) => {
 };
 
 /**
- * @param {String} dateStr
+ * @param {String} dateStr mm/yy or mm/yyyy
  * @returns {Boolean} returns true if valid date string, else false
  */
 
@@ -46,12 +47,12 @@ const validateExpiryDate = (dateStr) => {
     {
         return false;
     }
-   	var d = dateStr.slice(3);
-        if(d.length==2){
+    var d = dateStr.slice(3);
+    if(d.length==2){
             var today = new Date();
             var year = today.getFullYear().toString().slice(0,2);
             dateStr = dateStr.toString().slice(0,3) + year + d;
-        }
+    }
 
     var today = new Date();
     var month = today.getMonth() + 1;
@@ -63,7 +64,6 @@ const validateExpiryDate = (dateStr) => {
     var year = today.getFullYear().toString().slice(-4);
 
     let returnVal = true;
-
     if (len == 6) {
         if (!(((inputMonth < month && inputYear > year) || (inputMonth >= month && inputYear >= year)) 
             && inputMonth <= 12 && inputYear<=(parseInt(year)+50).toString())) {
@@ -172,6 +172,8 @@ const typeMap = {
 };
 
 const validateCardType = (type) => {
+    if(!type)
+    return false;
     type = type.toLowerCase().replace(/\s+/g, '');
 
     const found = some(typeMap, (aliasArr, name) => {
@@ -230,6 +232,7 @@ const isValidExpiry=(expiry,scheme)=>{
 };
 
 
+//custom validator for card check
 const cardCheck = (paymentDetails, options, key, attributes) => {
     if(options !== true) return;
     const validatedCardType = validateCardType(paymentDetails.type);
@@ -239,7 +242,6 @@ const cardCheck = (paymentDetails, options, key, attributes) => {
             return ':card number can not be blank.'
         }
         let scheme = validateScheme(schemeFromNumber(paymentDetails.number), true);//validateScheme(paymentDetails.scheme, true);
-
         if(!scheme) { return ' :invalid scheme type'}
 
         if(!getConfig().fastForward && getAppData('pgSettingsData')[validatedCardType+'Card'].indexOf( validateScheme(scheme, false)) < 0 ){
@@ -257,11 +259,9 @@ const cardCheck = (paymentDetails, options, key, attributes) => {
 };
 
 const blazeCardCheck = (paymentDetails, options, key, attributes) => {
-
     if(options !== true) return;
     if(key === 'mainObjectCheck') paymentDetails = attributes;
     const validatedCardType = validateCardType(paymentDetails.cardType);
-
     if(validatedCardType === 'credit' || validatedCardType === 'debit'){
         let scheme = validateScheme(paymentDetails.cardScheme, true);
         //todo: handle schemecheck for blazecard
@@ -284,7 +284,6 @@ const custFormat = function(value, options) {
     if (v.isString(options) || (options instanceof RegExp)) {
         options = {pattern: options};
     }
-
     options = v.extend({}, this.options, options);
 
     var message = options.message  || "is invalid"
@@ -309,7 +308,9 @@ const custFormat = function(value, options) {
 
 //todo:rename this function later
 const validateCreditCard = (cardNo, scheme) =>{
-    return isCardValid(cardNo, validateScheme(scheme, true));
+    if(!validateScheme(scheme,true))
+        return false;
+    return isCardValid(cardNo);
 };
 
 
