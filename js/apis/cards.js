@@ -17,7 +17,7 @@ import {validateCardType, validateScheme, cardDate, validateCvv} from "../valida
 import {custFetch} from "../interceptor";
 import {urlReEx, TRACKING_IDS} from "../constants";
 import {handlePayment} from "./payment-handler";
-//import $ from 'jquery';
+import {getDpTokenFromAppData} from "./dynamic-pricing";
 
 const regExMap = {
     'cardNumber': /^[0-9]{15,19}$/,
@@ -150,8 +150,18 @@ const motoCardApiFunc = (confObj) => {
             confObj.paymentDetails.expiry = confObj.paymentDetails.expiry.toString().slice(0, 3) + year + d;
         }
     }
-    if (getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "credit") confObj.offerToken = getAppData('credit_card')['offerToken'];
-    if (getAppData('debit_card') && confObj.paymentDetails.type.toLowerCase() === "debit") confObj.offerToken = getAppData('debit_card')['offerToken'];
+    //if MCP is applied on the transaction DP won't be applicable for V3 transactions, this is a temporary fix.
+    //This code needs to be changed corresponding to v3, since ICP and JS clients need a flexible approach over here.
+    /*if (getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "credit" && !(confObj.currencyToken))
+        confObj.offerToken = getAppData('credit_card')['offerToken'];
+    if (getAppData('debit_card') && confObj.paymentDetails.type.toLowerCase() === "debit" && !(confObj.currencyToken))
+        confObj.offerToken = getAppData('debit_card')['offerToken'];*/
+    if(!confObj.currencyToken)
+    {
+        let offerToken = getDpTokenFromAppData({cardNo:confObj.paymentDetails.number});
+        if(offerToken)
+        confObj.offerToken = offerToken;
+    }
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: confObj.currency || 'INR',
