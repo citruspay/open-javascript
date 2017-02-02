@@ -17,6 +17,7 @@ import {urlReEx, TRACKING_IDS, PAGE_TYPES} from "../constants";
 import {getCancelResponse, refineMotoResponse} from "./response";
 import {singleHopDropOutFunction} from "./singleHop";
 import {handleDropIn, openPopupWindowForDropIn, handleOlResponse} from "./drop-in";
+import {getDpTokenFromAppData} from "./dynamic-pricing";
 //import $ from 'jquery';
 
 const regExMap = {
@@ -153,10 +154,16 @@ const motoCardApiFunc = (confObj) => {
     }
     //if MCP is applied on the transaction DP won't be applicable for V3 transactions, this is a temporary fix.
     //This code needs to be changed corresponding to v3, since ICP and JS clients need a flexible approach over here.
-    if (getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "credit" && !(confObj.currencyToken))
+    /*if (getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "credit" && !(confObj.currencyToken))
         confObj.offerToken = getAppData('credit_card')['offerToken'];
     if (getAppData('debit_card') && confObj.paymentDetails.type.toLowerCase() === "debit" && !(confObj.currencyToken))
-        confObj.offerToken = getAppData('debit_card')['offerToken'];
+        confObj.offerToken = getAppData('debit_card')['offerToken'];*/
+    if(!confObj.currencyToken)
+    {
+        let offerToken = getDpTokenFromAppData({cardNo:confObj.paymentDetails.number});
+        if(offerToken)
+        confObj.offerToken = offerToken;
+    }
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: confObj.currency || 'INR',

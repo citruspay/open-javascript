@@ -7,10 +7,14 @@ import {getCancelResponse, refineMotoResponse} from "./response";
 import {singleHopDropOutFunction} from "./singleHop";
 import {TRACKING_IDS, PAGE_TYPES} from "../constants";
 import {handleDropIn, openPopupWindowForDropIn, handleOlResponse} from "./drop-in";
+import {getDpTokenFromAppData} from "./dynamic-pricing";
 let cancelApiResp;
 let requestOrigin;
 const NBAPIFunc = (confObj, apiUrl) => {
-    if(getAppData('net_banking')) confObj.offerToken = getAppData('net_banking')['offerToken'];
+    //if(getAppData('net_banking')) confObj.offerToken = getAppData('net_banking')['offerToken'];
+    let offerToken = getDpTokenFromAppData({issuerId:confObj.paymentDetails.bankCode});
+    if(offerToken)
+        confObj.offerToken = offerToken;
     requestOrigin = confObj.requestOrigin ||TRACKING_IDS.CitrusGuest;
     const reqConf = Object.assign({}, confObj, {
         amount: {
@@ -109,7 +113,10 @@ savedNBValidationSchema.mainObjectCheck.keysCheck.push('token');
 
 const savedAPIFunc = (confObj, url) => {
     setAppData('paymentObj',confObj);
-    if(getAppData('citrus_wallet')) confObj.offerToken = getAppData('citrus_wallet')['offerToken'];
+    //if(getAppData('citrus_wallet')) confObj.offerToken = getAppData('citrus_wallet')['offerToken'];
+     let offerToken = getDpTokenFromAppData({token:confObj.token});
+    if(offerToken)
+        confObj.offerToken = offerToken;
     requestOrigin = confObj.requestOrigin || TRACKING_IDS.CitrusWallet;
     const reqConf = Object.assign({}, confObj, {
         amount: {
