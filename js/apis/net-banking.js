@@ -114,7 +114,7 @@ savedNBValidationSchema.mainObjectCheck.keysCheck.push('token');
 const savedAPIFunc = (confObj, url) => {
     setAppData('paymentObj',confObj);
     //if(getAppData('citrus_wallet')) confObj.offerToken = getAppData('citrus_wallet')['offerToken'];
-     let offerToken = getDpTokenFromAppData({token:confObj.token});
+     let offerToken = getDpTokenFromAppData({paymentToken:confObj.token});
     if(offerToken)
         confObj.offerToken = offerToken;
     requestOrigin = confObj.requestOrigin || TRACKING_IDS.CitrusWallet;
