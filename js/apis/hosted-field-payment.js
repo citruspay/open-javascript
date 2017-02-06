@@ -149,6 +149,9 @@ const listener = (event) => {
             case 'fetchDynamicPricingToken':
                 handleFetchDynamicPricingToken(event.data);
                 return;
+            case 'fetchMCPToken':
+                handleFetchMultipleCurrencyPricingToken(event.data);
+                return;
             case 'dynamicPriceToken':
                 _dpCallback(event.data.dynamicPriceResponse);
                 return;   
@@ -200,7 +203,7 @@ const handleFetchDynamicPricingToken = (data)=>{
     const applyDynamicPricing = (dynamicPricingData,callback)=>{
         let frameId = getFrameId(hostedField,cardType);
         let data = cloneDeep(dynamicPricingData);
-        data.paymentMode = (dynamicPricingData.paymentMode==="credit")?"CREDIT_CARD":"DEBIT_CARD";
+        data.paymentMode = dynamicPricingData.paymentMode === "credit" ? "CREDIT_CARD" : "DEBIT_CARD";
         data.merchantAccessKey = getConfig().merchantAccessKey;
         let message = {messageType:'fetchDynamicPricingToken',dynamicPricingData:data,cardType,hostedField};
         message.config = getConfig(); 
@@ -216,6 +219,33 @@ const handleFetchDynamicPricingToken = (data)=>{
     });
     if(dynamicPriceHandler)
         dynamicPriceHandler(dynamicPriceHandlerInstance);
+};
+
+
+const handleFetchMultipleCurrencyPricingToken = (data)=>{
+    //Not sure where this data argument is being used
+    let multipleCurrencyPricingHandler = handlersMap['multipleCurrencyPricingHandler'];
+    let hostedField = event.data.hostedField;
+    let cardType = event.data.cardType;
+    const fetchMultipleCurrencyPricingToken = (MCPData,callback)=>{
+        let frameId = getFrameId(hostedField,cardType);
+        let data = cloneDeep(MCPData);
+        data.paymentMode = (dynamicPricingData.paymentMode==="credit")?"CREDIT_CARD":"DEBIT_CARD";
+        data.merchantAccessKey = getConfig().merchantAccessKey;
+        let message = {messageType:'fetchDynamicPricingToken',dynamicPricingData:data,cardType,hostedField};
+        message.config = getConfig();
+        _dpCallback = callback;
+        postMessage(frameId,message);
+    };
+    let multipleCurrencyPricingInstance = Object.create(Object.prototype,{fetchMultipleCurrencyPricingToken:{
+        value:fetchMultipleCurrencyPricingToken,
+        writable:false,
+        configurable:false,
+        enumerable:false
+    }
+    });
+    if(multipleCurrencyPricingHandler)
+        multipleCurrencyPricingHandler(multipleCurrencyPricingInstance);
 };
 
 

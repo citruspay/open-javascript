@@ -289,6 +289,14 @@ const validateCard = () => {
             cardType
         };
         postMessageWrapper(parent, dynamicPricingMessage, parentUrl);
+        //MCP = multiple currency pricing
+        let mcpMessage = {
+            fieldType: 'number',
+            messageType: 'fetchMCPToken',
+            hostedField,
+            cardType
+        };
+        postMessageWrapper(parent, mcpMessage, parentUrl);
     }
 };
 
