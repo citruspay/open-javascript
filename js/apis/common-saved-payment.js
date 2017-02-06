@@ -3,6 +3,7 @@ import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {TRACKING_IDS} from "../constants";
 import {handlePayment} from "./payment-handler";
+import {getDpTokenFromAppData} from "./dynamic-pricing"
 
 const savedPaymentValidationSchema = Object.assign(cloneDeep(baseSchema), {
     token: {presence: true}
@@ -12,7 +13,11 @@ savedPaymentValidationSchema.mainObjectCheck.keysCheck.push('token');
 
 const savedAPIFunc = (confObj, url) => {
     setAppData('paymentObj',confObj);
-    if(getAppData('citrus_wallet')) confObj.offerToken = getAppData('citrus_wallet')['offerToken'];
+    //console.log(confObj);
+    //if(getAppData('citrus_wallet')) confObj.offerToken = getAppData('citrus_wallet')['offerToken'];
+    let offerToken = getDpTokenFromAppData({paymentToken:confObj.token});
+    if(offerToken)
+        confObj.offerToken = offerToken;
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: confObj.currency,
