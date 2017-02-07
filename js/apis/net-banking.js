@@ -12,6 +12,7 @@ import {getConfig} from "../config";
 import {TRACKING_IDS} from "../constants";
 import {handlePayment} from "./payment-handler";
 import {savedAPIFunc,savedPaymentValidationSchema} from './common-saved-payment';
+import {getDpTokenFromAppData} from './dynamic-pricing';
 
 const NBAPIFunc = (confObj, apiUrl) => {
     //if(getAppData('net_banking')) confObj.offerToken = getAppData('net_banking')['offerToken'];
