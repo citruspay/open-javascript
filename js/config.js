@@ -7,7 +7,7 @@ const apiConfMap = {
         blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl: 'https://sboxblazenet.citruspay.com',
         motoApiUrl: 'https://sandboxadmin.citruspay.com/service/moto/authorize/struct',
-        olUrl: 'https://sboxpay.citruspay.com/service/moto/authorize/struct',
+        olUrl: 'https://sboxpay.blazepay.in/service/moto/authorize/struct',
         adminUrl: 'https://sandboxadmin.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing',
@@ -18,7 +18,7 @@ const apiConfMap = {
         blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl: 'https://sboxblaze.citruspay.com',
         motoApiUrl: 'https://admin.citruspay.com/service/moto/authorize/struct',
-        olUrl: 'https://pay.citruspay.com/service/moto/authorize/struct',
+        olUrl: 'https://pay.blazepay.in/service/moto/authorize/struct',
         adminUrl: 'https://admin.citruspay.com',
         MCPAPIUrl: 'https://mercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://mars.citruspay.com/dynamicpricing/dynamicpricing',
@@ -29,7 +29,7 @@ const apiConfMap = {
         blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl: 'https://sboxblazenet.citruspay.com',
         motoApiUrl: 'https://sandboxadmin.citruspay.com/service/moto/authorize/struct', //'https://stgpay.citruspay.com/service/moto/authorize/struct',
-        olUrl: 'https://stgpay.citruspay.com/service/moto/authorize/struct',
+        olUrl: 'https://stgpay.blazepay.in/service/moto/authorize/struct',
         adminUrl: 'https://sandboxadmin.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://sboxmars.citruspay.com/dynamic-pricing/dynamicpricing',
@@ -149,11 +149,7 @@ function getDeviceType() {
 //as we are calling setConfig three times we are setting it three times
 //add our own custom validators to validate.validators object
 const init = () => {
-    validate.validators.keysCheck = keysCheck;
-    validate.validators.cardDate = cardDate;
-    validate.validators.cardCheck = cardCheck;
-    validate.validators.blazeCardCheck = blazeCardCheck;
-    validate.validators.custFormat = custFormat;
+    initValidators();
     let deviceType = getDeviceType();
     setConfig({deviceType});
     // let page = "CJS";
@@ -182,4 +178,12 @@ const init = () => {
     }
 };
 
-export {init, handlersMap, configMap, setConfig, getConfig};
+const initValidators = ()=>{
+    validate.validators.keysCheck = keysCheck;
+    validate.validators.cardDate = cardDate;
+    validate.validators.cardCheck = cardCheck;
+    validate.validators.blazeCardCheck = blazeCardCheck;
+    validate.validators.custFormat = custFormat;
+};
+
+export {init, initValidators, handlersMap, configMap, setConfig, getConfig};

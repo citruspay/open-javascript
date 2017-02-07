@@ -223,6 +223,7 @@ const handleFetchDynamicPricingToken = (data)=>{
 
 
 const handleFetchMultipleCurrencyPricingToken = (data)=>{
+    console.log("here in handle fetch MCP token--->",data);
     //Not sure where this data argument is being used
     let multipleCurrencyPricingHandler = handlersMap['multipleCurrencyPricingHandler'];
     let hostedField = event.data.hostedField;
@@ -247,9 +248,6 @@ const handleFetchMultipleCurrencyPricingToken = (data)=>{
     if(multipleCurrencyPricingHandler)
         multipleCurrencyPricingHandler(multipleCurrencyPricingInstance);
 };
-
-
-
 const handleSchemeChange = (event)=>{
     postMessageToChild('cvv',event.data.cardType,event.data,false);
     postMessageToChild('expiry',event.data.cardType,event.data,false);

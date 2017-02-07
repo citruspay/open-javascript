@@ -14,7 +14,10 @@ import {handlePayment} from "./payment-handler";
 import {savedAPIFunc,savedPaymentValidationSchema} from './common-saved-payment';
 
 const NBAPIFunc = (confObj, apiUrl) => {
-    if(getAppData('net_banking')) confObj.offerToken = getAppData('net_banking')['offerToken'];
+    //if(getAppData('net_banking')) confObj.offerToken = getAppData('net_banking')['offerToken'];
+    let offerToken = getDpTokenFromAppData({issuerId:confObj.paymentDetails.bankCode});
+    if(offerToken)
+        confObj.offerToken = offerToken;
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: 'INR',
@@ -62,7 +65,6 @@ const makeBlazeNBPayment = validateAndCallbackify(netBankingValidationSchema, (c
 });
 
 //------------------- makeSavedNBPayment ----------------//
-
 const makeSavedNBPayment = (paymentObj)=>{
     let paymentData = cloneDeep(paymentObj);
     if (isExternalJsConsumer(paymentData.requestOrigin)) {
