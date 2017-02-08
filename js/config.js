@@ -29,7 +29,7 @@ const apiConfMap = {
         blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl: 'https://sboxblazenet.citruspay.com',
         motoApiUrl: 'https://stgadmin2.citruspay.com/service/moto/authorize/struct', //'https://stgpay.citruspay.com/service/moto/authorize/struct',
-        olUrl: 'https://stgpay.blazepay.in/service/moto/authorize/struct',
+        olUrl: 'https://stgcheckout-ol.citruspay.com/service/moto/authorize/struct',//https://stgpay.blazepay.in/service/moto/authorize/struct',
         adminUrl: 'https://stgadmin2.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://stgadmin2.citruspay.com/dynamic-pricing/dynamicpricing',
