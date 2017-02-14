@@ -16,6 +16,8 @@ import {MIN_VALID_CARD_LENGTH} from "./constants";
 
 let _paymentField;
 let field;
+const BACK_SPACE_KEY_CODE = 8;
+const DELETE_KEY_CODE = 46;
 //todo:change its name later
 let digit;
 let parentUrl = getAppData('parentUrl');
@@ -53,6 +55,8 @@ const postPaymentData = () => {
 //keydown fires but the charCode is not usable
 //so the input event is the one which prevent invalid entry in the case of android
 //for all input fields.
+//keypress does not fire for every key on all browsers, specifically backspace does not fire
+//keypress on browsers other then firefox.
 const addEventListenersForHostedFields = (cardSetupType) => {
     //detect the ios user agent, since ios devices don't listen to blur events. ignore the microsoft user agent which also contains the ios keyword.
     let iOS = isIOS();
@@ -163,6 +167,9 @@ const hasTextSelected = (target) => {
 };
 
 const formatExpiry = (e) => {
+    var keycode = e.which||e.keyCode;
+    if(keycode===BACK_SPACE_KEY_CODE||keycode===DELETE_KEY_CODE)
+        return;
     let expiry = _paymentField.value;
     var mon,
         parts,
