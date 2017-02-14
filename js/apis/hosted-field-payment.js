@@ -196,10 +196,9 @@ const listener = (event) => {
 
 //parent call
 const handleFetchDynamicPricingToken = (data)=>{
-    //Not sure where this data argument is being used
     let dynamicPriceHandler = handlersMap['dynamicPriceHandlder'];
-    let hostedField = event.data.hostedField;
-    let cardType = event.data.cardType;
+    let hostedField = data.hostedField;
+    let cardType = data.cardType;
     const applyDynamicPricing = (dynamicPricingData,callback)=>{
         let frameId = getFrameId(hostedField,cardType);
         let data = cloneDeep(dynamicPricingData);

@@ -1,8 +1,6 @@
 import {
     validateAndCallbackify,
     getMerchantAccessKey,
-    getAppData,
-    setAppData,
     isExternalJsConsumer,
     doValidation
 } from "./../utils";

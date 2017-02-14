@@ -78,6 +78,10 @@ function listener(event) {
         fetchDynamicPricingToken(event.data);
         return;
     }
+    if(event.data.messageType==="fetchMcpToken"){
+        fetchMcpToken(event.data);
+        return;
+    }
     if (event.origin === getConfigValue('hostedFieldDomain')&&event.data.messageType==="cardData") {
         let cardData = event.data.cardData;
         let requiredPaymentData = {};
@@ -121,8 +125,7 @@ function listener(event) {
             postMessageWrapper(parent, message, parentUrl);
         });
     }
-}
-
+};
 const fetchDynamicPricingToken = (data) => {
     let dynamicPricingData = data.dynamicPricingData;
     let hostedField = data.hostedField;
@@ -140,6 +143,25 @@ const fetchDynamicPricingToken = (data) => {
             postMessageWrapper(parent,message,parentUrl);
         });
     }
+};
+const fetchMcpToken = (data) => {
+    console.log("here in fetch MCP token",data);
+    // let dynamicPricingData = data.dynamicPricingData;
+    // let hostedField = data.hostedField;
+    // let fieldElement = document.getElementsByTagName('input')[0];
+    // citrus.setConfig(data.config);
+    // parentUrl = getAppData('parentUrl');
+    // if(hostedField.fieldType === "number"){
+    //     setAppData('dynamicPriceToken',null);
+    //     dynamicPricingData.cardNo = fieldElement.value.replace(/\s+/g, '');
+    //     return applyDynamicPricing(dynamicPricingData).then(function(resp){
+    //         let message = {messageType:'dynamicPriceToken',hostedField:data.hostedField,cardType:data.cardType,dynamicPriceResponse:resp};
+    //         if(resp&&resp.resultCode===0){
+    //             setAppData('dynamicPriceToken',resp.offerToken);
+    //         }
+    //         postMessageWrapper(parent,message,parentUrl);
+    //     });
+    // }
 };
 /*copied from hosted-field-set-up start*/
 //child code
