@@ -136,6 +136,16 @@ const getDpTokenFromAppData = (paymentInfo)=>{
     }
 }
 
+const addDpTokenFromCacheIfNotPresent=(paymentData,paymentInfo)=>{
+    let offerToken;
+    if(!paymentData.offerToken){
+        offerToken = getDpTokenFromAppData(paymentInfo);
+        if(offerToken)
+        paymentData.offerToken = offerToken;
+    }
+    return paymentData;
+}
+
 const getCacheKey=(paymentInfo)=>{ 
     let key;
     if(paymentInfo.cardNo){
@@ -162,4 +172,4 @@ const setDpResponseInAppData=(paymentInfo,dpAction,dpResponse)=>{
     setAppData('dpRepsonseList',dpRepsonseList);
 };
 
-export {dynamicPricingFunction,applyDynamicPricing,baseDynamicPricingSchema,getDpTokenFromAppData};
+export {dynamicPricingFunction,applyDynamicPricing,baseDynamicPricingSchema,addDpTokenFromCacheIfNotPresent};

@@ -193,7 +193,7 @@ const listener = (event) => {
 
 //parent call
 const handleFetchDynamicPricingToken = (data)=>{
-    let dynamicPriceHandler = handlersMap['dynamicPriceHandlder'];
+    let dynamicPriceHandler = handlersMap['dynamicPriceHandler'];
     let hostedField = event.data.hostedField;
     let cardType = event.data.cardType;
     const applyDynamicPricing = (dynamicPricingData,callback)=>{
