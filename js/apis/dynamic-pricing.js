@@ -1,7 +1,7 @@
 import {custFetch} from '../interceptor';
 import {getConfig} from '../config';
 import {setAppData,getAppData} from "./../utils";
-import {validateAndCallbackify, schemeFromNumber} from './../utils';
+import {validateAndCallbackify, schemeFromNumber,trim} from './../utils';
 
 
 const MAX_CACHE_LENGTH = 10;
@@ -78,7 +78,7 @@ const applyDynamicPricing = (isWallet,dynamicPricingSchema)=>{
             value: data.alteredAmount, currency : data.currency
         },
         paymentInfo : {
-            cardNo : data.cardNo,
+            cardNo : trim(data.cardNo),
             issuerId : data.bankCode,
             paymentMode : data.paymentMode,
             paymentToken : isWallet?data.token:data.paymentToken

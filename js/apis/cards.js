@@ -234,8 +234,17 @@ const isCvvGenerationRequired = (paymentData)=> {
 //It can be used to check for other features such as EMI, subscription etc. in future.
 const makeCardPaymentWrapper = (paymentObj)=> {
     let paymentData = cloneDeep(paymentObj);
+    let paymentDetails = paymentData.paymentDetails;
+    if(paymentDetails)
+    {
+        paymentDetails.number = paymentDetails.number?paymentDetails.number.replace(/\s+/g, ''):paymentDetails.number;
+        paymentDetails.cvv = paymentDetails.cvv?paymentDetails.cvv.replace(/\s+/g, ''):paymentDetails.cvv;
+        paymentDetails.expiry = paymentDetails.expiry?paymentDetails.expiry.replace(/\s+/g, ''):paymentDetails.expiry;
+    }
     delete paymentData.paymentDetails.paymentMode;
     //The parameter to identify the mcp request.
+    //in both cases we call moto api only
+    //it will simply find MCP token from in memory
     if (paymentData.targetMcpCurrency)
         makeMCPCardPayment(paymentData);
     else
