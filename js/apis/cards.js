@@ -208,6 +208,8 @@ const makeSavedCardPayment = (paymentObj)=> {
     }
 
     if (paymentObj.paymentDetails) {
+        //js client will send token and cvv inside  paymentDetails Object
+        //whereas ICP and V3 send it in paymentObj object as simple property
         if (!paymentObj.token && paymentObj.paymentDetails.token)
             paymentData.token = paymentObj.paymentDetails.token;
         if (!paymentObj.CVV && paymentObj.paymentDetails.cvv)

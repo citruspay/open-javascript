@@ -7,6 +7,7 @@ import {singleHopDropOutFunction} from "./singleHop";
 import {refineMotoResponse} from "./response";
 import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../hosted-field-config";
 import {handleDropIn, openPopupWindowForDropIn} from "./drop-in";
+import {addDpTokenFromCacheIfNotPresent} from './dynamic-pricing';
 
 let winRef = null;
 let _dpCallback;
@@ -101,7 +102,8 @@ const makeSavedCardHostedFieldPayment = (savedCardFrameId) =>{
     let message = {messageType:'makeSavedCardPayment',cardType:'savedCard',scheme:hostedField.savedCardScheme};
     message.pgSettingsData = getAppData('pgSettingsData');
     message.config = getConfig();
-    message.paymentData = paymentObj;
+    var paymentData = message.paymentData = Object.assign({},paymentObj);
+    paymentData = addDpTokenFromCacheIfNotPresent(paymentData,{paymentToken:paymentData.paymentDetails.token});
     if (validateSavedCardCvvDetails(hostedField)) {
         
         if (paymentObj.mode.toLowerCase() !== "dropout") {

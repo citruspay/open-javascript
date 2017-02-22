@@ -74,6 +74,8 @@ const makeSavedNBPayment = (paymentObj)=>{
         doValidation(paymentData, additionalConstraints);
     }
     if(paymentObj.paymentDetails){
+        //js clients will send token inside paymentDetails
+        //v3 and icp send it inside paymentObj itself
         if(!paymentObj.token && paymentObj.paymentDetails.token)
             paymentData.token = paymentObj.paymentDetails.token;
         delete paymentData.paymentDetails;
