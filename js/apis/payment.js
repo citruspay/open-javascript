@@ -4,7 +4,6 @@ import {makeNetBankingPayment, makeSavedNBPayment} from "./net-banking";
 import {makeCardPaymentWrapper, makeSavedCardPayment} from "./cards";
 import {makeHostedFieldPayment} from "./hosted-field-payment";
 
-
 const makePayment = (paymentObj) => {
     if (!paymentObj.paymentDetails)
         throw new Error('Missing paymentDetails object');

@@ -20,6 +20,7 @@ import {getConfigValue, specialStyleKeys, supportedStyleKeys} from "./hosted-fie
 import cloneDeep from "lodash/cloneDeep";
 import {PAGE_TYPES} from "./constants";
 import {applyDynamicPricing} from "./apis/card-dp";
+import {getCardCurrencyWrapper} from "./apis/mcp";
 
 init(); //initializes custom validators
 
@@ -125,7 +126,7 @@ function listener(event) {
             postMessageWrapper(parent, message, parentUrl);
         });
     }
-};
+}
 const fetchDynamicPricingToken = (data) => {
     let dynamicPricingData = data.dynamicPricingData;
     let hostedField = data.hostedField;
@@ -145,23 +146,25 @@ const fetchDynamicPricingToken = (data) => {
     }
 };
 const fetchMcpToken = (data) => {
-    console.log("here in fetch MCP token",data);
-    // let dynamicPricingData = data.dynamicPricingData;
-    // let hostedField = data.hostedField;
-    // let fieldElement = document.getElementsByTagName('input')[0];
-    // citrus.setConfig(data.config);
-    // parentUrl = getAppData('parentUrl');
-    // if(hostedField.fieldType === "number"){
-    //     setAppData('dynamicPriceToken',null);
-    //     dynamicPricingData.cardNo = fieldElement.value.replace(/\s+/g, '');
-    //     return applyDynamicPricing(dynamicPricingData).then(function(resp){
-    //         let message = {messageType:'dynamicPriceToken',hostedField:data.hostedField,cardType:data.cardType,dynamicPriceResponse:resp};
-    //         if(resp&&resp.resultCode===0){
-    //             setAppData('dynamicPriceToken',resp.offerToken);
-    //         }
-    //         postMessageWrapper(parent,message,parentUrl);
-    //     });
-    // }
+    let mcpData = data;
+    let hostedField = data.hostedField;
+    let fieldElement = document.getElementsByTagName('input')[0];
+    citrus.setConfig(data.config);
+    parentUrl = getAppData('parentUrl');
+    console.log(parentUrl);
+    if (hostedField.fieldType === "number") {
+        mcpData.cardNumber = fieldElement.value.replace(/\s+/g, '');
+        console.log(parentUrl);
+        return getCardCurrencyWrapper(mcpData).then(function (resp) {
+            let message = {
+                messageType: 'mcpToken',
+                hostedField: data.hostedField,
+                cardType: data.cardType,
+                binResponse: resp
+            };
+            postMessageWrapper(parent, message, parentUrl);
+        });
+    }
 };
 /*copied from hosted-field-set-up start*/
 //child code
@@ -206,8 +209,6 @@ const applyAttributes = (attributes) => {
         if (attributes['input' + specialStyleKey]) {
             cssText += convertStyleToCssString('input' + specialStyleKey, attributes['input' + specialStyleKey]);
         }
-
-        //if(attributes[])
     }
     addStyleTag(cssText);
 };

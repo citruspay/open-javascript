@@ -7,9 +7,10 @@ import {singleHopDropOutFunction} from "./singleHop";
 import {refineMotoResponse} from "./response";
 import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../hosted-field-config";
 import {handleDropIn, openPopupWindowForDropIn} from "./drop-in";
+import {MCPData} from "./payment-details";
 
 let winRef = null;
-let _dpCallback;
+let _dpCallback, _mcpCallback;
 //let cancelApiResp;
 const citrusSelectorPrefix = 'citrus';
 const regExMap = {
@@ -152,6 +153,9 @@ const listener = (event) => {
             case 'fetchMCPToken':
                 handleFetchMultipleCurrencyPricingToken(event.data);
                 return;
+            case 'mcpToken':
+                _mcpCallback(event.data.binResponse);
+                return;
             case 'dynamicPriceToken':
                 _dpCallback(event.data.dynamicPriceResponse);
                 return;   
@@ -220,21 +224,19 @@ const handleFetchDynamicPricingToken = (data)=>{
         dynamicPriceHandler(dynamicPriceHandlerInstance);
 };
 
-
-const handleFetchMultipleCurrencyPricingToken = (data)=>{
-    console.log("here in handle fetch MCP token--->",data);
-    //Not sure where this data argument is being used
+const handleFetchMultipleCurrencyPricingToken = (data) => {
     let multipleCurrencyPricingHandler = handlersMap['multipleCurrencyPricingHandler'];
-    let hostedField = event.data.hostedField;
-    let cardType = event.data.cardType;
-    const fetchMultipleCurrencyPricingToken = (MCPData,callback)=>{
+    let hostedField = data.hostedField;
+    let cardType = data.cardType;
+    const fetchMultipleCurrencyPricingToken = (data, callback)=> {
         let frameId = getFrameId(hostedField,cardType);
-        let data = cloneDeep(MCPData);
-        data.paymentMode = (dynamicPricingData.paymentMode==="credit")?"CREDIT_CARD":"DEBIT_CARD";
-        data.merchantAccessKey = getConfig().merchantAccessKey;
-        let message = {messageType:'fetchDynamicPricingToken',dynamicPricingData:data,cardType,hostedField};
+        let mcpData = cloneDeep(data);
+        mcpData.paymentMode = (data.paymentMode === "credit") ? "CREDIT_CARD" : "DEBIT_CARD";
+        //data.merchantAccessKey = getConfig().merchantAccessKey;
+        mcpData.mcpWrapperApiData = MCPData;
+        let message = {messageType: 'fetchMcpToken', MCPData: mcpData, cardType, hostedField};
         message.config = getConfig();
-        _dpCallback = callback;
+        _mcpCallback = callback;
         postMessage(frameId,message);
     };
     let multipleCurrencyPricingInstance = Object.create(Object.prototype,{fetchMultipleCurrencyPricingToken:{
@@ -263,7 +265,6 @@ const handleValidationMessage = (event) => {
             validationHandler(hostedField, cardValidationResult);
     }
 };
-
 const toggleValidationClass = (hostedField, cardValidationResult) => {
     var element = getElement(hostedField.selector);
     element.className = element.className.replace('citrus-hosted-field-invalid', '').replace('citrus-hosted-field-valid', '');
@@ -282,9 +283,6 @@ const handleFocus = (event) => {
         element.className = element.className.replace('citrus-hosted-field-focused', '');
     }
 };
-
-
-
 const getHostedFieldByType = (fieldType, cardSetupType) => {
     let hostedFields = getAppData('hostedFields-' + cardSetupType);
     for (var i = 0; i < hostedFields.length; ++i) {
@@ -292,7 +290,6 @@ const getHostedFieldByType = (fieldType, cardSetupType) => {
             return hostedFields[i];
     }
 };
-
 const getHostedFieldForSavedCard = ({_uid})=> {
     let hostedFields = getAppData('hostedFields-savedCard');
     let hostedField;
@@ -302,7 +299,6 @@ const getHostedFieldForSavedCard = ({_uid})=> {
             return hostedField;
     }
 };
-
 //todo:refactor this code later
 //assumed if the validationResult is not present for a hostedField
 //it is invalid
@@ -321,7 +317,6 @@ const validateCardDetails = (cardSetupType) => {
     }
     return isValidCard;
 };
-
 function validateCardFieldsOtherThenNumber(isMaestro,cardSetupType){
     let isValidCard = true;
     /*removing the below variable since it is not being used*/
@@ -337,7 +332,6 @@ function validateCardFieldsOtherThenNumber(isMaestro,cardSetupType){
     }
     return isValidCard;
 }
-
 const checkSingleFieldValidationResult=(isMaestro,hostedFieldType, cardSetupType)=>{
     let validationKeyPrefix = hostedFieldType + '-'+cardSetupType;
     let validationResultKey = validationKeyPrefix+ '-validation';

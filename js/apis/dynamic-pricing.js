@@ -14,7 +14,6 @@ const baseDynamicPricingSchema = {
     signature : { presence : true }/*this is DPSignature*/
 };
 
-
 const dynamicPricingFunction = (confObj) => {
     let dpAction;
     if (!confObj.ruleName && !confObj.alteredAmount.value) {
@@ -121,7 +120,6 @@ const removeDpToken=(dpCachedResponse)=>{
             dpRepsonseList.splice(dpTokenIndex,1);
      }
 };
-
 const getDpTokenFromAppData = (paymentInfo)=>{
     let key = getCacheKey(paymentInfo);
     var dpRepsonseList = getAppData('dpRepsonseList');
@@ -132,8 +130,7 @@ const getDpTokenFromAppData = (paymentInfo)=>{
             return dpResponse[0].value.offerToken;
         } 
     }
-}
-
+};
 const getCacheKey=(paymentInfo)=>{ 
     let key;
     if(paymentInfo.cardNo){
@@ -145,7 +142,6 @@ const getCacheKey=(paymentInfo)=>{
     }
     return key;
 };
-
 const setDpResponseInAppData=(paymentInfo,dpAction,dpResponse)=>{
     var dpRepsonseList = getAppData('dpRepsonseList')||[];
     let key = getCacheKey(paymentInfo);

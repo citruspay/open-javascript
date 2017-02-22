@@ -11,7 +11,7 @@
 7 verbose unsafe-perm in lifecycle true
 8 info @ Failed to exec start script
 9 verbose stack Error: @ start: `webpack-dev-server --inline --config webpack.dev.config.js`
-9 verbose stack Exit status 1073807364
+9 verbose stack Exit status 1
 9 verbose stack     at EventEmitter.<anonymous> (C:\Program Files\nodejs\node_modules\npm\lib\utils\lifecycle.js:214:16)
 9 verbose stack     at emitTwo (events.js:87:13)
 9 verbose stack     at EventEmitter.emit (events.js:172:7)
@@ -28,7 +28,7 @@
 15 error npm  v2.14.20
 16 error code ELIFECYCLE
 17 error @ start: `webpack-dev-server --inline --config webpack.dev.config.js`
-17 error Exit status 1073807364
+17 error Exit status 1
 18 error Failed at the @ start script 'webpack-dev-server --inline --config webpack.dev.config.js'.
 18 error This is most likely a problem with the  package,
 18 error not with npm itself.
