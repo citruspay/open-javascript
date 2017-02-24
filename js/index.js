@@ -17,6 +17,7 @@ import {listener} from "./apis/hosted-field-payment";
 import {singleHopDropInFunction} from "./apis/singleHop";
 import {applyWallletDynamicPricing} from "./apis/wallet-dp";
 import {create} from "./hosted-field-setup";
+import {getDynamicPriceToken} from "./apis/dynamic-pricing-endpoint";
 
 init(); //initializes custom validators
 
@@ -30,21 +31,11 @@ if (window.addEventListener) {
 
 Object.assign(window.citrus, {
     setConfig,
-    getConfig,
-    validators: {
-        validateExpiryDate,
-        validateScheme,
-        validateCreditCard
-    },
-    utils: {
-        isUrl,
-        schemeFromNumber
-    },
     registerHandlers: (key, handler) => {
         handlersMap[key] = handler;
     },
-    gateways: {
-        getPaymentDetails
+    utils: {
+        isUrl
     },
     netbanking: {
         makeNetBankingPayment,
@@ -52,15 +43,14 @@ Object.assign(window.citrus, {
         applyNbDynamicPricing
     },
     cards: {
-        getmerchantCardSchemes,
         makeMotoCardPayment,
         makeSavedCardPayment,
         getCardCurrencyInfo,
-        makeMCPCardPayment,
+        //todo:rename
         getPaymentDetailsForMCP,
+        //misnomer, function gives payment methods allowed by merchants
         getPaymentDetails,
-        applyDynamicPricing,
-        makeDPCardPayment
+        applyDynamicPricing
     },
     hostedFields: {
         create
@@ -69,9 +59,9 @@ Object.assign(window.citrus, {
         makeExtWalletsPayment
     },
     features: {
-        applyDynamicPricing,
         singleHopDropInFunction,
-        applyWallletDynamicPricing
+        applyWallletDynamicPricing,
+        getDynamicPriceToken
     },
     payment: {
         makePayment
