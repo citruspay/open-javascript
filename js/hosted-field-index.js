@@ -98,10 +98,11 @@ function listener(event) {
         citrus.setConfig(data.config);
         let paymentData = data.paymentData;
         Object.assign(paymentData.paymentDetails, paymentDetails);
-        let offerToken = getAppData('dynamicPriceToken');
+        /*let offerToken = getAppData('dynamicPriceToken');
+        console.log('-----------offerToken-----------',offerToken);
         if(offerToken){
             paymentData.offerToken = offerToken;
-        }
+        }*/
         delete paymentData.paymentDetails.paymentMode;
         delete paymentData.paymentDetails.cardType;
         citrus.cards.makeMotoCardPayment(paymentData).then(function (response) {

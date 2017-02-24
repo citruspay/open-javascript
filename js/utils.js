@@ -278,6 +278,14 @@ const getUid = ()=>{
     return UUID.generate();
 };
 
+const trim=(value)=>{
+    if(!value)
+        return value;
+    else
+        return value.replace(/\s+/g, '');
+}
+const isCardSchemeSupported=(scheme)=>{};
+
 export {
     validateAndCallbackify,
     getMerchantAccessKey,
@@ -296,5 +304,6 @@ export {
     isUrl,
     getUid,
     isPciRequest,
-    isExternalJsConsumer
+    isExternalJsConsumer,
+    trim
 };

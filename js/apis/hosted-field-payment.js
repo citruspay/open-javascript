@@ -8,10 +8,11 @@ import {refineMotoResponse} from "./response";
 import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../hosted-field-config";
 import {handleDropIn, openPopupWindowForDropIn} from "./drop-in";
 import {MCPData} from "./payment-details";
+import {addDpTokenFromCacheIfNotPresent} from './dynamic-pricing';
 
 let winRef = null;
 let _dpCallback, _mcpCallback;
-//let cancelApiResp;
+
 const citrusSelectorPrefix = 'citrus';
 const regExMap = {
     'cardNumber': /^[0-9]{15,19}$/,
@@ -102,7 +103,8 @@ const makeSavedCardHostedFieldPayment = (savedCardFrameId) =>{
     let message = {messageType:'makeSavedCardPayment',cardType:'savedCard',scheme:hostedField.savedCardScheme};
     message.pgSettingsData = getAppData('pgSettingsData');
     message.config = getConfig();
-    message.paymentData = paymentObj;
+    var paymentData = message.paymentData = Object.assign({},paymentObj);
+    paymentData = addDpTokenFromCacheIfNotPresent(paymentData,{paymentToken:paymentData.paymentDetails.token});
     if (validateSavedCardCvvDetails(hostedField)) {
         
         if (paymentObj.mode.toLowerCase() !== "dropout") {
@@ -200,9 +202,10 @@ const listener = (event) => {
 
 //parent call
 const handleFetchDynamicPricingToken = (data)=>{
-    let dynamicPriceHandler = handlersMap['dynamicPriceHandlder'];
+    let dynamicPriceHandler = handlersMap['dynamicPriceHandler'];
     let hostedField = data.hostedField;
     let cardType = data.cardType;
+
     const applyDynamicPricing = (dynamicPricingData,callback)=>{
         let frameId = getFrameId(hostedField,cardType);
         let data = cloneDeep(dynamicPricingData);
@@ -389,10 +392,6 @@ const validateSavedCardCvvDetails = (hostedField)=>{
     }
     return isValidCard;
 };
-
-
-
-
 const postMessageToChild = (fieldType, cardType, message, isSetTimeoutRequired) => {
     let frameId = getCitrusFrameId(fieldType, cardType);
     if (isSetTimeoutRequired) {
@@ -403,7 +402,6 @@ const postMessageToChild = (fieldType, cardType, message, isSetTimeoutRequired) 
         postMessage(frameId, message);
     }
 };
-
 const postMessageToSavedCardFrame=(hostedField,message,isSetTimeoutRequired)=>{
     let frameId = getCitrusFrameIdForSavedCard(hostedField);
     if (isSetTimeoutRequired) {

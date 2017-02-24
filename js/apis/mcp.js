@@ -4,6 +4,7 @@ import {custFetch} from "../interceptor";
 import {motoCardValidationSchema, motoCardApiFunc} from "./cards";
 import {MCPData} from "./payment-details";
 import cloneDeep from "lodash/cloneDeep";
+import {setAppData,getAppData} from "./../utils";
 //import {currencyMap} from "../constants";
 
 const MCPCardSchema = cloneDeep(motoCardValidationSchema);
@@ -29,6 +30,7 @@ const binServiceSchema = {
 let mcpData = cloneDeep(MCPData);
 
 const getCardCurrencyWrapper = (data) => {
+    console.log(data);
     mcpData = data.MCPData;
     const logger = getCardCurrencyInfo(data);
 
@@ -39,10 +41,11 @@ const getCardCurrencyWrapper = (data) => {
 const getCardCurrencyInfo = validateAndCallbackify(binServiceSchema, (confObj) => {
     const sixDigitCardNum = '' + confObj.cardNumber.substr(0, 6);
     let aliasedScheme = validateScheme(schemeFromNumber(confObj.cardNumber), false);
+
     return custFetch(`https://bin.citruspay.com/binservice/v1/bin/${sixDigitCardNum}`, {
         method: 'get'
     }).then((resp)=> {
-        setBinResponseInAppData(resp);
+        setBinResponseInAppData(confObj,resp.data);
         const bindata = processBinData(resp, aliasedScheme);
         // setBinResponseInAppData(confObj.cardNumber,dpAction,resp.data);
         return bindata;
@@ -85,9 +88,23 @@ const processBinData = (resp, aliasedScheme) => {
         return [];
     }
 };
-
-const setBinResponseInAppData = (paymentInfo, dpAction, dpResponse)=> {
-
-   // setAppData('dpRepsonseList', dpRepsonseList);
+const setBinResponseInAppData = (cardInfo, binResponse)=> {
+    var binResponseList = getAppData('binResponseList')||[];
+    let timeStamp = new Date().getTime();
+    let key = cardInfo.cardNumber;
+    let paymentMode = cardInfo.cardType;
+    binResponseList.push({key : key,value:binResponse,timeStamp:timeStamp,paymentMode:paymentMode});
+    setAppData('binResponseList', binResponse);
+};
+const getBinResponseFromAppData = (cardInfo)=>{
+    let key = getCacheKey(cardInfo.cardNumber);
+    var binResponseList = getAppData('binResponseList');
+    if(binResponseList&&binResponseList.length>0){
+        var binResponse = binResponseList.filter((value)=>{return value.key===key;});
+        if(binResponse && binResponse.length>0)
+        {
+            return binResponse[0].value.offerToken;
+        }
+    }
 };
 export {makeMCPCardPayment, getCardCurrencyInfo, getCardCurrencyWrapper};

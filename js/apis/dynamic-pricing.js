@@ -1,6 +1,9 @@
-import {custFetch} from "../interceptor";
-import {getConfig} from "../config";
-import {setAppData, getAppData, validateAndCallbackify, schemeFromNumber} from "./../utils";
+
+import {custFetch} from '../interceptor';
+import {getConfig} from '../config';
+import {setAppData,getAppData} from "./../utils";
+import {validateAndCallbackify, schemeFromNumber,trim} from './../utils';
+
 
 const MAX_CACHE_LENGTH = 10;
 //cache timeout in milliseconds 6minutes
@@ -75,7 +78,7 @@ const applyDynamicPricing = (isWallet, dynamicPricingSchema) => {
             value: data.alteredAmount, currency : data.currency
         },
         paymentInfo : {
-            cardNo : data.cardNo,
+            cardNo : trim(data.cardNo),
             issuerId : data.bankCode,
             paymentMode : data.paymentMode,
             paymentToken : isWallet?data.token:data.paymentToken
@@ -131,6 +134,15 @@ const getDpTokenFromAppData = (paymentInfo)=>{
         } 
     }
 };
+const addDpTokenFromCacheIfNotPresent=(paymentData,paymentInfo)=>{
+    let offerToken;
+    if(!paymentData.offerToken){
+        offerToken = getDpTokenFromAppData(paymentInfo);
+        if(offerToken)
+        paymentData.offerToken = offerToken;
+    }
+    return paymentData;
+};
 const getCacheKey=(paymentInfo)=>{ 
     let key;
     if(paymentInfo.cardNo){
@@ -156,4 +168,4 @@ const setDpResponseInAppData=(paymentInfo,dpAction,dpResponse)=>{
     setAppData('dpRepsonseList',dpRepsonseList);
 };
 
-export {dynamicPricingFunction,applyDynamicPricing,baseDynamicPricingSchema,getDpTokenFromAppData};
+export {dynamicPricingFunction,applyDynamicPricing,baseDynamicPricingSchema,addDpTokenFromCacheIfNotPresent};

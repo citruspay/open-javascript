@@ -10,13 +10,11 @@ import {getConfig} from "../config";
 import {TRACKING_IDS} from "../constants";
 import {handlePayment} from "./payment-handler";
 import {savedAPIFunc,savedPaymentValidationSchema} from './common-saved-payment';
-import {getDpTokenFromAppData} from './dynamic-pricing';
+import {addDpTokenFromCacheIfNotPresent} from './dynamic-pricing';
 
 const NBAPIFunc = (confObj, apiUrl) => {
     //if(getAppData('net_banking')) confObj.offerToken = getAppData('net_banking')['offerToken'];
-    let offerToken = getDpTokenFromAppData({issuerId:confObj.paymentDetails.bankCode});
-    if(offerToken)
-        confObj.offerToken = offerToken;
+    confObj = addDpTokenFromCacheIfNotPresent(confObj,{issuerId:confObj.paymentDetails.bankCode});
     const reqConf = Object.assign({}, confObj, {
         amount: {
             currency: 'INR',
@@ -74,6 +72,8 @@ const makeSavedNBPayment = (paymentObj)=>{
         doValidation(paymentData, additionalConstraints);
     }
     if(paymentObj.paymentDetails){
+        //js clients will send token inside paymentDetails
+        //v3 and icp send it inside paymentObj itself
         if(!paymentObj.token && paymentObj.paymentDetails.token)
             paymentData.token = paymentObj.paymentDetails.token;
         delete paymentData.paymentDetails;
