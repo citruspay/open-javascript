@@ -41,14 +41,16 @@ const getCardCurrencyWrapper = (data) => {
 const getCardCurrencyInfo = validateAndCallbackify(binServiceSchema, (confObj) => {
     const sixDigitCardNum = '' + confObj.cardNumber.substr(0, 6);
     let aliasedScheme = validateScheme(schemeFromNumber(confObj.cardNumber), false);
-
+    let binResponse = getBinResponseFromAppData(confObj);
+    if(binResponse)
+        return Promise.resolve(binRepsonse);
     return custFetch(`https://bin.citruspay.com/binservice/v1/bin/${sixDigitCardNum}`, {
         method: 'get'
     }).then((resp)=> {
-        setBinResponseInAppData(confObj,resp.data);
-        const bindata = processBinData(resp, aliasedScheme);
-        // setBinResponseInAppData(confObj.cardNumber,dpAction,resp.data);
-        return bindata;
+        // setBinResponseInAppData(confObj,resp.data);
+        const currencyData = processBinData(resp, aliasedScheme);
+        setBinResponseInAppData(confObj, resp.data, currencyData);
+        return currencyData;
     });
 });
 
@@ -88,22 +90,22 @@ const processBinData = (resp, aliasedScheme) => {
         return [];
     }
 };
-const setBinResponseInAppData = (cardInfo, binResponse)=> {
+const setBinResponseInAppData = (cardInfo, binResponse, currency)=>{
     var binResponseList = getAppData('binResponseList')||[];
     let timeStamp = new Date().getTime();
     let key = cardInfo.cardNumber;
     let paymentMode = cardInfo.cardType;
     binResponseList.push({key : key,value:binResponse,timeStamp:timeStamp,paymentMode:paymentMode});
-    setAppData('binResponseList', binResponse);
+    setAppData('binResponseList', binResponseList);
 };
 const getBinResponseFromAppData = (cardInfo)=>{
-    let key = getCacheKey(cardInfo.cardNumber);
+    let key = cardInfo.cardNumber;
     var binResponseList = getAppData('binResponseList');
     if(binResponseList&&binResponseList.length>0){
         var binResponse = binResponseList.filter((value)=>{return value.key===key;});
         if(binResponse && binResponse.length>0)
         {
-            return binResponse[0].value.offerToken;
+            return binResponse[0].value;
         }
     }
 };
