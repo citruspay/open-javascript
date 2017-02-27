@@ -7,7 +7,7 @@ import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {handlersMap, getConfig} from "../config";
 import {singleHopDropOutFunction, singleHopDropInFunction} from "./singleHop";
-import {TRACKING_IDS,PAGE_TYPES} from '../constants'
+import {TRACKING_IDS, PAGE_TYPES} from "../constants";
 
 const extWalletValidationSchema = Object.assign(cloneDeep(baseSchema), {
     paymentDetails: {
@@ -73,7 +73,7 @@ const extWalletApiFunc = (confObj) => {
             if (getConfig().page !== PAGE_TYPES.ICP) {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
-                    (reqConf.requestOrigin === TRACKING_IDS.SSLV3Guest || reqConf.requestOrigin === TRACKING_IDS.SSLV3Wallet)?window.location = resp.data.redirectUrl:singleHopDropOutFunction(resp.data.redirectUrl);
+                        (reqConf.requestOrigin === TRACKING_IDS.SSLV3Guest || reqConf.requestOrigin === TRACKING_IDS.SSLV3Wallet) ? window.top.location = resp.data.redirectUrl : singleHopDropOutFunction(resp.data.redirectUrl);
                     }
                     else {
                         if (winRef && winRef.closed) {

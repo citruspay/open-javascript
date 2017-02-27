@@ -1,4 +1,4 @@
-import {validateAndCallbackify, getMerchantAccessKey, getAppData, setAppData, isV3Request, isUrl} from "./../utils";
+import {validateAndCallbackify, getMerchantAccessKey, setAppData, isV3Request, isUrl} from "./../utils";
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {handlersMap, getConfig, setConfig} from "../config";
@@ -180,7 +180,7 @@ const handlePayment = (resp,mode)=>{
             if (isV3Request(requestOrigin)) {
                 let htmlStr = resp.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"');
                 if (isUrl(htmlStr) && !(getConfig().isSingleHop)) {
-                    window.location = resp.redirectUrl;
+                    window.top.location = resp.redirectUrl;
                     return;
                 }
                 isUrl(htmlStr) ? singleHopDropOutFunction(htmlStr) : handleOlResponse(htmlStr);
