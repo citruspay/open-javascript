@@ -1,13 +1,13 @@
 import {custFetch} from '../interceptor';
 import {getConfig} from '../config';
 import {setAppData,getAppData} from "./../utils";
-import {validateAndCallbackify, schemeFromNumber,trim} from './../utils';
+import {validateAndCallbackify, schemeFromNumber,trim,convertToFloat} from './../utils';
 
 
 const MAX_CACHE_LENGTH = 10;
 //cache timeout in milliseconds 6minutes
 const CACHE_TIMEOUT = 300000;
-
+const DIGITS_AFTER_DECIMAL_FOR_DP_SIGN = 2;
 const baseDynamicPricingSchema = {
     email: { presence : false, email : true },
     phone : {presence:false},
@@ -72,14 +72,14 @@ const applyDynamicPricing = (isWallet,dynamicPricingSchema)=>{
   return  validateAndCallbackify(dynamicPricingSchema,(data)=>{
     const reqConf = Object.assign({}, data, {
         originalAmount: {
-            value: data.originalAmount, currency : data.currency
+            value: convertToFloat(data.originalAmount,DIGITS_AFTER_DECIMAL_FOR_DP_SIGN), currency : data.currency
         },
         alteredAmount : {
-            value: data.alteredAmount, currency : data.currency
+            value: convertToFloat(data.alteredAmount,DIGITS_AFTER_DECIMAL_FOR_DP_SIGN), currency : data.currency
         },
         paymentInfo : {
             cardNo : trim(data.cardNo),
-            issuerId : data.bankCode,
+            issuerId : data.bankCode, 
             paymentMode : data.paymentMode,
             paymentToken : isWallet?data.token:data.paymentToken
         },
