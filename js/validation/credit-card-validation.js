@@ -6,7 +6,7 @@ ccErrors [2] = "Credit card number is in invalid format";
 ccErrors [3] = "Credit card number is invalid";
 ccErrors [4] = "Credit card number has an inappropriate number of digits";
 ccErrors [5] = "Warning! This credit card number is associated with a scam attempt";
-
+//check for luhn's algorithm
 function checkCreditCard(num)
 {
     var digit, digits, odd, sum, _i, _len;

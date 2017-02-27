@@ -271,6 +271,8 @@ const restrictCardNumber = function(e) {
 const validateCardEventListener=()=>{
     validateCard();
 };
+//todo: refactor it later, use validateCard from
+//custom-validations.
 const validateCard = () => {
     const num = _paymentField.value.replace(/\s+/g, '');
     var cardType = getAppData('cardType');

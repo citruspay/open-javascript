@@ -95,6 +95,7 @@ const merchantCardSchemesSchema = {
     merchantAccessKey: {presence: true}
 };
 
+//todo:remove it later not being used anywhere
 const getmerchantCardSchemes = validateAndCallbackify(merchantCardSchemesSchema, (confObj) => {
 
     return custFetch(getConfig().blazeCardApiUrl + '/cards-gateway/rest/cardspg/merchantCardSchemes/getEnabledCardScheme', {
