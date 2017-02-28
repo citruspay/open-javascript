@@ -2,7 +2,6 @@ import {
     validateAndCallbackify,
     getMerchantAccessKey,
     schemeFromNumber,
-    getAppData,
     isV3Request,
     isIcpRequest,
     isExternalJsConsumer,
