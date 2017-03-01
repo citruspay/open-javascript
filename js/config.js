@@ -96,7 +96,7 @@ const handlersMap = {
     }
 };
 
-let env = 'sandbox';
+let env = 'prod';
 
 const configMap = Object.assign({
         merchantAccessKey: '',
