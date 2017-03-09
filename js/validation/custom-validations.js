@@ -146,7 +146,7 @@ const schemeMap = {
 /**
  * validates given card scheme and returns formatted scheme
  * @param  {String} scheme
- * @param {true | falsy} ingnoreServerAlias if falsy returns serverAlias else returns internal key,
+ * @param {true | falsy} ingnoreServerAlias if true returns key of object, otherwise return serverAlias
  * @returns {false | String} returns either false or casted scheme as string
  */
 const validateScheme = (scheme, ignoreServerAlias) => {

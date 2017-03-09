@@ -196,7 +196,7 @@ const makeSavedCardPayment = (paymentObj)=> {
     let paymentData = cloneDeep(paymentObj);
     //validate can only check regex against strings so need to convert cvv to string
     //if it was being set as number
-    if (paymentData.paymentDetails.cvv)
+    if (paymentData.paymentDetails && paymentData.paymentDetails.cvv)
         paymentData.paymentDetails.cvv = paymentData.paymentDetails.cvv.toString();
     if (isExternalJsConsumer(paymentData.requestOrigin)) {
         var additionalConstraints = {

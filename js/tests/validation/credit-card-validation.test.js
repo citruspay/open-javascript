@@ -1,4 +1,4 @@
-import checkCreditCard from '../validation/credit-card-validation';
+import checkCreditCard from '../../validation/credit-card-validation';
 var expect = require('chai').expect;
 describe('test',()=>{
     it('should return true for valid number and false otherwise',()=>{
