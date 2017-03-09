@@ -1,9 +1,9 @@
 var expect = require('chai').expect;
 import {keysCheck,validateExpiryDate,cardDate,validateScheme,validateCardType,validateCvv,
-    isValidCvv,isValidExpiry,cardCheck,blazeCardCheck,custFormat,validateCreditCard} from '../validation/custom-validations';
-import {initValidators} from '../config';
+    isValidCvv,isValidExpiry,cardCheck,blazeCardCheck,custFormat,validateCreditCard} from '../../validation/custom-validations';
+import {initValidators} from '../../config';
 import {validate} from "validate.js";
-import {setAppData} from '../utils.js'
+import {setAppData} from '../../utils.js'
 
 describe('Tests for custom-validations',function(){
     let obj = {'test':'abc',paymentDetails:{'token':null}};

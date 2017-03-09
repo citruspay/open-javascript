@@ -1,7 +1,7 @@
 import isCardValid from "./credit-card-validation";
 import some from "../../node_modules/lodash/some";
 import {validate as v} from "validate.js";
-import {schemeFromNumber, getAppData} from "../utils";
+import {schemeFromNumber, getAppData,cardFromNumber} from "../utils";
 import {handlersMap, getConfig} from "../config";
 
 
@@ -146,7 +146,7 @@ const schemeMap = {
 /**
  * validates given card scheme and returns formatted scheme
  * @param  {String} scheme
- * @param {true | falsy} ingnoreServerAlias if falsy returns serverAlias else returns internal key,
+ * @param {true | falsy} ingnoreServerAlias if true returns key of object, otherwise return serverAlias
  * @returns {false | String} returns either false or casted scheme as string
  */
 const validateScheme = (scheme, ignoreServerAlias) => {
@@ -312,6 +312,31 @@ const validateCreditCard = (cardNo, scheme) =>{
         return false;
     return isCardValid(cardNo);
 };
+
+const validateCard = (num) =>{
+    let cardValidationResult;
+     if(!num){
+        cardValidationResult = {"txMsg": 'Card nubmer can not be empty.',isValid:false,isEmpty:true};
+        return;
+    }
+    const card = cardFromNumber(num);
+    let scheme;
+    if(card)
+        scheme = card.type;
+    //todo : add check for maestro and rupay
+    const isValidNumberSchemeCombination = validateCreditCard(num, scheme);
+    let txMsg = "";
+    //ideally we should match the length to card scheme specific valid lenghts
+    //rather then only min lenght, but this will do for the time being.
+    if(!isValidNumberSchemeCombination||num.length<=MIN_VALID_CARD_LENGTH) 
+        txMsg = "Invalid card number";
+    //let cardMinLength = Math.min.apply(null,card.length);
+    //let cardMaxLength = Math.max.apply(null,card.length);
+    //isPossiblyValid = card && (num.length<cardMaxLength) || (num.length===cardMaxLength)||
+    cardValidationResult = {"txMsg": txMsg,isValid:isValidCard,scheme:scheme};
+    return cardValidationResult;
+}
+
 
 
 export { keysCheck, cardDate, cardCheck, custFormat, validateScheme, validateExpiryDate, validateCvv,

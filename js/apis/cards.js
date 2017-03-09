@@ -2,7 +2,6 @@ import {
     validateAndCallbackify,
     getMerchantAccessKey,
     schemeFromNumber,
-    getAppData,
     isV3Request,
     isIcpRequest,
     isExternalJsConsumer,
@@ -95,6 +94,7 @@ const merchantCardSchemesSchema = {
     merchantAccessKey: {presence: true}
 };
 
+//todo:remove it later not being used anywhere
 const getmerchantCardSchemes = validateAndCallbackify(merchantCardSchemesSchema, (confObj) => {
     return custFetch(getConfig().blazeCardApiUrl + '/cards-gateway/rest/cardspg/merchantCardSchemes/getEnabledCardScheme', {
         method: 'post',
@@ -198,7 +198,7 @@ const makeSavedCardPayment = (paymentObj)=> {
     let paymentData = cloneDeep(paymentObj);
     //validate can only check regex against strings so need to convert cvv to string
     //if it was being set as number
-    if (paymentData.paymentDetails.cvv)
+    if (paymentData.paymentDetails && paymentData.paymentDetails.cvv)
         paymentData.paymentDetails.cvv = paymentData.paymentDetails.cvv.toString();
     if (isExternalJsConsumer(paymentData.requestOrigin)) {
         var additionalConstraints = {

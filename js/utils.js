@@ -171,7 +171,11 @@ const schemeFromNumber = (num) => {
         }
     }
 };
-
+ 
+//checks whether the card number matches
+//the regex for any particular card if 
+//it matches it returns the card object which contains
+//the card type(master,visa),pattern,cvvLength etc for that
 const cardFromNumber = (num) => {
     var card, _i, _len;
     num = (num + '').replace(/\D/g, '');
@@ -284,6 +288,23 @@ const trim=(value)=>{
     else
         return value.replace(/\s+/g, '');
 }
+
+//if passed a number will convert it to
+//float with given number of precision digits
+//assumed the number to be on base 10
+const convertToFloat=(value,digitsAfterDecimal,base=10)=>{
+    //if value is falsy except 0 or value does not have
+    //toFixed method return value as it is
+    if(!value && value!==0)
+        return value;
+    let convertedValue = parseFloat(value,base);
+    //if value is not in a format which can be converted to float
+    //result will be NaN, if NaN return original value
+    if(convertedValue!==convertedValue)
+        return value;
+    return convertedValue.toFixed(digitsAfterDecimal);
+}
+//todo:implement it later
 const isCardSchemeSupported=(scheme)=>{};
 
 export {
@@ -305,5 +326,6 @@ export {
     getUid,
     isPciRequest,
     isExternalJsConsumer,
-    trim
+    trim,
+    convertToFloat
 };
