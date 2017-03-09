@@ -96,7 +96,6 @@ const merchantCardSchemesSchema = {
 };
 
 const getmerchantCardSchemes = validateAndCallbackify(merchantCardSchemesSchema, (confObj) => {
-
     return custFetch(getConfig().blazeCardApiUrl + '/cards-gateway/rest/cardspg/merchantCardSchemes/getEnabledCardScheme', {
         method: 'post',
         headers: {
@@ -113,7 +112,7 @@ const motoCardValidationSchema = Object.assign(cloneDeep(baseSchema), {
     paymentDetails: {
         presence: true,
         cardCheck: true,
-        keysCheck: ['type', 'number', 'holder', 'cvv', 'expiry']
+        keysCheck: ['type', 'number', 'holder', 'cvv', 'expiry', 'scheme']
     },
     "paymentDetails.holder": {presence: true, format: regExMap.name}
 });
@@ -121,10 +120,15 @@ const motoCardValidationSchema = Object.assign(cloneDeep(baseSchema), {
 motoCardValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 
 const motoCardApiFunc = (confObj) => {
-    const cardScheme = schemeFromNumber(confObj.paymentDetails.number);
+    let cardScheme;
+    if(isExternalJsConsumer(confObj.requestOrigin)) {
+        cardScheme = schemeFromNumber(confObj.paymentDetails.number);
+    }else{
+        cardScheme = (!confObj.paymentDetails.scheme) ?  schemeFromNumber(confObj.paymentDetails.number) : confObj.paymentDetails.scheme;
+    }
     let paymentDetails;
     //todo:refactor this if else later
-    if (cardScheme === 'maestro') {
+    if (cardScheme === 'maestro' || cardScheme === 'MTRO') {
         paymentDetails = Object.assign({}, confObj.paymentDetails, {
             type: validateCardType(confObj.paymentDetails.type),
             scheme: validateScheme(cardScheme),
@@ -228,7 +232,6 @@ const makeSavedCardPayment = (paymentObj)=> {
 /*If the request coming from V3 or ICP, if the CVV value is not sent, this function will return true.*/
 const isCvvGenerationRequired = (paymentData)=> {
     return !!((isV3Request(paymentData.requestOrigin) || isIcpRequest()) && !paymentData.CVV);
-
 };
 //Function to identify if the payment request requires MCP or not
 //It can be used to check for other features such as EMI, subscription etc. in future.

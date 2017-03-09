@@ -8,7 +8,7 @@ import {refineMotoResponse} from "./response";
 
 let winRef;
 const handlePayment = (reqConf,mode,url) => {
-    url = url||getBaseUrlForPayment();
+    url = url||getBaseUrlForPayment(reqConf);
     if (mode === 'dropin' && getConfig().page !== PAGE_TYPES.ICP ) {
         reqConf.returnUrl = getConfig().dropInReturnUrl;
         if(getConfig().page!== PAGE_TYPES.HOSTED_FIELD)
@@ -63,8 +63,9 @@ const handlePayment = (reqConf,mode,url) => {
     }
 };
 
-const getBaseUrlForPayment = ()=>{
-    let isOl = (getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled===true);
+const getBaseUrlForPayment = (reqConf)=>{
+    //change for hdfc netbanking, issuer code = CID010 makes the ol flag false.
+    let isOl = ((getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled===true)) && (reqConf.paymentToken.paymentMode.code !== 'CID010');
     let url;
     isOl ? url = `${getConfig().olUrl}/${getConfig().vanityUrl}` : url = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
     return url;
