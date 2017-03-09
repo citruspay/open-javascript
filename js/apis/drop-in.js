@@ -73,10 +73,7 @@ const handleDropIn = (motoResponse, winRef,paymentData) => {
     }
     singleHopDropInFunction(motoResponse.redirectUrl).then(function(response) {
         if (winRef && winRef.closed !== true) {
-            /*start of OL integration logic*/
-            // winRef.document.write(response);
-            // return;
-            /*end of OL integration logic*/
+            response = response.replace('<img alt="Citrus" height="32" width="81" src="/resources/pg/images/logo_citrus-med.png"/>', '');
             let el = document.createElement('body');
             el.innerHTML = response;
             let form = el.getElementsByTagName('form');
