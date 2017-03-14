@@ -3,6 +3,7 @@ import some from "../../node_modules/lodash/some";
 import {validate as v} from "validate.js";
 import {schemeFromNumber, getAppData,cardFromNumber} from "../utils";
 import {handlersMap, getConfig} from "../config";
+import {MIN_VALID_CARD_LENGTH} from "../constants";
 
 
 //value is the value need to be validated
@@ -337,7 +338,7 @@ const validateCard = (num) =>{
     //isPossiblyValid = card && (num.length<cardMaxLength) || (num.length===cardMaxLength)||
     cardValidationResult = {"txMsg": txMsg,isValid:isValidCard,scheme:scheme};
     return cardValidationResult;
-}
+};
 
 
 

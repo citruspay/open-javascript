@@ -8,6 +8,7 @@ import "core-js/fn/string/includes";
 import {setAppData, getAppData, postMessageWrapper, schemeFromNumber} from "./utils";
 import {validateExpiryDate, validateScheme, validateCreditCard} from "./validation/custom-validations";
 import {makeMotoCardPayment, makeSavedCardPayment} from "./apis/cards";
+import {makeMCPCardPayment, makeMCPCardPaymentWrapper, getCardCurrencyWrapper} from "./apis/mcp";
 import {init, setConfig, handlersMap} from "./config";
 import {
     addField,
@@ -20,7 +21,6 @@ import {getConfigValue, specialStyleKeys, supportedStyleKeys} from "./hosted-fie
 import cloneDeep from "lodash/cloneDeep";
 import {PAGE_TYPES} from "./constants";
 import {applyDynamicPricing} from "./apis/card-dp";
-import {getCardCurrencyWrapper} from "./apis/mcp";
 
 init(); //initializes custom validators
 
@@ -38,7 +38,6 @@ let fieldType = field[1].split("-");
 let parentUrl;
 //child(iframe) listener
 function listener(event) {
-    //console.log(event.data,'inside child frame');
     var data = event.data;
     if (!event.data||event.data.generatedBy!=='citrus')
         return;
@@ -94,6 +93,7 @@ function listener(event) {
     data.config.page = PAGE_TYPES.HOSTED_FIELD;
     if(event.data.messageType==='makePayment')
     {
+        //console.log("here");
         citrus.payment.setAppData('pgSettingsData', data.pgSettingsData);
         citrus.setConfig(data.config);
         let paymentData = data.paymentData;
@@ -105,6 +105,15 @@ function listener(event) {
         }*/
         delete paymentData.paymentDetails.paymentMode;
         delete paymentData.paymentDetails.cardType;
+        if (paymentData.targetMcpCurrency)
+            citrus.cards.makeMCPCardPaymentWrapper(paymentData).then(function (response) {
+            response.responseType = "serverResponse";
+            delete response.isValidRequest;
+            response.data.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+            let message = {messageType:'serverResponse',response:response.data};
+            postMessageWrapper(parent, message, parentUrl);
+            });
+        else
         citrus.cards.makeMotoCardPayment(paymentData).then(function (response) {
             response.responseType = "serverResponse";
             delete response.isValidRequest;
@@ -276,7 +285,9 @@ Object.assign(window.citrus, {
         setAppData
     },
     cards: {
-        makeMotoCardPayment
+        makeMotoCardPayment,
+        makeMCPCardPayment,
+        makeMCPCardPaymentWrapper
     },
     hostedFields: {
         addField

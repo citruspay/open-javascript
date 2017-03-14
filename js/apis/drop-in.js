@@ -91,7 +91,6 @@ const handleDropIn = (motoResponse, winRef,paymentData) => {
             }
         }
         workFlowForModernBrowsers(winRef,paymentData);
-
     });
 };
 
@@ -103,6 +102,7 @@ const handleOlResponse = (htmlStr) => {
         let paymentForm = document.createElement('form');
         paymentForm.setAttribute("action", form[0].action),
             paymentForm.setAttribute("method", form[0].method),
+            paymentForm.setAttribute("target", '_parent');
             paymentForm.innerHTML = form[0].innerHTML,
             document.documentElement.appendChild(paymentForm),
             paymentForm.submit(),

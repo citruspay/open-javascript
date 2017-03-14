@@ -16,7 +16,7 @@ import {validateCardType, validateScheme, cardDate, validateCvv} from "../valida
 import {custFetch} from "../interceptor";
 import {urlReEx, TRACKING_IDS} from "../constants";
 import {handlePayment} from "./payment-handler";
-import { addDpTokenFromCacheIfNotPresent} from "./dynamic-pricing";
+import {addDpTokenFromCacheIfNotPresent} from "./dynamic-pricing";
 
 const regExMap = {
     'cardNumber': /^[0-9]{15,19}$/,
@@ -121,26 +121,35 @@ motoCardValidationSchema.mainObjectCheck.keysCheck.push('paymentDetails');
 
 const motoCardApiFunc = (confObj) => {
     let cardScheme;
-    if(isExternalJsConsumer(confObj.requestOrigin)) {
+    if (isExternalJsConsumer(confObj.requestOrigin)) {
         cardScheme = schemeFromNumber(confObj.paymentDetails.number);
-    }else{
-        cardScheme = (!confObj.paymentDetails.scheme) ?  schemeFromNumber(confObj.paymentDetails.number) : confObj.paymentDetails.scheme;
+    } else {
+        cardScheme = (!confObj.paymentDetails.scheme) ? schemeFromNumber(confObj.paymentDetails.number) : confObj.paymentDetails.scheme;
     }
     let paymentDetails;
     //todo:refactor this if else later
-    if (cardScheme === 'maestro' || cardScheme === 'MTRO') {
-        paymentDetails = Object.assign({}, confObj.paymentDetails, {
-            type: validateCardType(confObj.paymentDetails.type),
-            scheme: validateScheme(cardScheme),
-            expiry: confObj.paymentDetails.expiry,
-            cvv: confObj.paymentDetails.cvv
-        });
+    if (isExternalJsConsumer(confObj.requestOrigin)) {
+        if (cardScheme === 'maestro' || cardScheme === 'MTRO') {
+            paymentDetails = Object.assign({}, confObj.paymentDetails, {
+                type: validateCardType(confObj.paymentDetails.type),
+                scheme: validateScheme(cardScheme),
+                expiry: confObj.paymentDetails.expiry,
+                cvv: confObj.paymentDetails.cvv
+            });
+        } else {
+            paymentDetails = Object.assign({}, confObj.paymentDetails, {
+                type: validateCardType(confObj.paymentDetails.type),
+                scheme: validateScheme(cardScheme),
+                expiry: cardDate(confObj.paymentDetails.expiry),
+                cvv: validateCvv(confObj.paymentDetails.cvv, cardScheme)
+            });
+        }
     } else {
         paymentDetails = Object.assign({}, confObj.paymentDetails, {
-            type: validateCardType(confObj.paymentDetails.type),
-            scheme: validateScheme(cardScheme),
-            expiry: cardDate(confObj.paymentDetails.expiry),
-            cvv: validateCvv(confObj.paymentDetails.cvv, cardScheme)
+            type: confObj.paymentDetails.type,
+            scheme: cardScheme,
+            expiry: confObj.paymentDetails.expiry,
+            cvv: confObj.paymentDetails.cvv
         });
     }
 
@@ -155,12 +164,11 @@ const motoCardApiFunc = (confObj) => {
     //if MCP is applied on the transaction DP won't be applicable for V3 transactions, this is a temporary fix.
     //This code needs to be changed corresponding to v3, since ICP and JS clients need a flexible approach over here.
     /*if (getAppData('credit_card') && confObj.paymentDetails.type.toLowerCase() === "credit" && !(confObj.currencyToken))
-        confObj.offerToken = getAppData('credit_card')['offerToken'];
-    if (getAppData('debit_card') && confObj.paymentDetails.type.toLowerCase() === "debit" && !(confObj.currencyToken))
-        confObj.offerToken = getAppData('debit_card')['offerToken'];*/
-    if(!confObj.currencyToken)
-    {
-        confObj = addDpTokenFromCacheIfNotPresent(confObj, {cardNo:confObj.paymentDetails.number});
+     confObj.offerToken = getAppData('credit_card')['offerToken'];
+     if (getAppData('debit_card') && confObj.paymentDetails.type.toLowerCase() === "debit" && !(confObj.currencyToken))
+     confObj.offerToken = getAppData('debit_card')['offerToken'];*/
+    if (!confObj.currencyToken) {
+        confObj = addDpTokenFromCacheIfNotPresent(confObj, {cardNo: confObj.paymentDetails.number});
     }
     const reqConf = Object.assign({}, confObj, {
         amount: {
@@ -186,8 +194,8 @@ const motoCardApiFunc = (confObj) => {
 };
 
 const makeMotoCardPayment = (paymentData)=> {
-    // delete paymentData.paymentDetails.paymentMode;
-    const makeMotoCardPaymentInternal = validateAndCallbackify(motoCardValidationSchema, motoCardApiFunc);
+    let makeMotoCardPaymentInternal;
+    makeMotoCardPaymentInternal = isExternalJsConsumer(paymentData.requestOrigin) ? validateAndCallbackify(motoCardValidationSchema, motoCardApiFunc) : motoCardApiFunc;
     return makeMotoCardPaymentInternal(paymentData);
 };
 
