@@ -134,14 +134,6 @@ const addIframe = (hostedField, cardType, style,callback) => {
             callback(hostedFieldInstance);   
 
     };
-    //todo:check is it really doing anything otherwise remove it.
-    iframe.onfocus = ()=> {
-        //console.log('inside iframe onfocus');
-        var inputElements = document.getElementsByTagName('input');
-        if (inputElements && inputElements.length > 0)
-            inputElements[0].focus();
-    };
-    
     if (element) {
         element.appendChild(iframe);
         element.className += ' citrus-hosted-field';
