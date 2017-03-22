@@ -28,9 +28,20 @@ const addField = () => {
     field = fieldType[1].split("-");
     _paymentField = document.createElement("input");
     _paymentField.setAttribute("id", field[0] + "citrusInput");
+    if(isTelTypeInputField(field[0]))
+        _paymentField.setAttribute("type","tel");
     document.body.appendChild(_paymentField);
     //addEventListenersForHostedFields();
 };
+
+//for the time being we will add type tel only
+//for card number and expiry as setting cvv to type
+//tel will require some additional code/setting
+const isTelTypeInputField = (fieldType)=>{
+    if(fieldType==="expiry"||fieldType==="number")
+        return true;
+    return false;
+}
 
 
 const postPaymentData = () => {
@@ -81,8 +92,13 @@ const addEventListenersForHostedFields = (cardSetupType) => {
         case "expiry" :
             addListener(_paymentField, eventStr, validateExpiryEventListener, false);
             addListener(_paymentField, 'keypress', restrictNumeric, false);
+            addListener(_paymentField, 'keypress', restrictExpiry, false);
             addListener(_paymentField, 'keypress', formatExpiry, false);
-            addListener(_paymentField, 'input', reformatExpiry, false);
+            addListener(_paymentField, 'keypress', formatForwardSlashAndSpace, false);
+            addListener(_paymentField, 'keypress', formatForwardExpiry, false);
+            addListener(_paymentField, 'keydown', formatBackExpiry, false);
+            addListener(_paymentField, 'change', reFormatExpiry, false);
+            addListener(_paymentField, 'input', reFormatExpiry, false);
             break;
         case "cvv"    :
             addListener(_paymentField, eventStr, validateCvvEventListener, false);
@@ -95,8 +111,7 @@ const addEventListenersForHostedFields = (cardSetupType) => {
             break;
     }
 };
- 
- 
+
 const detectScheme = ()=> {
     const num = _paymentField.value.replace(/\s+/g, '');
     const scheme = schemeFromNumber(num);
@@ -203,38 +218,135 @@ const hasTextSelected = ($target) => {
 
 };
 
-const formatExpiry = (e) => {
-    var keycode = e.which||e.keyCode;
-    if(keycode===BACK_SPACE_KEY_CODE||keycode===DELETE_KEY_CODE)
-        return;
-    let expiry = _paymentField.value;
-    var mon,
-        parts,
-        sep,
-        year;
+const reFormatExpiry = function(e) {
+    var $target;
+    $target = e.currentTarget;
+    return setTimeout(function() {
+      var value;
+      value = $target.value;
+      value = replaceFullWidthChars(value);
+      value = formatExpiryValue(value);
+      return safeVal(value, $target);
+    });
+  };
+
+  const formatExpiry = function(e) {
+    var $target, digit, val;
+    digit = String.fromCharCode(e.which);
+    if (!/^\d+$/.test(digit)) {
+      return;
+    }
+    $target = e.currentTarget;
+    val = $target.value + digit;
+    if (/^\d$/.test(val) && (val !== '0' && val !== '1')) {
+      e.preventDefault();
+      return setTimeout(function() {
+            $target.value = "0" + val + " / ";
+            return $target;
+      });
+    } else if (/^\d\d$/.test(val)) {
+      e.preventDefault();
+      return setTimeout(function() {
+        var m1, m2;
+        m1 = parseInt(val[0], 10);
+        m2 = parseInt(val[1], 10);
+        if (m2 > 2 && m1 !== 0) {
+          $target.value = "0" + m1 + " / " + m2;
+          return $target;
+        } else {
+          $target.value = "" + val + " / ";
+          return $target;
+        }
+      });
+    }
+  };
+
+  const formatForwardExpiry = function(e) {
+    var $target, digit, val;
+    digit = String.fromCharCode(e.which);
+    if (!/^\d+$/.test(digit)) {
+      return;
+    }
+    $target = e.currentTarget;
+    val = $target.value;
+    if (/^\d\d$/.test(val)) {
+      $target.value = "" + val + " / ";
+      return $target;
+    }
+  };
+
+  const formatForwardSlashAndSpace = function(e) {
+    var $target, val, which;
+    which = String.fromCharCode(e.which);
+    if (!(which === '/' || which === ' ')) {
+      return;
+    }
+    $target = e.currentTarget;
+    val = $target.value;
+    if (/^\d$/.test(val) && val !== '0') {
+      $target.value = "0" + val + " / ";
+      return $target;
+    }
+  };
+
+  const formatBackExpiry = function(e) {
+    var $target, value;
+    $target = e.currentTarget;
+    value = $target.value;
+    if (e.which !== 8) {
+      return;
+    }
+    if ($target.selectionStart != null && $target.selectionStart !== value.length) {
+      return;
+    }
+    if (/\d\s\/\s$/.test(value)) {
+      e.preventDefault();
+      return setTimeout(function() {
+        $target.value = value.replace(/\d\s\/\s$/, '');
+        return $target;
+      });
+    }
+  };
+
+  const formatExpiryValue = function(expiry) {
+    var mon, parts, sep, year;
     parts = expiry.match(/^\D*(\d{1,2})(\D+)?(\d{1,4})?/);
     if (!parts) {
-        _paymentField.value = '';
-        return;
+      return '';
     }
     mon = parts[1] || '';
     sep = parts[2] || '';
     year = parts[3] || '';
-    if (year.length > 0 || (sep.length > 0 && !(/\ \/?\ ?/.test(sep)))) {
-        sep = ' / ';
+    if (year.length > 0) {
+      sep = ' / ';
+    } else if (sep === ' /') {
+      mon = mon.substring(0, 1);
+      sep = '';
+    } else if (mon.length === 2 || sep.length > 0) {
+      sep = ' / ';
+    } else if (mon.length === 1 && (mon !== '0' && mon !== '1')) {
+      mon = "0" + mon;
+      sep = ' / ';
     }
-    if (mon.length === 1 && (mon !== '0' && mon !== '1')) {
-        mon = "0" + mon;
-        sep = ' / ';
+    return mon + sep + year;
+  };
+
+  const restrictExpiry = function(e) {
+    var $target, digit, value;
+    $target = e.currentTarget;
+    digit = String.fromCharCode(e.which);
+    if (!/^\d+$/.test(digit)) {
+      return;
     }
-    //check added for backspace key
-    if (e.which < 57) digit = e.which;
-    if (digit < 57 && mon.length === 2) {
-        sep = ' / ';
-        digit = 60;
+    if (hasTextSelected($target)) {
+      return;
     }
-    _paymentField.value = mon + sep + year;
-};
+    value = $target.value + digit;
+    value = value.replace(/\D/g, '');
+    if (value.length > 6) {
+      return false;
+    }
+  };
 
 const restrictNumeric = (e) => {
       var input;
@@ -286,13 +398,6 @@ const reFormatCardNumber = (e) => {
       value = replaceFullWidthChars(value);
       value = formatCardNumberValue(value);
       return safeVal(value, $target);
-    });
-};
-//to avoid the acceptance of one extra digit in the field
-//and also formats the card number while pasting the number directly inside the field
-const reformatExpiry = () => {
-    return setTimeout(function () {
-        formatExpiry(_paymentField.value);
     });
 };
 
