@@ -64,7 +64,15 @@ const callBackify = (promiseReturningFunc) => {
     }
 };
 
-const validateAndCallbackify = flow(enhanceWithValidation, callBackify);
+//const validateAndCallbackify = flow(enhanceWithValidation, callBackify);
+
+const validateAndCallbackify = (validationSchema,func)=>{
+    const validateAndCallbackifyInternal = flow(enhanceWithValidation,callBackify);
+    if(!isExternalJsConsumer())
+        return validateAndCallbackifyInternal(validationSchema,func);
+    else
+        return callBackify(func);
+}
 
 const getMerchantAccessKey = (optionsObj) => {
     const merchantAccessKey = optionsObj.merchantAccessKey || getConfig().merchantAccessKey;
@@ -270,8 +278,10 @@ const isIcpRequest = ()=>{
    return getConfig().page === PAGE_TYPES.ICP;
 };
 
+//todo:we can remove the reques origin from here later on
+//as now V3 will also pass page parameter in setConfig call
 const isV3Request = (requestOrigin)=>{
-   return (requestOrigin === TRACKING_IDS.SSLV3Guest || requestOrigin === TRACKING_IDS.SSLV3Wallet || requestOrigin === TRACKING_IDS.SSLV3Nitro);
+   return (getConfig().page === 'SSLV3'|| requestOrigin === TRACKING_IDS.SSLV3Guest || requestOrigin === TRACKING_IDS.SSLV3Wallet || requestOrigin === TRACKING_IDS.SSLV3Nitro);
 };
 
 const isPciRequest = ()=>{
