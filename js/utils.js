@@ -35,10 +35,13 @@ const custValidate = function() {
 const enhanceWithValidation = (schema, func) => {
 
     return (confObj) => {
+        if(isExternalJsConsumer())
+        {
         const validationResult = custValidate(confObj, schema);
-        if (validationResult) {
+            if (validationResult) {
             handlersMap['errorHandler'](validationResult);
             throw JSON.stringify(validationResult);
+            }
         }
         return func(confObj); //func returns promise
     };
@@ -64,15 +67,8 @@ const callBackify = (promiseReturningFunc) => {
     }
 };
 
-//const validateAndCallbackify = flow(enhanceWithValidation, callBackify);
+const validateAndCallbackify = flow(enhanceWithValidation, callBackify);
 
-const validateAndCallbackify = (validationSchema,func)=>{
-    const validateAndCallbackifyInternal = flow(enhanceWithValidation,callBackify);
-    if(!isExternalJsConsumer())
-        return validateAndCallbackifyInternal(validationSchema,func);
-    else
-        return callBackify(func);
-}
 
 const getMerchantAccessKey = (optionsObj) => {
     const merchantAccessKey = optionsObj.merchantAccessKey || getConfig().merchantAccessKey;

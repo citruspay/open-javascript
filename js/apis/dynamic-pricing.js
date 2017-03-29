@@ -3,6 +3,7 @@ import {custFetch} from '../interceptor';
 import {getConfig} from '../config';
 import {setAppData,getAppData} from "./../utils";
 import {validateAndCallbackify, schemeFromNumber,trim,convertToFloat} from './../utils';
+import {validateScheme} from '../validation/custom-validations';
 
 
 const MAX_CACHE_LENGTH = 10;
@@ -72,10 +73,10 @@ const applyDynamicPricing = (isWallet, dynamicPricingSchema) => {
   return  validateAndCallbackify(dynamicPricingSchema,(data)=>{
     const reqConf = Object.assign({}, data, {
         originalAmount: {
-            value: convertToFloat(data.originalAmount,DIGITS_AFTER_DECIMAL_FOR_DP_SIGN), currency : data.currency
+            value:data.originalAmount, currency : data.currency
         },
         alteredAmount : {
-            value: convertToFloat(data.alteredAmount,DIGITS_AFTER_DECIMAL_FOR_DP_SIGN), currency : data.currency
+            value: data.alteredAmount, currency : data.currency
         },
         paymentInfo : {
             cardNo : trim(data.cardNo),
@@ -88,7 +89,12 @@ const applyDynamicPricing = (isWallet, dynamicPricingSchema) => {
         }
     });
     if(data.cardNo)
-        reqConf.paymentInfo.cardType = schemeFromNumber(data.cardNo);
+    {
+        var scheme = schemeFromNumber(data.cardNo);
+        if(scheme)
+            scheme = validateScheme(scheme);
+        reqConf.paymentInfo.cardType = scheme;
+    }
     delete reqConf.token;
     delete reqConf.cardNo;
     delete reqConf.currency;
