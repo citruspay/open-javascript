@@ -124,11 +124,12 @@ const motoCardApiFunc = (confObj) => {
     if (isExternalJsConsumer(confObj.requestOrigin)) {
         cardScheme = schemeFromNumber(confObj.paymentDetails.number);
     } else {
+        //in case of V3,ICP they pass scheme, if scheme is passed use it as it is, otherwise deduce it from card number
         cardScheme = (!confObj.paymentDetails.scheme) ? schemeFromNumber(confObj.paymentDetails.number) : confObj.paymentDetails.scheme;
     }
     let paymentDetails;
-    //todo:refactor this if else later
     if (isExternalJsConsumer(confObj.requestOrigin)) {
+         //todo:refactor this if else later
         if (cardScheme === 'maestro' || cardScheme === 'MTRO') {
             paymentDetails = Object.assign({}, confObj.paymentDetails, {
                 type: validateCardType(confObj.paymentDetails.type),
@@ -145,6 +146,7 @@ const motoCardApiFunc = (confObj) => {
             });
         }
     } else {
+        //don't do any validation for ICP,V3 of cardNumber, scheme, expiry, cvv etc.
         paymentDetails = Object.assign({}, confObj.paymentDetails, {
             type: confObj.paymentDetails.type,
             scheme: cardScheme,
@@ -195,7 +197,7 @@ const motoCardApiFunc = (confObj) => {
 
 const makeMotoCardPayment = (paymentData)=> {
     let makeMotoCardPaymentInternal;
-    makeMotoCardPaymentInternal = isExternalJsConsumer(paymentData.requestOrigin) ? validateAndCallbackify(motoCardValidationSchema, motoCardApiFunc) : motoCardApiFunc;
+    makeMotoCardPaymentInternal =  validateAndCallbackify(motoCardValidationSchema, motoCardApiFunc);
     return makeMotoCardPaymentInternal(paymentData);
 };
 

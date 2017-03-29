@@ -147,7 +147,7 @@ const schemeMap = {
 /**
  * validates given card scheme and returns formatted scheme
  * @param  {String} scheme
- * @param {true | falsy} ingnoreServerAlias if true returns key of object, otherwise return serverAlias
+ * @param {true | falsy} ingnoreServerAlias if true, returns key of object, otherwise return serverAlias
  * @returns {false | String} returns either false or casted scheme as string
  */
 const validateScheme = (scheme, ignoreServerAlias) => {
@@ -308,6 +308,8 @@ const custFormat = function(value, options) {
 };
 
 //todo:rename this function later
+//this function checks luhn algorithm for each card
+//if some card does not pass luhn algorithm like union pay it might fail
 const validateCreditCard = (cardNo, scheme) =>{
     if(!validateScheme(scheme,true))
         return false;
