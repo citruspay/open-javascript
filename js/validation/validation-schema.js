@@ -10,7 +10,7 @@ export const baseSchema = {
     'mainObjectCheck':{
         keysCheck: ['merchantTxnId', 'amount', 'currency', 'userDetails', 'returnUrl',
             'notifyUrl', 'requestSignature', 'merchantAccessKey', 'customParameters',
-            'requestOrigin', 'mode', 'offerToken', 'currencyToken', 'targetMcpCurrency', 'dpSignature', 'ctx', 'isLazypayPayment','bankCode']
+            'requestOrigin', 'mode', 'offerToken', 'currencyToken', 'targetMcpCurrency', 'dpSignature', 'ctx', 'isLazypayPayment']
     },
     returnUrl: {
         presence: true,

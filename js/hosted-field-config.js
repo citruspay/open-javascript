@@ -1,7 +1,6 @@
-const HOSTED_FIELD_DOMAIN = "http://localhost";
-const TIME_STAMP = new Date().getTime();
-const CREDIT_CARD_GENERATOR_URL = HOSTED_FIELD_DOMAIN + '/static/cards.html?v=' + TIME_STAMP;
-
+const HOSTED_FIELD_DOMAIN = "https://mocha.citruspay.com";
+const CREDIT_CARD_GENERATOR_URL = HOSTED_FIELD_DOMAIN + '/static/cards.html';
+    
 const getConfigValue = (key) =>{
     "use strict";
     switch(key){

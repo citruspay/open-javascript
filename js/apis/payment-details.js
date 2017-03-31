@@ -1,4 +1,4 @@
-import {validateAndCallbackify, setAppData, getAppData} from "./../utils";
+import {validateAndCallbackify, setAppData} from "./../utils";
 import {getConfig} from "../config";
 import {validateScheme} from "../validation/custom-validations";
 import {custFetch} from "../interceptor";
@@ -33,6 +33,7 @@ const reducer = (arr) =>{
 
 
 const pgSettingsAPIFunc = (config) =>{
+
     return custFetch(`${getConfig().adminUrl}/service/v1/merchant/pgsetting`, {
         method: 'post',
         headers: {
@@ -45,74 +46,48 @@ const pgSettingsAPIFunc = (config) =>{
         pgData.creditCard = reducer(pgData.creditCard);
         pgData.debitCard = reducer(pgData.debitCard);
 
-        setAppData('pgSettingsData', pgData);
-            return resp.data;
-    });
-};
-
-const getMcpDataFunc = (config) => {
-    var pgData = getAppData('pgSettingsData');
-    if (pgData && pgData.mcpEnabled) {
-        return getMcpData(config);
-    }
-    else {
-    return custFetch(`${getConfig().adminUrl}/service/v1/merchant/pgsetting`, {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `vanity=${config.vanityUrl}`
-    }).then(resp => {
-        pgData = resp.data;
-
-        pgData.creditCard = reducer(pgData.creditCard);
-        pgData.debitCard = reducer(pgData.debitCard);
-
         //pgSettingsData = pgData;
         setAppData('pgSettingsData', pgData);
 
-        if (resp.data.mcpEnabled) {
+        if(resp.data.mcpEnabled){
             MCPData.baseCurrency = config.baseAmount.currency;
             delete config.vanityUrl;
-            return getMcpData(config);
-        } else {
+            return custFetch(`${getConfig().MCPAPIUrl}`, {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                mode: 'cors',
+                body: JSON.stringify(config)
+            }).then((mcpResp)=>{
+                MCPData.MCPWrapperAPIData = mcpResp.data;
+                MCPData.MCPWrapperAPIData.supportedCardSchemes.forEach(function(mcpScheme){
+
+                    let aliasedScheme = validateScheme(mcpScheme);
+                    if(!aliasedScheme){
+                        throw 'Scheme mapping not found!';
+                    }
+                    pgData.creditCard.concat(pgData.debitCard).some(function(el){
+                        if(el === aliasedScheme){
+                            MCPData.calculatedMCPSchemes.push(aliasedScheme);
+                            return true;
+                        }
+                    }); //mcpScheme
+                });
+                return  resp.data;
+            });
+
+        }else{
             return resp.data;
         }
-    });
-}
-};
-
-const getMcpData = (config) => {
-    return custFetch(`${getConfig().MCPAPIUrl}`, {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        mode: 'cors',
-        body: JSON.stringify(config)
-    }).then((mcpResp)=>{
-        MCPData.MCPWrapperAPIData = mcpResp.data;
-        MCPData.MCPWrapperAPIData.supportedCardSchemes.forEach(function(mcpScheme){
-
-            let aliasedScheme = validateScheme(mcpScheme);
-            if(!aliasedScheme){
-                throw 'Scheme mapping not found!';
-            }
-            pgData.creditCard.concat(pgData.debitCard).some(function(el){
-                if(el === aliasedScheme){
-                    MCPData.calculatedMCPSchemes.push(aliasedScheme);
-                    return true;
-                }
-            }); //mcpScheme
-        });
-
-        return  pgData;
     });
 };
 
 const getPaymentDetails = validateAndCallbackify(paymentDetailsSchema, pgSettingsAPIFunc);
 
+
 const MCPpaymentDetailsSchema = {
+
     mainObjectCheck: {
         keysCheck: ['merchantAccessKey', 'baseAmount', 'merchantTransactionId', 'signature', 'vanityUrl'],
     },
@@ -127,6 +102,6 @@ const MCPpaymentDetailsSchema = {
     vanityUrl: {presence: true}
 };
 
-const getMcpCurrenciesAndCardSchemes = validateAndCallbackify(MCPpaymentDetailsSchema, getMcpDataFunc);
+const getPaymentDetailsForMCP = validateAndCallbackify(MCPpaymentDetailsSchema, pgSettingsAPIFunc);
 
-export {getPaymentDetails, getMcpCurrenciesAndCardSchemes, MCPData, pgSettingsData};
+export {getPaymentDetails, getPaymentDetailsForMCP, MCPData, pgSettingsData};
