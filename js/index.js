@@ -3,14 +3,13 @@ import "core-js/fn/object/assign";
 import "core-js/fn/promise";
 import "core-js/fn/string/includes";
 import {makeNetBankingPayment, makeSavedNBPayment} from "./apis/net-banking";
-import {getPaymentDetails, getPaymentDetailsForMCP} from "./apis/payment-details";
-import {getmerchantCardSchemes, makeMotoCardPayment, makeSavedCardPayment} from "./apis/cards";
+import {getPaymentDetails, getMcpCurrenciesAndCardSchemes} from "./apis/payment-details";
+import {makeMotoCardPayment, makeSavedCardPayment} from "./apis/cards";
 import {makeExtWalletsPayment} from "./apis/external-wallets";
-import {validateExpiryDate, validateScheme, validateCreditCard} from "./validation/custom-validations";
-import {init, handlersMap, setConfig, getConfig} from "./config";
-import {getCardCurrencyInfo, makeMCPCardPayment} from "./apis/mcp";
-import {schemeFromNumber, isUrl} from "./utils";
-import {applyDynamicPricing, makeDPCardPayment} from "./apis/card-dp";
+import {init, handlersMap, setConfig} from "./config";
+import {getCardCurrencyInfo} from "./apis/mcp";
+import {isUrl} from "./utils";
+import {applyDynamicPricing} from "./apis/card-dp";
 import {applyNbDynamicPricing} from "./apis/net-banking-dp";
 import {makePayment} from "./apis/payment";
 import {listener} from "./apis/hosted-field-payment";
@@ -46,8 +45,7 @@ Object.assign(window.citrus, {
         makeMotoCardPayment,
         makeSavedCardPayment,
         getCardCurrencyInfo,
-        //todo:rename
-        getPaymentDetailsForMCP,
+        getMcpCurrenciesAndCardSchemes,
         //misnomer, function gives payment methods allowed by merchants
         getPaymentDetails,
         applyDynamicPricing

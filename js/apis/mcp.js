@@ -5,16 +5,22 @@ import {motoCardValidationSchema, motoCardApiFunc} from "./cards";
 import {MCPData} from "./payment-details";
 import cloneDeep from "lodash/cloneDeep";
 import {setAppData,getAppData} from "./../utils";
-//import {currencyMap} from "../constants";
+
+const MAX_CACHE_LENGTH = 10;
+//cache timeout in milliseconds 6minutes
+const CACHE_TIMEOUT = 300000;
 
 const MCPCardSchema = cloneDeep(motoCardValidationSchema);
 
-//const countryCurrencyMap = currencyMap;
+let mcpData = cloneDeep(MCPData);
 
-//MCPCardSchema.mainObjectCheck.keysCheck.push('targetMcpCurrency');
+const makeMCPCardPaymentWrapper = (data) => {
+    mcpData = getAppData('mcpData');
+    return makeMCPCardPayment(data);
+};
 
 const makeMCPCardPayment = validateAndCallbackify(MCPCardSchema, (confObj) => {
-    MCPData.MCPWrapperAPIData.mcpConversionBeans.some((el) => {
+    mcpData.MCPWrapperAPIData.mcpConversionBeans.some((el) => {
         if (el.targetCurrency === confObj.targetMcpCurrency) {
             confObj.currencyToken = el.token;
             return true;
@@ -27,28 +33,25 @@ const binServiceSchema = {
     cardNumber: {presence: true}
 };
 
-let mcpData = cloneDeep(MCPData);
-
 const getCardCurrencyWrapper = (data) => {
     console.log(data);
     mcpData = data.MCPData;
-    const logger = getCardCurrencyInfo(data);
-
-    console.log(logger);
-    return logger;
+    setAppData('mcpData',mcpData.mcpWrapperApiData);
+    return getCardCurrencyInfo(data);
 };
 
 const getCardCurrencyInfo = validateAndCallbackify(binServiceSchema, (confObj) => {
     const sixDigitCardNum = '' + confObj.cardNumber.substr(0, 6);
     let aliasedScheme = validateScheme(schemeFromNumber(confObj.cardNumber), false);
-    let binResponse = getBinResponseFromAppData(confObj);
+    let binResponse = getBinResponseFromAppData(confObj.cardNumber);
     if(binResponse)
-        return Promise.resolve(binRepsonse);
+        return Promise.resolve(binResponse.currencyData);
     return custFetch(`https://bin.citruspay.com/binservice/v1/bin/${sixDigitCardNum}`, {
         method: 'get'
     }).then((resp)=> {
         // setBinResponseInAppData(confObj,resp.data);
         const currencyData = processBinData(resp, aliasedScheme);
+        console.log(currencyData);
         setBinResponseInAppData(confObj, resp.data, currencyData);
         return currencyData;
     });
@@ -65,7 +68,7 @@ const processBinData = (resp, aliasedScheme) => {
     }
     let cardCurrency;
     resp.data.currency_code ? cardCurrency = resp.data.currency_code : cardCurrency = "";
-
+    //if (getConfig(''))
     if (mcpData.mcpWrapperApiData.calculatedMCPSchemes.indexOf(aliasedScheme) > -1) {
         //for Indian cards
         if (cardCurrency === mcpData.baseCurrency) {
@@ -74,14 +77,15 @@ const processBinData = (resp, aliasedScheme) => {
             return mcpData.mcpWrapperApiData.MCPWrapperAPIData.mcpConversionBeans.map((el)=> {
                 return {
                     currency: el.targetCurrency,
-                    amount: el.amount
+                    amount: el.amount,
+                    token: el.token
                 }
             });
         }
         let mcpCurrency = [];
         mcpData.mcpWrapperApiData.MCPWrapperAPIData.mcpConversionBeans.some((el)=> {
             if (cardCurrency === el.targetCurrency) {
-                mcpCurrency = [{currency: el.targetCurrency, amount: el.amount}];
+                mcpCurrency = [{currency: el.targetCurrency, amount: el.amount, token: el.token}];
                 return true;
             }
         });
@@ -90,23 +94,39 @@ const processBinData = (resp, aliasedScheme) => {
         return [];
     }
 };
-const setBinResponseInAppData = (cardInfo, binResponse, currency)=>{
+const setBinResponseInAppData = (cardInfo, binResponse, currencyData)=>{
     var binResponseList = getAppData('binResponseList')||[];
     let timeStamp = new Date().getTime();
     let key = cardInfo.cardNumber;
     let paymentMode = cardInfo.cardType;
-    binResponseList.push({key : key,value:binResponse,timeStamp:timeStamp,paymentMode:paymentMode});
+    binResponseList.push({key : key,value:binResponse,timeStamp:timeStamp,paymentMode:paymentMode,currencyData:currencyData});
+    if(binResponseList.length>MAX_CACHE_LENGTH)
+        binResponseList.splice(0);
     setAppData('binResponseList', binResponseList);
 };
-const getBinResponseFromAppData = (cardInfo)=>{
-    let key = cardInfo.cardNumber;
+
+const removeMcpToken=(mcpCachedResponse)=>{
     var binResponseList = getAppData('binResponseList');
+    if(binResponseList && binResponseList.length>0){
+        var mcpTokenIndex = binResponseList.indexOf(mcpCachedResponse);
+        if(mcpTokenIndex!==-1)
+            binResponseList.splice(mcpTokenIndex,1);
+    }
+};
+const getBinResponseFromAppData = (key)=>{
+   // let key = cardInfo.cardNumber;
+    var binResponseList = getAppData('binResponseList');
+    let timeStamp = new Date().getTime();
     if(binResponseList&&binResponseList.length>0){
-        var binResponse = binResponseList.filter((value)=>{return value.key===key;});
+        var binResponse = binResponseList.filter((value)=>{return value.key===key});
         if(binResponse && binResponse.length>0)
         {
-            return binResponse[0].value;
+            if(timeStamp-mcpToken[0].timeStamp<=CACHE_TIMEOUT)
+                return binResponse[0].value;
+            else{
+                removeMcpToken(binResponse[0]);
+            }
         }
     }
 };
-export {makeMCPCardPayment, getCardCurrencyInfo, getCardCurrencyWrapper};
+export {makeMCPCardPayment, getCardCurrencyInfo, getCardCurrencyWrapper, makeMCPCardPaymentWrapper};

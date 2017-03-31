@@ -35,14 +35,14 @@ const custValidate = function() {
 const enhanceWithValidation = (schema, func) => {
 
     return (confObj) => {
-        if(isExternalJsConsumer())
-        {
-        const validationResult = custValidate(confObj, schema);
-            if (validationResult) {
-            handlersMap['errorHandler'](validationResult);
-            throw JSON.stringify(validationResult);
-            }
-        }
+        // if(isExternalJsConsumer())
+        // {
+        // const validationResult = custValidate(confObj, schema);
+        //     if (validationResult) {
+        //     handlersMap['errorHandler'](validationResult);
+        //     throw JSON.stringify(validationResult);
+        //     }
+        // }
         return func(confObj); //func returns promise
     };
 };

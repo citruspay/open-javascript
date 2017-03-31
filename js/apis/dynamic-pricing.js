@@ -174,4 +174,4 @@ const setDpResponseInAppData=(paymentInfo,dpAction,dpResponse)=>{
     setAppData('dpRepsonseList',dpRepsonseList);
 };
 
-export {dynamicPricingFunction,applyDynamicPricing,baseDynamicPricingSchema,addDpTokenFromCacheIfNotPresent};
+export {dynamicPricingFunction,applyDynamicPricing,baseDynamicPricingSchema,addDpTokenFromCacheIfNotPresent,MAX_CACHE_LENGTH,CACHE_TIMEOUT};
