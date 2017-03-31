@@ -285,8 +285,8 @@ const isPciRequest = ()=>{
 };
 
 const isExternalJsConsumer = (requestOrigin)=> {
-		return false;
-//    return !isIcpRequest() && !isV3Request(requestOrigin);
+//		return false;
+   return !isIcpRequest() && !isV3Request(requestOrigin);
 };
 
 const isIOS = ()=>{

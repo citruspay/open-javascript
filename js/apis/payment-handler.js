@@ -69,13 +69,22 @@ const getBaseUrlForPayment = (reqConf)=>{
     let savedNb = !!reqConf.bankCode;
     //change for hdfc netbanking and kotak mahindra netbanking, issuer code = CID010 makes the ol flag false.
     let isOl = ((getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled===true));
-    let isNonOlBanks = (nb && (reqConf.paymentToken.paymentMode.code === 'CID010' || reqConf.paymentToken.paymentMode.code === 'CID033'));
-    let isNonOlSavedBanks = (savedNb && (reqConf.bankCode === 'CID010' || reqConf.bankCode === 'CID033'));
+    let isNonOlBanks = (nb && isMotoBank(reqConf.paymentToken.paymentMode.code));
+    let isNonOlSavedBanks = (savedNb && isMotoBank(reqConf.bankCode));
     if(isNonOlBanks||isNonOlSavedBanks)
         isOl = false;
     let url;
     isOl ? url = `${getConfig().olUrl}/${getConfig().vanityUrl}` : url = `${getConfig().motoApiUrl}/${getConfig().vanityUrl}`;
     return url;
 };
+
+const isMotoBank = (bankCode) => {
+
+    var motoBanks = getConfig().motoBanks || ['CID010','CID033'];
+
+    return motoBanks.indexOf(bankCode) !== -1;
+
+};
+
 
 export {handlePayment}
