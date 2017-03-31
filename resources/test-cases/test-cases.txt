@@ -1,0 +1,11 @@
+1.Keep all field blank, click payment button. Card field should become invalid. (as cvv,expiry might be non mandatory field
+in case of Maestro card they will not be validated at this stage). Message should be 'Card number can not be blank'.
+2.Type partial details/invalid card  number in card field, click payment button.Card field should become invalid . Message should be 'Invalid card number'.
+3.Type valid Maestro card in card field without cvv and expiry, click payment details. Payment should be processed.
+3.Type valid Maestro card in card field with 3 digit cvv and valid expiry, click payment details. Payment should be processed.
+5. In Netbanking check for blaze net banks payment.
+6. In Netbanking check for non blaze net banks payment.
+7. Have a page in Iframe and try redirect, the top window should redirect instead of the frame.
+8. Test with OL Enabled true/false.
+9. With OL Enabled HDFC Bank should be forwarded to Moto.
+
