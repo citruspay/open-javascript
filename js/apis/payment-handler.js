@@ -1,8 +1,8 @@
-import {isV3Request, isUrl} from "./../utils";
+import {isUrl, isV3Request} from "./../utils";
 import {PAGE_TYPES} from "../constants";
 import {singleHopDropOutFunction} from "./singleHop";
-import {handleDropIn, openPopupWindowForDropIn, handleOlResponse} from "./drop-in";
-import {handlersMap, getConfig} from "../config";
+import {handleDropIn, handleOlResponse, openPopupWindowForDropIn} from "./drop-in";
+import {getConfig, handlersMap} from "../config";
 import {custFetch} from "../interceptor";
 import {refineMotoResponse} from "./response";
 
@@ -79,11 +79,8 @@ const getBaseUrlForPayment = (reqConf)=>{
 };
 
 const isMotoBank = (bankCode) => {
-
-    var motoBanks = getConfig().motoBanks || ['CID010','CID033'];
-
+    var motoBanks = getConfig().motoBanks;
     return motoBanks.indexOf(bankCode) !== -1;
-
 };
 
 
