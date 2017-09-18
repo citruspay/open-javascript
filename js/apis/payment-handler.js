@@ -56,10 +56,7 @@ const handlePayment = (reqConf,mode,url) => {
                             isUrl(htmlStr) ? singleHopDropOutFunction(htmlStr) : handleOlResponse(htmlStr);
                         } else {
                             //double hop for rupay cards
-                            if (reqConf.paymentToken.paymentMode.scheme === 'RPAY') {
-                                doubleHopDropOutFunction(resp.data.redirectUrl);
-                            }
-                            singleHopDropOutFunction(resp.data.redirectUrl);
+                            reqConf.paymentToken.paymentMode.scheme === 'RPAY' ? doubleHopDropOutFunction(resp.data.redirectUrl) : singleHopDropOutFunction(resp.data.redirectUrl);
                         }
                     } else {
                         //double hop for rupay cards
