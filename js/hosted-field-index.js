@@ -5,17 +5,17 @@
 import "core-js/fn/object/assign";
 import "core-js/fn/promise";
 import "core-js/fn/string/includes";
-import {setAppData, getAppData, postMessageWrapper, schemeFromNumber} from "./utils";
-import {validateExpiryDate, validateScheme, validateCreditCard} from "./validation/custom-validations";
+import {getAppData, postMessageWrapper, schemeFromNumber, setAppData} from "./utils";
+import {validateCreditCard, validateExpiryDate, validateScheme} from "./validation/custom-validations";
 import {makeMotoCardPayment, makeSavedCardPayment} from "./apis/cards";
-import {makeMCPCardPayment, makeMCPCardPaymentWrapper, getCardCurrencyWrapper} from "./apis/mcp";
-import {init, setConfig, handlersMap} from "./config";
+import {getCardCurrencyWrapper, makeMCPCardPayment, makeMCPCardPaymentWrapper} from "./apis/mcp";
+import {handlersMap, init, setConfig} from "./config";
 import {
+    addEventListenersForHostedFields,
     addField,
-    validateCvv,
-    validateExpiry,
     validateCard,
-    addEventListenersForHostedFields
+    validateCvv,
+    validateExpiry
 } from "./hosted-field-main";
 import {getConfigValue, specialStyleKeys, supportedStyleKeys} from "./hosted-field-config";
 import cloneDeep from "lodash/cloneDeep";
@@ -115,6 +115,7 @@ function listener(event) {
             });
         else
         citrus.cards.makeMotoCardPayment(paymentData).then(function (response) {
+            response.data.doubleHop = (response.doubleHop) ? response.doubleHop : false;
             response.responseType = "serverResponse";
             delete response.isValidRequest;
             response.data.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');

@@ -1,14 +1,15 @@
 import {baseSchema} from "./../validation/validation-schema";
 import cloneDeep from "lodash/cloneDeep";
 import {urlReEx} from "../constants";
-import {handlersMap, getConfig} from "../config";
-import {getAppData, setAppData, getElement, postMessageWrapper, doValidation} from "./../utils";
+import {getConfig, handlersMap} from "../config";
+import {doValidation, getAppData, getElement, postMessageWrapper, setAppData} from "./../utils";
 import {singleHopDropOutFunction} from "./singleHop";
+import {doubleHopDropOutFunction} from "./doubleHop";
 import {refineMotoResponse} from "./response";
-import {validPaymentTypes, getConfigValue, validHostedFieldTypes} from "../hosted-field-config";
+import {getConfigValue, validHostedFieldTypes, validPaymentTypes} from "../hosted-field-config";
 import {handleDropIn, openPopupWindowForDropIn} from "./drop-in";
 import {MCPData} from "./payment-details";
-import {addDpTokenFromCacheIfNotPresent} from './dynamic-pricing';
+import {addDpTokenFromCacheIfNotPresent} from "./dynamic-pricing";
 
 let winRef = null;
 let _dpCallback, _mcpCallback;
@@ -172,7 +173,8 @@ const listener = (event) => {
         const paymentObj = getAppData('paymentObj');
         if (motoResponse && motoResponse.redirectUrl) { //url check has to configured, currently its hardcoded
             if (paymentObj.mode.toLowerCase() === "dropout") {
-                singleHopDropOutFunction(motoResponse.redirectUrl);
+                //double hop for rupay cards
+                motoResponse.doubleHop ? doubleHopDropOutFunction(motoResponse.redirectUrl) : singleHopDropOutFunction(motoResponse.redirectUrl);
             } else {
                 /* OL integration logic to be uncommented later*/
                 // let htmlStr = motoResponse.redirectUrl.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"');
@@ -192,7 +194,6 @@ const listener = (event) => {
             //after modifying it, what particular case it handles need to be understood.
             const response = refineMotoResponse(motoResponse);
             handlersMap['serverErrorHandler'](response);
-
         }
 
     } catch (e) {

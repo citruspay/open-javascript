@@ -1,6 +1,7 @@
 import {isUrl, isV3Request} from "./../utils";
 import {PAGE_TYPES} from "../constants";
 import {singleHopDropOutFunction} from "./singleHop";
+import {doubleHopDropOutFunction} from "./doubleHop";
 import {handleDropIn, handleOlResponse, openPopupWindowForDropIn} from "./drop-in";
 import {getConfig, handlersMap} from "../config";
 import {custFetch} from "../interceptor";
@@ -34,7 +35,14 @@ const handlePayment = (reqConf,mode,url) => {
             mode: 'cors',
             body: JSON.stringify(reqConf)
         }).then(function(resp) {
-            if (getConfig().page === PAGE_TYPES.HOSTED_FIELD) return resp;
+            //double hop for rupay cards
+            if (getConfig().page === PAGE_TYPES.HOSTED_FIELD) {
+                resp.doubleHop = false;
+                if (reqConf.paymentToken.paymentMode.scheme === 'RPAY') {
+                    resp.doubleHop = true;
+                }
+                return resp;
+            }
             if (getConfig().page !== PAGE_TYPES.ICP) {
                 if (resp.data.redirectUrl) {
                     if (mode === "dropout") {
@@ -47,9 +55,17 @@ const handlePayment = (reqConf,mode,url) => {
                             }
                             isUrl(htmlStr) ? singleHopDropOutFunction(htmlStr) : handleOlResponse(htmlStr);
                         } else {
+                            //double hop for rupay cards
+                            if (reqConf.paymentToken.paymentMode.scheme === 'RPAY') {
+                                doubleHopDropOutFunction(resp.data.redirectUrl);
+                            }
                             singleHopDropOutFunction(resp.data.redirectUrl);
                         }
-                    } else { //the code will never reach this point for the time being (or at least should not reach)
+                    } else {
+                        //double hop for rupay cards
+                        if (reqConf.paymentToken.paymentMode.scheme === 'RPAY') {
+                            resp.data.doubleHop = true;
+                        }
                         handleDropIn(resp.data, winRef, reqConf);
                     }
                 } else {
@@ -80,7 +96,7 @@ const getBaseUrlForPayment = (reqConf)=>{
 
 const isMotoBank = (bankCode) => {
     var motoBanks = getConfig().motoBanks;
-    return motoBanks.indexOf(bankCode) !== -1;
+    return (motoBanks) ? motoBanks.indexOf(bankCode) !== -1 : true;
 };
 
 

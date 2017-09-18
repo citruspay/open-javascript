@@ -1,5 +1,5 @@
 import {singleHopDropInFunction} from "./singleHop";
-import {handlersMap, getConfig} from "../config";
+import {getConfig, handlersMap} from "../config";
 import {getAppData} from "../utils";
 import {custFetch} from "../interceptor";
 
@@ -65,33 +65,40 @@ const getTransactionResponse = (paymentData) => {
     });
 };
 
-
 const handleDropIn = (motoResponse, winRef,paymentData) => {
     if (winRef && winRef.closed) {
         getTransactionResponse(paymentData);
         return;
     }
-    singleHopDropInFunction(motoResponse.redirectUrl).then(function(response) {
-        if (winRef && winRef.closed !== true) {
-            response = response.replace('<img alt="Citrus" height="32" width="81" src="/resources/pg/images/logo_citrus-med.png"/>', '');
-            let el = document.createElement('body');
-            el.innerHTML = response;
-            let form = el.getElementsByTagName('form');
-            try {
-                let paymentForm = document.createElement('form');
-                paymentForm.setAttribute("action", form[0].action);
-                paymentForm.setAttribute("method", form[0].method);
-                paymentForm.setAttribute("target", winRef.name);
-                paymentForm.innerHTML = form[0].innerHTML;
-                document.documentElement.appendChild(paymentForm);
-                paymentForm.submit();
-                document.documentElement.removeChild(paymentForm);
-            } catch (e) {
-                console.log(e);
+    //double hop for rupay cards
+    if (motoResponse.doubleHop) {
+        winRef.location.href = motoResponse.redirectUrl;
+        workFlowForModernBrowsers(winRef, paymentData);
+
+    }
+    else {
+        singleHopDropInFunction(motoResponse.redirectUrl).then(function (response) {
+            if (winRef && winRef.closed !== true) {
+                response = response.replace('<img alt="Citrus" height="32" width="81" src="/resources/pg/images/logo_citrus-med.png"/>', '');
+                let el = document.createElement('body');
+                el.innerHTML = response;
+                let form = el.getElementsByTagName('form');
+                try {
+                    let paymentForm = document.createElement('form');
+                    paymentForm.setAttribute("action", form[0].action);
+                    paymentForm.setAttribute("method", form[0].method);
+                    paymentForm.setAttribute("target", winRef.name);
+                    paymentForm.innerHTML = form[0].innerHTML;
+                    document.documentElement.appendChild(paymentForm);
+                    paymentForm.submit();
+                    document.documentElement.removeChild(paymentForm);
+                } catch (e) {
+                    console.log(e);
+                }
             }
-        }
-        workFlowForModernBrowsers(winRef,paymentData);
-    });
+            workFlowForModernBrowsers(winRef, paymentData);
+        });
+    }
 };
 
 const handleOlResponse = (htmlStr) => {
