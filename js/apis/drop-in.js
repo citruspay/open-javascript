@@ -25,7 +25,10 @@ const openPopupWindow = (url, winRef) => {
 //else
 const openPopupWindowForDropIn = (winRef) => {
     winRef = openPopupWindow("", winRef);
+    alert("opened blank popup window");
+
     winRef.document.write(dropInHtml);
+    alert("written dropin html");
     return winRef;
 };
 
