@@ -1,5 +1,5 @@
 /**
- * Created by nagamai on 30/10/2017
+ * Created by nagamai on 30/10/2017.
  */
 import {getMerchantAccessKey, validateAndCallbackify} from "./../utils";
 import {getConfig} from "../config";
