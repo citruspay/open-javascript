@@ -28,12 +28,12 @@ const apiConfMap = {
     stagingConf: {
         blazeCardApiUrl: 'https://blazecardsbox.citruspay.com',
         blazeNetApiUrl: 'https://sboxblazenet.citruspay.com',
-        motoApiUrl: 'https://sandboxadmin.citruspay.com/service/moto/authorize/struct',
+        motoApiUrl: 'https://stgadmin5.citruspay.com/service/moto/authorize/struct',
         olUrl: 'https://stgpay.blazepay.in/service/moto/authorize/struct',
-        adminUrl: 'https://sandboxadmin.citruspay.com',
+        adminUrl: 'https://stgadmin5.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing',
-        pgUrl: 'https://sandbox.citruspay.com',
+        pgUrl: 'https://stgpg5.citruspay.com',
         hostedFieldDomain: 'https://icp.citruspay.com'
     },
     olstagingConf: {
