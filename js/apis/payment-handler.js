@@ -1,8 +1,8 @@
-import {isUrl, isV3Request} from "./../utils";
+import {getAppData, isUrl, isV3Request} from "./../utils";
 import {PAGE_TYPES} from "../constants";
 import {singleHopDropOutFunction} from "./singleHop";
 import {doubleHopDropOutFunction} from "./doubleHop";
-import {handleDropIn, handleOlResponse, openPopupWindowForDropIn} from "./drop-in";
+import {handleDropIn, handleOlDropIn, handleOlResponse, openPopupWindowForDropIn} from "./drop-in";
 import {getConfig, handlersMap} from "../config";
 import {custFetch} from "../interceptor";
 import {refineMotoResponse} from "./response";
@@ -45,20 +45,27 @@ const handlePayment = (reqConf,mode,url) => {
             }
             if (getConfig().page !== PAGE_TYPES.ICP) {
                 if (resp.data.redirectUrl) {
+                    let htmlStr = resp.data.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"');
+                    //let isUrl = isUrl(htmlStr);
                     if (mode === "dropout") {
                         //logic for OL
                         if (isV3Request(reqConf.requestOrigin)) {
-                            let htmlStr = resp.data.redirectUrl.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"');
                             if (isUrl(htmlStr) && !(getConfig().isSingleHop)) {
                                 window.top.location = resp.data.redirectUrl;
                                 return;
                             }
                             isUrl(htmlStr) ? singleHopDropOutFunction(htmlStr) : handleOlResponse(htmlStr);
                         } else {
+                            if (!isUrl(htmlStr)) {
+                                handleOlResponse(htmlStr);
+                            }
                             //double hop for rupay cards
                             reqConf.paymentToken.paymentMode.scheme === 'RPAY' ? doubleHopDropOutFunction(resp.data.redirectUrl) : singleHopDropOutFunction(resp.data.redirectUrl);
                         }
                     } else {
+                        if (!isUrl(htmlStr)) {
+                            handleOlDropIn(htmlStr, winRef, reqConf);
+                        }
                         //double hop for rupay cards
                         if (reqConf.paymentToken.paymentMode.scheme === 'RPAY') {
                             resp.data.doubleHop = true;
@@ -78,10 +85,13 @@ const handlePayment = (reqConf,mode,url) => {
 };
 
 const getBaseUrlForPayment = (reqConf)=>{
+    let pgSettingsData = getAppData('pgSettingsData');
+    //todo: Needs to be removed after backend changes
+    pgSettingsData.isOlEnabled = false;
     let nb = (reqConf.paymentToken.paymentMode && reqConf.paymentToken.paymentMode.type==="netbanking");
     let savedNb = !!reqConf.bankCode;
     //change for hdfc netbanking and kotak mahindra netbanking, issuer code = CID010 makes the ol flag false.
-    let isOl = ((getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled===true));
+    let isOl = ((getConfig().isOlEnabled === 'true') || (getConfig().isOlEnabled === true)) || pgSettingsData.isOlEnabled;
     let isNonOlBanks = (nb && isMotoBank(reqConf.paymentToken.paymentMode.code));
     let isNonOlSavedBanks = (savedNb && isMotoBank(reqConf.bankCode));
     if(isNonOlBanks||isNonOlSavedBanks)
@@ -93,7 +103,8 @@ const getBaseUrlForPayment = (reqConf)=>{
 
 const isMotoBank = (bankCode) => {
     var motoBanks = getConfig().motoBanks;
-    return (motoBanks) ? motoBanks.indexOf(bankCode) !== -1 : true;
+    if (!motoBanks) return false;
+    return (motoBanks.indexOf(bankCode) !== -1);
 };
 
 

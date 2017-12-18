@@ -122,8 +122,35 @@ const handleOlResponse = (htmlStr) => {
     }
 };
 
+const handleOlDropIn = (response, winRef, paymentData) => {
+    if (winRef && winRef.closed) {
+        getTransactionResponse(paymentData);
+        return;
+    }
+    if (winRef && winRef.closed !== true) {
+        response = response.replace('<img alt="Citrus" height="32" width="81" src="/resources/pg/images/logo_citrus-med.png"/>', '');
+        let el = document.createElement('body');
+        el.innerHTML = response;
+        let form = el.getElementsByTagName('form');
+        try {
+            let paymentForm = document.createElement('form');
+            paymentForm.setAttribute("action", form[0].action);
+            paymentForm.setAttribute("method", form[0].method);
+            paymentForm.setAttribute("target", winRef.name);
+            paymentForm.innerHTML = form[0].innerHTML;
+            document.documentElement.appendChild(paymentForm);
+            paymentForm.submit();
+            document.documentElement.removeChild(paymentForm);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    workFlowForModernBrowsers(winRef, paymentData);
+};
+
 export {
     handleDropIn,
+    handleOlDropIn,
     openPopupWindowForDropIn,
     handleOlResponse
 }
