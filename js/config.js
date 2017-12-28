@@ -30,10 +30,10 @@ const apiConfMap = {
         blazeNetApiUrl: 'https://sboxblazenet.citruspay.com',
         motoApiUrl: 'https://stgadmin5.citruspay.com/service/moto/authorize/struct',
         olUrl: 'https://stgpay.blazepay.in/service/moto/authorize/struct',
-        adminUrl: 'https://stgadmin5.citruspay.com',
+        adminUrl: 'https://stgadmin12.citruspay.com',
         MCPAPIUrl: 'https://sboxmercury.citruspay.com/multi-currency-pricing/mcp/mcpForCurrencies',
         dpApiUrl: 'https://sandboxmars.citruspay.com/dynamic-pricing/dynamicpricing',
-        pgUrl: 'https://stgpg5.citruspay.com',
+        pgUrl: 'https://stgpg12.citruspay.com',
         hostedFieldDomain: 'https://icp.citruspay.com'
     },
     olstagingConf: {

@@ -87,7 +87,7 @@ const handlePayment = (reqConf,mode,url) => {
 const getBaseUrlForPayment = (reqConf)=>{
     let pgSettingsData = getAppData('pgSettingsData');
     //todo: Needs to be removed after backend changes
-    pgSettingsData.isOlEnabled = false;
+    //pgSettingsData.isOlEnabled = false;
     let nb = (reqConf.paymentToken.paymentMode && reqConf.paymentToken.paymentMode.type==="netbanking");
     let savedNb = !!reqConf.bankCode;
     //change for hdfc netbanking and kotak mahindra netbanking, issuer code = CID010 makes the ol flag false.

@@ -342,7 +342,7 @@ CitrusPay.Rest.Merchant.Service = ( function () {
                     response = JSON.parse(response);
                 }
                 CitrusPay.Rest.Merchant.PaymentOption = response;
-                CitrusPay.Rest.Merchant.PaymentOption.isOlEnabled = true;
+                //CitrusPay.Rest.Merchant.PaymentOption.isOlEnabled = true;
                 cb ? cb(response) : '';
             },
             error: function (error) {
